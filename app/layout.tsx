@@ -3,8 +3,9 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { shadcn } from "@clerk/ui/themes";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Graphly",
@@ -20,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body>
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider appearance={{ theme: shadcn }}>{children}</ClerkProvider>
       </body>
     </html>
   );
