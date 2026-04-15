@@ -1,8 +1,14 @@
-import { desc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { metrics, units } from "@/lib/db/schema";
-import { type UserMetric } from "@/lib/db/types";
+import { type Metric, type Unit, type UserMetric } from "@/lib/db/types";
+
+type CreateMetricInput = {
+  name: string;
+  description: string | null;
+  unitId: string;
+};
 
 export async function getMetricsByUserId(
   userId: string,
@@ -24,4 +30,25 @@ export async function getMetricsByUserId(
     .innerJoin(units, eq(metrics.unitId, units.id))
     .where(eq(metrics.userId, userId))
     .orderBy(desc(metrics.createdAt));
+}
+
+export async function getUnits(): Promise<Unit[]> {
+  return db.select().from(units).orderBy(asc(units.name));
+}
+
+export async function createMetricByUserId(
+  userId: string,
+  input: CreateMetricInput,
+): Promise<Metric> {
+  const [metric] = await db
+    .insert(metrics)
+    .values({
+      userId,
+      name: input.name,
+      description: input.description,
+      unitId: input.unitId,
+    })
+    .returning();
+
+  return metric;
 }
