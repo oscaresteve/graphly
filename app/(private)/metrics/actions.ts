@@ -7,7 +7,10 @@ import { redirect } from "next/navigation";
 import { createMetricByUserId, getMetricsByUserId } from "@/lib/db/queries";
 import { type UserMetricResponse } from "@/lib/db/types";
 
-import { parseCreateUserMetricFormData } from "./validation";
+import {
+  type CreateUserMetricActionState,
+  validateCreateUserMetricFormData,
+} from "./validation";
 
 export async function getUserMetrics(): Promise<UserMetricResponse[]> {
   const { userId } = await auth.protect();
@@ -19,11 +22,22 @@ export async function getUserMetrics(): Promise<UserMetricResponse[]> {
   }));
 }
 
-export async function createUserMetric(formData: FormData): Promise<void> {
+export async function createUserMetric(
+  _previousState: CreateUserMetricActionState,
+  formData: FormData,
+): Promise<CreateUserMetricActionState> {
   const { userId } = await auth.protect();
-  const metricInput = parseCreateUserMetricFormData(formData);
+  const validation = validateCreateUserMetricFormData(formData);
 
-  await createMetricByUserId(userId, metricInput);
+  if (!validation.success) {
+    return {
+      success: false,
+      fieldErrors: validation.fieldErrors,
+      formError: null,
+    };
+  }
+
+  await createMetricByUserId(userId, validation.data);
 
   revalidatePath("/metrics");
   redirect("/metrics");

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const createUserMetricSchema = z.object({
+export const createUserMetricSchema = z.object({
   name: z
     .string()
     .trim()
@@ -21,19 +21,50 @@ const createUserMetricSchema = z.object({
 });
 
 export type CreateUserMetricInput = z.infer<typeof createUserMetricSchema>;
+export type CreateUserMetricFieldErrors = Partial<
+  Record<keyof CreateUserMetricInput, string[]>
+>;
 
-export function parseCreateUserMetricFormData(
+export type CreateUserMetricActionState = {
+  success: boolean;
+  fieldErrors: CreateUserMetricFieldErrors;
+  formError: string | null;
+};
+
+export const initialCreateUserMetricActionState: CreateUserMetricActionState = {
+  success: false,
+  fieldErrors: {},
+  formError: null,
+};
+
+type CreateUserMetricValidationResult =
+  | {
+      success: true;
+      data: CreateUserMetricInput;
+    }
+  | {
+      success: false;
+      fieldErrors: CreateUserMetricFieldErrors;
+    };
+
+export function validateCreateUserMetricFormData(
   formData: FormData,
-): CreateUserMetricInput {
-  const result = createUserMetricSchema.safeParse({
+): CreateUserMetricValidationResult {
+  const parsed = createUserMetricSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
     unitId: formData.get("unitId"),
   });
 
-  if (!result.success) {
-    throw new Error(result.error.issues[0]?.message ?? "Invalid metric data");
+  if (!parsed.success) {
+    return {
+      success: false,
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
   }
 
-  return result.data;
+  return {
+    success: true,
+    data: parsed.data,
+  };
 }
