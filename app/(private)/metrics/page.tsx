@@ -9,21 +9,38 @@ import {
 } from "@/components/ui/empty";
 import { LineChart } from "lucide-react";
 
-export default function MetricsPage() {
+import { getUserMetrics } from "./actions";
+
+export default async function MetricsPage() {
+  const metrics = await getUserMetrics();
+
+  if (metrics.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <LineChart />
+          </EmptyMedia>
+          <EmptyTitle>You dont have any metrics yet</EmptyTitle>
+          <EmptyDescription>
+            Create your first metric to start tracking daily data.
+          </EmptyDescription>
+          <EmptyContent>
+            <Button variant="outline">New Metric</Button>
+          </EmptyContent>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
   return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <LineChart />
-        </EmptyMedia>
-        <EmptyTitle>You dont have any metrics yet</EmptyTitle>
-        <EmptyDescription>
-          Create your first metric to start tracking daily data.
-        </EmptyDescription>
-        <EmptyContent>
-          <Button variant="outline">New Metric</Button>
-        </EmptyContent>
-      </EmptyHeader>
-    </Empty>
+    <>
+      {metrics.map((metric) => (
+        <div key={metric.id}>
+          <h2>{metric.name}</h2>
+          <p>{metric.description}</p>
+        </div>
+      ))}
+    </>
   );
 }
