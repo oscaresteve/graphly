@@ -12,7 +12,7 @@ export default function AppLayout({
       <AppSidebar />
       <SidebarInset>
         <AppHeader />
-        <main className="mx-auto w-full max-w-6xl px-4 py-4">{children}</main>
+        <main className="w-full px-4 py-4">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

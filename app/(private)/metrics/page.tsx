@@ -29,7 +29,7 @@ export default async function MetricsPage() {
           <EmptyContent>
             <Button asChild variant="outline">
               <Link href="/metrics/new">
-                <Plus />
+                <Plus data-icon="inline-start" />
                 New Metric
               </Link>
             </Button>
