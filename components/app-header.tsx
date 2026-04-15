@@ -20,7 +20,7 @@ export function AppHeader({ actions }: AppHeaderProps) {
   const headerActions = actions ?? getHeaderActions(pathname, activeItem);
 
   return (
-    <header className="flex items-center gap-2 border-b p-2">
+    <header className="flex h-12 items-center gap-2 border-b p-2">
       <SidebarTrigger />
       <Separator orientation="vertical" className="my-auto h-4" />
 
