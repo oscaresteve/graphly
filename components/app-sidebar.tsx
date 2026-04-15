@@ -12,28 +12,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import {
+  appNavigation,
+  getActiveNavigationItem,
+} from "@/config/app-navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { LayoutDashboard, LineChart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
-const nav = [
-  {
-    title: "Dashboard",
-    href: "/",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Metrics",
-    href: "/metrics",
-    icon: LineChart,
-  },
-];
-
 export function AppSidebar() {
   const pathname = usePathname();
+  const activeItem = getActiveNavigationItem(pathname);
   const { user } = useUser();
   const { openUserProfile } = useClerk();
 
@@ -56,14 +47,14 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navegacion</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {nav.map((item) => {
+              {appNavigation.map((item) => {
                 const Icon = item.icon;
 
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.href}
+                      isActive={activeItem?.href === item.href}
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
