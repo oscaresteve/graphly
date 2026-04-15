@@ -1,10 +1,17 @@
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, LineChart } from "lucide-react";
+import { LayoutDashboard, LineChart, Plus } from "lucide-react";
+
+export type AppHeaderAction = {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+};
 
 export type AppNavigationItem = {
   title: string;
   href: string;
   icon: LucideIcon;
+  headerAction?: AppHeaderAction;
 };
 
 export const appNavigation: AppNavigationItem[] = [
@@ -17,6 +24,11 @@ export const appNavigation: AppNavigationItem[] = [
     title: "Metrics",
     href: "/metrics",
     icon: LineChart,
+    headerAction: {
+      title: "New Metric",
+      href: "/metrics/new",
+      icon: Plus,
+    },
   },
 ];
 
