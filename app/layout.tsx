@@ -5,6 +5,10 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { shadcn } from "@clerk/ui/themes";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppHeader } from "@/components/app-header";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -33,7 +37,15 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ClerkProvider appearance={{ theme: shadcn }}>
-            {children}
+            <TooltipProvider>
+              <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                  <AppHeader />
+                  {children}
+                </SidebarInset>
+              </SidebarProvider>
+            </TooltipProvider>
           </ClerkProvider>
         </ThemeProvider>
       </body>
