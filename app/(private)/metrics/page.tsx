@@ -1,10 +1,29 @@
+import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { LineChart } from "lucide-react";
+
 export default function MetricsPage() {
   return (
-    <>
-      <h2 className="text-2xl font-semibold tracking-tight">Metricas</h2>
-      <p className="max-w-2xl text-sm text-muted-foreground">
-        Gestiona tus graficos y las metricas que quieres seguir.
-      </p>
-    </>
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <LineChart />
+        </EmptyMedia>
+        <EmptyTitle>You dont have any metrics yet</EmptyTitle>
+        <EmptyDescription>
+          Create your first metric to start tracking daily data.
+        </EmptyDescription>
+        <EmptyContent>
+          <Button variant="outline">New Metric</Button>
+        </EmptyContent>
+      </EmptyHeader>
+    </Empty>
   );
 }

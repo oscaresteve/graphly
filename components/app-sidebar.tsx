@@ -107,12 +107,9 @@ export function AppSidebar() {
               type="button"
               variant="ghost"
               size="icon-sm"
-              title="Cerrar sesion"
-              aria-label="Cerrar sesion"
               onClick={() => void signOut({ redirectUrl: "/auth/sign-in" })}
-              className="group-data-[collapsible=icon]:hidden"
             >
-              <LogOut data-icon="inline-start" />
+              <LogOut />
             </Button>
           </SidebarMenuItem>
         </SidebarMenu>
