@@ -7,9 +7,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { LineChart } from "lucide-react";
+import { LineChart, Plus } from "lucide-react";
 
 import { getUserMetrics } from "./actions";
+import Link from "next/link";
 
 export default async function MetricsPage() {
   const metrics = await getUserMetrics();
@@ -26,7 +27,12 @@ export default async function MetricsPage() {
             Create your first metric to start tracking daily data.
           </EmptyDescription>
           <EmptyContent>
-            <Button variant="outline">New Metric</Button>
+            <Button asChild variant="outline">
+              <Link href="/metrics/new">
+                <Plus />
+                New Metric
+              </Link>
+            </Button>
           </EmptyContent>
         </EmptyHeader>
       </Empty>
