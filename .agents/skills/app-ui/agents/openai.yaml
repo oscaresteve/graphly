@@ -1,0 +1,4 @@
+interface:
+  display_name: "App UI"
+  short_description: "Create focused shadcn app interfaces"
+  default_prompt: "Use $app-ui to create or refine a clean TSX interface for this app."
