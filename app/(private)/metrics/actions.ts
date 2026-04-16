@@ -4,11 +4,15 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createMetricForUser } from "@/lib/db/metrics.queries";
+import {
+  createMetricForUser,
+  deleteMetricForUser,
+} from "@/lib/db/metrics.queries";
 
 import {
   type CreateMetricActionState,
   validateCreateMetricFormData,
+  validateDeleteMetricFormData,
 } from "./validation";
 
 export async function createMetricAction(
@@ -30,4 +34,17 @@ export async function createMetricAction(
 
   revalidatePath("/metrics");
   redirect("/metrics");
+}
+
+export async function deleteMetricAction(formData: FormData) {
+  const { userId } = await auth.protect();
+  const validation = validateDeleteMetricFormData(formData);
+
+  if (!validation.success) {
+    return;
+  }
+
+  await deleteMetricForUser(validation.data.metricId, userId);
+
+  revalidatePath("/metrics");
 }

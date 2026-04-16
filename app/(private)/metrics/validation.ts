@@ -69,3 +69,35 @@ export function validateCreateMetricFormData(
     data: parsed.data,
   };
 }
+
+export const deleteMetricSchema = z.object({
+  metricId: z.uuid("Metric is invalid"),
+});
+
+type DeleteMetricValidationResult =
+  | {
+      success: true;
+      data: z.infer<typeof deleteMetricSchema>;
+    }
+  | {
+      success: false;
+    };
+
+export function validateDeleteMetricFormData(
+  formData: FormData,
+): DeleteMetricValidationResult {
+  const parsed = deleteMetricSchema.safeParse({
+    metricId: formData.get("metricId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+    };
+  }
+
+  return {
+    success: true,
+    data: parsed.data,
+  };
+}

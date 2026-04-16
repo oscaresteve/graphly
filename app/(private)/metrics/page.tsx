@@ -59,6 +59,7 @@ export default async function MetricsPage() {
         {metrics.map((metric) => (
           <MetricCard
             entries={metric.entries}
+            id={metric.id}
             key={metric.id}
             title={metric.name}
           />

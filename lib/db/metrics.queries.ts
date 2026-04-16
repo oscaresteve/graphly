@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { getEntriesByMetricIdForUser } from "@/lib/db/entries.queries";
@@ -63,4 +63,16 @@ export async function createMetricForUser(
     .returning();
 
   return metric;
+}
+
+export async function deleteMetricForUser(
+  metricId: string,
+  userId: string,
+): Promise<Metric | null> {
+  const [metric] = await db
+    .delete(metrics)
+    .where(and(eq(metrics.id, metricId), eq(metrics.userId, userId)))
+    .returning();
+
+  return metric ?? null;
 }
