@@ -103,3 +103,59 @@ export function validateDeleteMetricFormData(
     data: parsed.data,
   };
 }
+
+export const createEntrySchema = z.object({
+  metricId: z.uuid("Metric is invalid"),
+  date: z.iso.date("Date is invalid"),
+  value: z.coerce.number("Value is required"),
+});
+
+export type CreateEntryInput = z.infer<typeof createEntrySchema>;
+
+export type CreateEntryFieldErrors = Partial<
+  Record<keyof CreateEntryInput, string[]>
+>;
+
+export type CreateEntryActionState = {
+  success: boolean;
+  fieldErrors: CreateEntryFieldErrors;
+  formError: string | null;
+};
+
+export const initialCreateEntryActionState: CreateEntryActionState = {
+  success: false,
+  fieldErrors: {},
+  formError: null,
+};
+
+type CreateEntryValidationResult =
+  | {
+      success: true;
+      data: CreateEntryInput;
+    }
+  | {
+      success: false;
+      fieldErrors: CreateEntryFieldErrors;
+    };
+
+export function validateCreateEntryFormData(
+  formData: FormData,
+): CreateEntryValidationResult {
+  const parsed = createEntrySchema.safeParse({
+    metricId: formData.get("metricId"),
+    date: formData.get("date"),
+    value: formData.get("value"),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  return {
+    success: true,
+    data: parsed.data,
+  };
+}
