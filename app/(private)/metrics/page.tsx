@@ -48,6 +48,7 @@ export default async function MetricsPage() {
       <div className="mx-auto flex max-w-2xl flex-col gap-3 pb-20">
         {metrics.map((metric) => (
           <MetricCard
+            id={metric.id}
             entries={metric.entries}
             key={metric.id}
             title={metric.name}

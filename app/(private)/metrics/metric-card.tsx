@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -11,9 +12,12 @@ import {
 } from "@/components/ui/card";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 import { getTodayCalendarDate, type CalendarDateString } from "@/lib/date";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { Line, LineChart } from "recharts";
 
 type MetricCardProps = {
+  id: string;
   entries: {
     date: CalendarDateString;
     value: number;
@@ -33,6 +37,7 @@ const previewChartConfig = {
 } satisfies ChartConfig;
 
 export function MetricCard({
+  id,
   entries,
   title,
   description,
@@ -46,6 +51,18 @@ export function MetricCard({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
+        <CardAction>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Ver detalle"
+          >
+            <Link href={`/metrics/${id}`}>
+              <ChevronRight />
+            </Link>
+          </Button>
+        </CardAction>
       </CardHeader>
 
       <CardContent>
