@@ -5,6 +5,7 @@ import {
   Card,
   CardAction,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -21,6 +22,7 @@ type MetricCardProps = {
   }[];
   id: string;
   title: string;
+  description: string | null;
 };
 
 const previewChartConfig = {
@@ -30,11 +32,17 @@ const previewChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function MetricCard({ entries, id, title }: MetricCardProps) {
+export function MetricCard({
+  entries,
+  id,
+  title,
+  description,
+}: MetricCardProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="truncate">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
         <CardAction>
           <form action={deleteMetricAction}>
             <input type="hidden" name="metricId" value={id} />

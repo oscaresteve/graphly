@@ -1,4 +1,4 @@
-import { AppSubbar } from "@/components/app-subbar";
+import { AppPrimaryAction } from "@/components/app-primary-action";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -45,26 +45,25 @@ export default async function MetricsPage() {
 
   return (
     <>
-      <AppSubbar
-        right={
-          <Button asChild>
-            <Link href="/metrics/new">
-              <Plus data-icon="inline-start" />
-              New Metric
-            </Link>
-          </Button>
-        }
-      />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 pb-20 sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map((metric) => (
           <MetricCard
             entries={metric.entries}
             id={metric.id}
             key={metric.id}
             title={metric.name}
+            description={metric.description}
           />
         ))}
       </div>
+      <AppPrimaryAction>
+        <Button asChild size="lg">
+          <Link href="/metrics/new" aria-label="New Metric">
+            <Plus data-icon="inline-start" />
+            New Metric
+          </Link>
+        </Button>
+      </AppPrimaryAction>
     </>
   );
 }
