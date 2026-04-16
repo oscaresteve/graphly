@@ -3,26 +3,26 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
-import { Trash } from "lucide-react";
+import { getTodayCalendarDate, type CalendarDateString } from "@/lib/date";
 import { Line, LineChart } from "recharts";
-
-import { deleteMetricAction } from "./actions";
 
 type MetricCardProps = {
   entries: {
-    date: string;
+    date: CalendarDateString;
     value: number;
   }[];
-  id: string;
   title: string;
   description: string | null;
+  unit: {
+    symbol: string;
+  };
 };
 
 const previewChartConfig = {
@@ -34,37 +34,69 @@ const previewChartConfig = {
 
 export function MetricCard({
   entries,
-  id,
   title,
   description,
+  unit,
 }: MetricCardProps) {
+  const todayDate = getTodayCalendarDate();
+  const todayEntry = entries.find((entry) => entry.date === todayDate);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="truncate">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-        <CardAction>
-          <form action={deleteMetricAction}>
-            <input type="hidden" name="metricId" value={id} />
-            <Button aria-label="Delete metric" size="icon" variant="outline">
-              <Trash />
-            </Button>
-          </form>
-        </CardAction>
+        <CardTitle>{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
+
       <CardContent>
-        <ChartContainer className="aspect-10/2" config={previewChartConfig}>
-          <LineChart accessibilityLayer data={entries}>
-            <Line
-              dataKey="value"
-              dot={false}
-              stroke="var(--color-value)"
-              strokeWidth={2}
-              type="linear"
-            />
-          </LineChart>
-        </ChartContainer>
+        {entries.length > 1 ? (
+          <ChartContainer
+            aria-hidden="true"
+            className="pointer-events-none aspect-auto h-10"
+            config={previewChartConfig}
+          >
+            <LineChart data={entries}>
+              <Line
+                dataKey="value"
+                dot={false}
+                isAnimationActive={false}
+                stroke="var(--color-value)"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                type="monotone"
+              />
+            </LineChart>
+          </ChartContainer>
+        ) : (
+          <div className="bg-muted h-10 rounded-md" />
+        )}
       </CardContent>
+
+      <CardFooter className="justify-between">
+        {todayEntry ? (
+          <>
+            <p className="text-muted-foreground">Hoy</p>
+            <p className="font-medium tabular-nums">
+              {formatValue(todayEntry.value)}
+              <span className="text-muted-foreground ml-1 font-normal">
+                {unit.symbol}
+              </span>
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-muted-foreground">Pendiente hoy</p>
+            <Button type="button">Registrar hoy</Button>
+          </>
+        )}
+      </CardFooter>
     </Card>
   );
+}
+
+function formatValue(value: number) {
+  return new Intl.NumberFormat("en", {
+    maximumFractionDigits: 2,
+  }).format(value);
 }

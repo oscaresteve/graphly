@@ -45,19 +45,19 @@ export default async function MetricsPage() {
 
   return (
     <>
-      <div className="grid gap-4 pb-20 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto flex max-w-2xl flex-col gap-3 pb-20">
         {metrics.map((metric) => (
           <MetricCard
             entries={metric.entries}
-            id={metric.id}
             key={metric.id}
             title={metric.name}
             description={metric.description}
+            unit={metric.unit}
           />
         ))}
       </div>
       <AppPrimaryAction>
-        <Button asChild size="lg">
+        <Button asChild className="h-11">
           <Link href="/metrics/new" aria-label="New Metric">
             <Plus data-icon="inline-start" />
             New Metric

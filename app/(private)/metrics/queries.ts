@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getMetricsWithEntriesForUser } from "@/lib/db/metrics.queries";
 import { getUnits } from "@/lib/db/units.queries";
 import { type UserMetricWithEntriesResponse } from "@/lib/db/types";
+import { type CalendarDateString } from "@/lib/date";
 
 export async function getMetricsPageData(): Promise<{
   metrics: UserMetricWithEntriesResponse[];
@@ -19,7 +20,7 @@ export async function getMetricsPageData(): Promise<{
       entries: metric.entries.map((entry) => ({
         id: entry.id,
         value: Number(entry.value),
-        date: entry.date,
+        date: entry.date as CalendarDateString,
       })),
     })),
   };

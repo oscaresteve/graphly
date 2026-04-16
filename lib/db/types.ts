@@ -1,4 +1,5 @@
 import { entries, metrics, units } from "@/lib/db/schema";
+import { type CalendarDateString } from "@/lib/date";
 
 export type Unit = typeof units.$inferSelect;
 export type NewUnit = typeof units.$inferInsert;
@@ -23,7 +24,7 @@ export type UserMetricResponse = Omit<UserMetric, "createdAt"> & {
 export type UserMetricEntryResponse = {
   id: string;
   value: number;
-  date: string;
+  date: CalendarDateString;
 };
 
 export type UserMetricWithEntriesResponse = UserMetricResponse & {
