@@ -8,8 +8,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
-  FieldSet,
 } from "@/components/ui/field";
 import {
   Select,
@@ -55,84 +53,80 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
       <FieldGroup>
         {state.formError ? <FieldError>{state.formError}</FieldError> : null}
 
-        <FieldSet>
-          <FieldLegend>Metric details</FieldLegend>
+        <Field data-invalid={hasErrors(nameErrors) ? true : undefined}>
+          <FieldLabel htmlFor="name">Name</FieldLabel>
+          <Input
+            id="name"
+            name="name"
+            placeholder="Weight, revenue, sleep"
+            aria-invalid={hasErrors(nameErrors) ? true : undefined}
+          />
+          <FieldError errors={nameErrors} />
+        </Field>
 
-          <Field data-invalid={hasErrors(nameErrors) ? true : undefined}>
-            <FieldLabel htmlFor="name">Name</FieldLabel>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Weight, revenue, sleep hours"
-              aria-invalid={hasErrors(nameErrors) ? true : undefined}
-            />
-            {hasErrors(nameErrors) ? (
-              <FieldError errors={nameErrors} />
-            ) : (
-              <FieldDescription>
-                Use a short name you will recognize in charts.
-              </FieldDescription>
-            )}
-          </Field>
-
-          <Field data-invalid={hasErrors(descriptionErrors) ? true : undefined}>
-            <FieldLabel htmlFor="description">Description</FieldLabel>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="What this metric helps you understand"
-              aria-invalid={hasErrors(descriptionErrors) ? true : undefined}
-            />
+        <Field data-invalid={hasErrors(descriptionErrors) ? true : undefined}>
+          <FieldLabel htmlFor="description">Description</FieldLabel>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="What this metric helps you understand"
+            aria-invalid={hasErrors(descriptionErrors) ? true : undefined}
+          />
+          {hasErrors(descriptionErrors) ? (
             <FieldError errors={descriptionErrors} />
-          </Field>
-        </FieldSet>
+          ) : (
+            <FieldDescription>
+              Optional, but useful when the metric needs context.
+            </FieldDescription>
+          )}
+        </Field>
 
-        <FieldSet>
-          <FieldLegend>Unit</FieldLegend>
-
-          <Field
-            data-disabled={units.length === 0 ? true : undefined}
-            data-invalid={hasErrors(unitErrors) ? true : undefined}
+        <Field
+          data-disabled={units.length === 0 ? true : undefined}
+          data-invalid={hasErrors(unitErrors) ? true : undefined}
+        >
+          <FieldLabel>Unit</FieldLabel>
+          <Select
+            name="unitId"
+            defaultValue={defaultUnitId}
+            disabled={units.length === 0}
           >
-            <FieldLabel>Unit</FieldLabel>
-            <Select
-              name="unitId"
-              defaultValue={defaultUnitId}
-              disabled={units.length === 0}
+            <SelectTrigger
+              className="w-full"
+              aria-invalid={hasErrors(unitErrors) ? true : undefined}
             >
-              <SelectTrigger
-                className="w-full"
-                aria-invalid={hasErrors(unitErrors) ? true : undefined}
-              >
-                <SelectValue placeholder="Select a unit" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {units.map((unit) => (
-                    <SelectItem key={unit.id} value={unit.id}>
-                      {unit.name} ({unit.symbol})
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            {hasErrors(unitErrors) ? (
-              <FieldError errors={unitErrors} />
-            ) : (
-              <FieldDescription>
-                Choose how values for this metric will be read.
-              </FieldDescription>
-            )}
-          </Field>
-        </FieldSet>
+              <SelectValue placeholder="Select a unit" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {units.map((unit) => (
+                  <SelectItem key={unit.id} value={unit.id}>
+                    {unit.name} ({unit.symbol})
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {hasErrors(unitErrors) ? (
+            <FieldError errors={unitErrors} />
+          ) : (
+            <FieldDescription>
+              This defines how each value will be shown.
+            </FieldDescription>
+          )}
+        </Field>
       </FieldGroup>
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={units.length === 0 || isPending}>
+      <div className="flex flex-col gap-2">
+        <Button
+          type="submit"
+          className="h-11"
+          disabled={units.length === 0 || isPending}
+        >
           <Plus data-icon="inline-start" />
           {isPending ? "Creating..." : "Create Metric"}
         </Button>
-        <Button asChild variant="outline">
+        <Button asChild variant="ghost">
           <Link href="/metrics">Cancel</Link>
         </Button>
       </div>

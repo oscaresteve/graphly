@@ -9,7 +9,9 @@ export const createMetricSchema = z.object({
   description: z
     .preprocess(
       (value) =>
-        typeof value === "string" && value.trim() === "" ? undefined : value,
+        value === null || (typeof value === "string" && value.trim() === "")
+          ? undefined
+          : value,
       z
         .string()
         .trim()
