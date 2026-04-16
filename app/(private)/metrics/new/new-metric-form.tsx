@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
-
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -12,7 +11,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -23,12 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-import Link from "next/link";
 
-import { createUserMetric } from "../actions";
+import { useActionState } from "react";
+import Link from "next/link";
+import { createMetricAction } from "../actions";
 import {
-  initialCreateUserMetricActionState,
-  type CreateUserMetricActionState,
+  initialCreateMetricActionState,
+  type CreateMetricActionState,
 } from "../validation";
 
 type UnitOption = {
@@ -43,8 +42,8 @@ type NewMetricFormProps = {
 
 export function NewMetricForm({ units }: NewMetricFormProps) {
   const [state, formAction, isPending] = useActionState(
-    createUserMetric,
-    initialCreateUserMetricActionState,
+    createMetricAction,
+    initialCreateMetricActionState,
   );
   const defaultUnitId = units[0]?.id;
   const nameErrors = getFieldErrors(state, "name");
@@ -142,8 +141,8 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
 }
 
 function getFieldErrors(
-  state: CreateUserMetricActionState,
-  field: keyof CreateUserMetricActionState["fieldErrors"],
+  state: CreateMetricActionState,
+  field: keyof CreateMetricActionState["fieldErrors"],
 ) {
   return state.fieldErrors[field]?.map((message) => ({ message })) ?? [];
 }

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/empty";
 import { LineChart, Plus } from "lucide-react";
 
-import { getUserMetrics } from "./actions";
+import { getUserMetrics } from "./queries";
 import Link from "next/link";
 
 export default async function MetricsPage() {

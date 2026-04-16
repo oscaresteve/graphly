@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createUserMetricSchema = z.object({
+export const createMetricSchema = z.object({
   name: z
     .string()
     .trim()
@@ -17,40 +17,41 @@ export const createUserMetricSchema = z.object({
         .optional(),
     )
     .transform((value) => value ?? null),
-  unitId: z.string().trim().uuid("Unit is invalid"),
+  unitId: z.uuid("Unit is invalid"),
 });
 
-export type CreateUserMetricInput = z.infer<typeof createUserMetricSchema>;
-export type CreateUserMetricFieldErrors = Partial<
-  Record<keyof CreateUserMetricInput, string[]>
+export type CreateMetricInput = z.infer<typeof createMetricSchema>;
+
+export type CreateMetricFieldErrors = Partial<
+  Record<keyof CreateMetricInput, string[]>
 >;
 
-export type CreateUserMetricActionState = {
+export type CreateMetricActionState = {
   success: boolean;
-  fieldErrors: CreateUserMetricFieldErrors;
+  fieldErrors: CreateMetricFieldErrors;
   formError: string | null;
 };
 
-export const initialCreateUserMetricActionState: CreateUserMetricActionState = {
+export const initialCreateMetricActionState: CreateMetricActionState = {
   success: false,
   fieldErrors: {},
   formError: null,
 };
 
-type CreateUserMetricValidationResult =
+type CreateMetricValidationResult =
   | {
       success: true;
-      data: CreateUserMetricInput;
+      data: CreateMetricInput;
     }
   | {
       success: false;
-      fieldErrors: CreateUserMetricFieldErrors;
+      fieldErrors: CreateMetricFieldErrors;
     };
 
-export function validateCreateUserMetricFormData(
+export function validateCreateMetricFormData(
   formData: FormData,
-): CreateUserMetricValidationResult {
-  const parsed = createUserMetricSchema.safeParse({
+): CreateMetricValidationResult {
+  const parsed = createMetricSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
     unitId: formData.get("unitId"),

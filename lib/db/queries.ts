@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { metrics, units } from "@/lib/db/schema";
 import { type Metric, type Unit, type UserMetric } from "@/lib/db/types";
 
-type CreateMetricInput = {
+type CreateMetricValues = {
   name: string;
   description: string | null;
   unitId: string;
@@ -38,7 +38,7 @@ export async function getUnits(): Promise<Unit[]> {
 
 export async function createMetricByUserId(
   userId: string,
-  input: CreateMetricInput,
+  input: CreateMetricValues,
 ): Promise<Metric> {
   const [metric] = await db
     .insert(metrics)

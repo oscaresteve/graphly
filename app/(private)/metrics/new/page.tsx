@@ -1,20 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { getUnits } from "@/lib/db/queries";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+import { getUnitOptions } from "../queries";
 import { NewMetricForm } from "./new-metric-form";
 
 export default async function NewMetricPage() {
-  const units = await getUnits();
-  const unitOptions = units.map((unit) => ({
-    id: unit.id,
-    name: unit.name,
-    symbol: unit.symbol,
-  }));
+  const unitOptions = await getUnitOptions();
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Button asChild variant="ghost" className="w-fit">
           <Link href="/metrics">
