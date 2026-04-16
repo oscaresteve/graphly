@@ -24,6 +24,7 @@ description: Ayuda a crear o modificar interfaces de la app. Usar cuando el usua
 - Mantener consistencia con los patrones presentes en el codigo recibido o encontrado.
 - Si faltan detalles, elegir la opcion mas estandar y usable.
 - Devolver codigo claro y listo para usar, preferiblemente en TSX/JSX.
+- Si un componente necesario no está instalado, indicarlo y sugerir cómo instalarlo en lugar de recrearlo manualmente.
 
 ## What To Avoid
 
