@@ -47,4 +47,5 @@ export async function deleteMetricAction(formData: FormData) {
   await deleteMetricForUser(validation.data.metricId, userId);
 
   revalidatePath("/metrics");
+  redirect("/metrics");
 }

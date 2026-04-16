@@ -1,11 +1,19 @@
+import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, Edit, Ellipsis, Pin, Trash } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { deleteMetricAction } from "../actions";
 import { getMetricPageData } from "../queries";
 import { MetricDetailChart } from "./metric-detail-chart";
-import { AppSubbar } from "@/components/app-subbar";
 
 type MetricPageProps = {
   params: Promise<{
@@ -31,6 +39,35 @@ export default async function MetricPage({ params }: MetricPageProps) {
               Back
             </Link>
           </Button>
+        }
+        right={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm">
+                <Ellipsis />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <Edit />
+                Edit
+              </DropdownMenuItem>
+              <form action={deleteMetricAction}>
+                <input type="hidden" name="metricId" value={metric.id} />
+                <DropdownMenuItem asChild variant="destructive">
+                  <button type="submit" className="w-full">
+                    <Trash />
+                    Delete
+                  </button>
+                </DropdownMenuItem>
+              </form>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Pin />
+                Pin
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         }
       />
 
