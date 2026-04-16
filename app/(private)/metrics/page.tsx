@@ -25,7 +25,7 @@ export default async function MetricsPage() {
             <EmptyMedia variant="icon">
               <LineChart />
             </EmptyMedia>
-            <EmptyTitle>You dont have any metrics yet</EmptyTitle>
+            <EmptyTitle>{"You don't have any metrics yet"}</EmptyTitle>
             <EmptyDescription>
               Create your first metric to start tracking daily data.
             </EmptyDescription>

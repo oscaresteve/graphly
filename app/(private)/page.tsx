@@ -3,7 +3,7 @@ export default function Home() {
     <div className="bg-muted">
       <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
       <p className="text-muted-foreground max-w-2xl text-sm">
-        Registra tus datos diarios y revisa como evolucionan tus metricas.
+        Log your daily data and see how your metrics evolve.
       </p>
     </div>
   );

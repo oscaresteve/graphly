@@ -29,7 +29,7 @@ export function AppSidebar() {
   const activeItem = getActiveNavigationItem(pathname);
   const { user } = useUser();
   const { openUserProfile, signOut } = useClerk();
-  const displayName = user?.fullName || user?.username || "Usuario";
+  const displayName = user?.fullName || user?.username || "User";
   const email = user?.primaryEmailAddress?.emailAddress;
   const imageUrl = user?.hasImage ? user.imageUrl : undefined;
   const initials = displayName.charAt(0).toUpperCase();
@@ -50,7 +50,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegacion</SidebarGroupLabel>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {appNavigation.map((item) => {

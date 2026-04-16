@@ -12,7 +12,7 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Graphly",
   description:
-    "Visualiza tus datos con Graphly, la herramienta de gráficos de tu dia a dia.",
+    "Visualize your data with Graphly, the everyday charting tool.",
 };
 
 export default function RootLayout({

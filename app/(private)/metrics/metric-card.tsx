@@ -56,7 +56,7 @@ export function MetricCard({
             asChild
             variant="ghost"
             size="icon-sm"
-            aria-label="Ver detalle"
+            aria-label="View details"
           >
             <Link href={`/metrics/${id}`}>
               <ChevronRight />
@@ -93,7 +93,7 @@ export function MetricCard({
       <CardFooter className="justify-between">
         {todayEntry ? (
           <>
-            <p className="text-muted-foreground">Hoy</p>
+            <p className="text-muted-foreground">Today</p>
             <p className="font-medium tabular-nums">
               {formatValue(todayEntry.value)}
               <span className="text-muted-foreground ml-1 font-normal">
@@ -103,8 +103,8 @@ export function MetricCard({
           </>
         ) : (
           <>
-            <p className="text-muted-foreground">Pendiente hoy</p>
-            <Button type="button">Registrar hoy</Button>
+            <p className="text-muted-foreground">Pending today</p>
+            <Button type="button">Log today</Button>
           </>
         )}
       </CardFooter>
