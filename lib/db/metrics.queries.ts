@@ -35,6 +35,31 @@ export async function getMetricsForUser(userId: string): Promise<UserMetric[]> {
     .orderBy(desc(metrics.createdAt));
 }
 
+export async function getMetricForUser(
+  metricId: string,
+  userId: string,
+): Promise<UserMetric | null> {
+  const [metric] = await db
+    .select({
+      id: metrics.id,
+      name: metrics.name,
+      description: metrics.description,
+      createdAt: metrics.createdAt,
+      unit: {
+        id: units.id,
+        name: units.name,
+        symbol: units.symbol,
+        type: units.type,
+      },
+    })
+    .from(metrics)
+    .innerJoin(units, eq(metrics.unitId, units.id))
+    .where(and(eq(metrics.id, metricId), eq(metrics.userId, userId)))
+    .limit(1);
+
+  return metric ?? null;
+}
+
 export async function getMetricsWithEntriesForUser(
   userId: string,
 ): Promise<UserMetricWithEntries[]> {
@@ -46,6 +71,22 @@ export async function getMetricsWithEntriesForUser(
       entries: await getEntriesByMetricIdForUser(metric.id, userId),
     })),
   );
+}
+
+export async function getMetricWithEntriesForUser(
+  metricId: string,
+  userId: string,
+): Promise<UserMetricWithEntries | null> {
+  const metric = await getMetricForUser(metricId, userId);
+
+  if (!metric) {
+    return null;
+  }
+
+  return {
+    ...metric,
+    entries: await getEntriesByMetricIdForUser(metric.id, userId),
+  };
 }
 
 export async function createMetricForUser(
