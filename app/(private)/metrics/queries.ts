@@ -2,25 +2,37 @@ import "server-only";
 
 import { auth } from "@clerk/nextjs/server";
 
-import { getMetricsByUserId, getUnits } from "@/lib/db/queries";
-import { type UserMetricResponse } from "@/lib/db/types";
+import { getMetricsWithEntriesForUser } from "@/lib/db/metrics.queries";
+import { getUnits } from "@/lib/db/units.queries";
+import { type UserMetricWithEntriesResponse } from "@/lib/db/types";
 
-export async function getUserMetrics(): Promise<UserMetricResponse[]> {
+export async function getMetricsPageData(): Promise<{
+  metrics: UserMetricWithEntriesResponse[];
+}> {
   const { userId } = await auth.protect();
-  const userMetrics = await getMetricsByUserId(userId);
+  const userMetrics = await getMetricsWithEntriesForUser(userId);
 
-  return userMetrics.map((metric) => ({
-    ...metric,
-    createdAt: metric.createdAt.toISOString(),
-  }));
+  return {
+    metrics: userMetrics.map((metric) => ({
+      ...metric,
+      createdAt: metric.createdAt.toISOString(),
+      entries: metric.entries.map((entry) => ({
+        id: entry.id,
+        value: Number(entry.value),
+        date: entry.date,
+      })),
+    })),
+  };
 }
 
-export async function getUnitOptions() {
+export async function getNewMetricPageData() {
   const units = await getUnits();
 
-  return units.map(({ id, name, symbol }) => ({
-    id,
-    name,
-    symbol,
-  }));
+  return {
+    unitOptions: units.map(({ id, name, symbol }) => ({
+      id,
+      name,
+      symbol,
+    })),
+  };
 }

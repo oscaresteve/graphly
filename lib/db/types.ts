@@ -19,3 +19,22 @@ export type UserMetric = Pick<
 export type UserMetricResponse = Omit<UserMetric, "createdAt"> & {
   createdAt: string;
 };
+
+export type UserMetricEntryResponse = {
+  id: string;
+  value: number;
+  date: string;
+};
+
+export type UserMetricWithEntriesResponse = UserMetricResponse & {
+  entries: UserMetricEntryResponse[];
+};
+
+export type UserMetricEntry = Pick<
+  Entry,
+  "id" | "metricId" | "value" | "date" | "createdAt"
+>;
+
+export type UserMetricWithEntries = UserMetric & {
+  entries: UserMetricEntry[];
+};

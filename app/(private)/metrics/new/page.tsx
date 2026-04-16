@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-import { getUnitOptions } from "../queries";
+import { getNewMetricPageData } from "../queries";
 import { NewMetricForm } from "./new-metric-form";
 
 export default async function NewMetricPage() {
-  const unitOptions = await getUnitOptions();
+  const { unitOptions } = await getNewMetricPageData();
 
   return (
     <>

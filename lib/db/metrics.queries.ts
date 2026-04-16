@@ -1,8 +1,13 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
+import { getEntriesByMetricIdForUser } from "@/lib/db/entries.queries";
 import { metrics, units } from "@/lib/db/schema";
-import { type Metric, type Unit, type UserMetric } from "@/lib/db/types";
+import {
+  type Metric,
+  type UserMetric,
+  type UserMetricWithEntries,
+} from "@/lib/db/types";
 
 type CreateMetricValues = {
   name: string;
@@ -10,9 +15,7 @@ type CreateMetricValues = {
   unitId: string;
 };
 
-export async function getMetricsByUserId(
-  userId: string,
-): Promise<UserMetric[]> {
+export async function getMetricsForUser(userId: string): Promise<UserMetric[]> {
   return db
     .select({
       id: metrics.id,
@@ -32,11 +35,20 @@ export async function getMetricsByUserId(
     .orderBy(desc(metrics.createdAt));
 }
 
-export async function getUnits(): Promise<Unit[]> {
-  return db.select().from(units).orderBy(asc(units.name));
+export async function getMetricsWithEntriesForUser(
+  userId: string,
+): Promise<UserMetricWithEntries[]> {
+  const userMetrics = await getMetricsForUser(userId);
+
+  return Promise.all(
+    userMetrics.map(async (metric) => ({
+      ...metric,
+      entries: await getEntriesByMetricIdForUser(metric.id, userId),
+    })),
+  );
 }
 
-export async function createMetricByUserId(
+export async function createMetricForUser(
   userId: string,
   input: CreateMetricValues,
 ): Promise<Metric> {

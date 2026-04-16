@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createMetricByUserId } from "@/lib/db/queries";
+import { createMetricForUser } from "@/lib/db/metrics.queries";
 
 import {
   type CreateMetricActionState,
@@ -26,7 +26,7 @@ export async function createMetricAction(
     };
   }
 
-  await createMetricByUserId(userId, validation.data);
+  await createMetricForUser(userId, validation.data);
 
   revalidatePath("/metrics");
   redirect("/metrics");
