@@ -11,10 +11,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
+import { type Unit } from "@/lib/db/types";
 import { getTodayCalendarDate, type CalendarDateString } from "@/lib/date";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Line, LineChart } from "recharts";
+
+import { EntryDialogForm } from "./entry-dialog-form";
 
 type MetricCardProps = {
   id: string;
@@ -26,6 +29,8 @@ type MetricCardProps = {
   description: string | null;
   unit: {
     symbol: string;
+    type: Unit["type"];
+    name: string;
   };
 };
 
@@ -104,7 +109,7 @@ export function MetricCard({
         ) : (
           <>
             <p className="text-muted-foreground">Pending today</p>
-            <Button type="button">Log today</Button>
+            <EntryDialogForm metricId={id} metricName={title} unit={unit} />
           </>
         )}
       </CardFooter>

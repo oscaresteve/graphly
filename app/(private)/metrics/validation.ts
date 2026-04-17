@@ -107,7 +107,17 @@ export function validateDeleteMetricFormData(
 export const createEntrySchema = z.object({
   metricId: z.uuid("Metric is invalid"),
   date: z.iso.date("Date is invalid"),
-  value: z.coerce.number("Value is required"),
+  value: z.preprocess(
+    (value) => (typeof value === "string" ? value.trim() : value),
+    z
+      .string("Value is required")
+      .min(1, "Value is required")
+      .regex(
+        /^\d{1,9}(\.\d{1,3})?$/,
+        "Value must have up to 9 digits and 3 decimals",
+      )
+      .transform(Number),
+  ),
 });
 
 export type CreateEntryInput = z.infer<typeof createEntrySchema>;

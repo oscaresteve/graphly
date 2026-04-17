@@ -68,21 +68,33 @@ export async function createEntryAction(
     };
   }
 
-  const entry = await createEntryByMetricIdForUser(
-    validation.data.metricId,
-    userId,
-    {
-      date: validation.data.date,
-      value: validation.data.value,
-    },
-  );
+  try {
+    const entry = await createEntryByMetricIdForUser(
+      validation.data.metricId,
+      userId,
+      {
+        date: validation.data.date,
+        value: validation.data.value,
+      },
+    );
 
-  if (!entry) {
-    return {
-      success: false,
-      fieldErrors: {},
-      formError: "Metric not found",
-    };
+    if (!entry) {
+      return {
+        success: false,
+        fieldErrors: {},
+        formError: "Metric not found",
+      };
+    }
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return {
+        success: false,
+        fieldErrors: {},
+        formError: "There is already an entry for today",
+      };
+    }
+
+    throw error;
   }
 
   revalidatePath("/metrics");
@@ -93,4 +105,13 @@ export async function createEntryAction(
     fieldErrors: {},
     formError: null,
   };
+}
+
+function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "23505"
+  );
 }
