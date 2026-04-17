@@ -2,7 +2,7 @@
 
 import { Calendar } from "@/components/ui/calendar";
 
-import { type CalendarDateString } from "@/lib/date";
+import { parseCalendarDate, type CalendarDateString } from "@/lib/date";
 
 type MetricEntryCalendarProps = {
   entries: {
@@ -11,12 +11,7 @@ type MetricEntryCalendarProps = {
 };
 
 export function MetricEntryCalendar({ entries }: MetricEntryCalendarProps) {
-  const loggedDates = entries.map((entry) => toLocalDate(entry.date));
+  const loggedDates = entries.map((entry) => parseCalendarDate(entry.date));
 
   return <Calendar mode="single" numberOfMonths={1} disabled={loggedDates} />;
-}
-
-function toLocalDate(value: CalendarDateString) {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
 }

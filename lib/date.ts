@@ -1,12 +1,27 @@
+import { format, parseISO } from "date-fns";
+
 export type CalendarDateString = string & {
   readonly __calendarDateString: unique symbol;
 };
 
-export function getTodayCalendarDate(): CalendarDateString {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+const calendarDateFormat = "yyyy-MM-dd";
 
-  return `${year}-${month}-${day}` as CalendarDateString;
+export function getTodayCalendarDate(): CalendarDateString {
+  return formatCalendarDate(new Date());
+}
+
+export function formatCalendarDate(date: Date): CalendarDateString {
+  return format(date, calendarDateFormat) as CalendarDateString;
+}
+
+export function parseCalendarDate(value: CalendarDateString): Date {
+  return parseISO(value);
+}
+
+export function formatShortCalendarDate(value: CalendarDateString): string {
+  return format(parseCalendarDate(value), "d MMM");
+}
+
+export function formatLongCalendarDate(value: CalendarDateString): string {
+  return format(parseCalendarDate(value), "PPP");
 }

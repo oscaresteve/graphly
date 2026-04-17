@@ -1,6 +1,6 @@
 "use client";
 
-import { eachDayOfInterval, format, parseISO, subMonths } from "date-fns";
+import { eachDayOfInterval, subMonths } from "date-fns";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
@@ -8,10 +8,16 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+  formatCalendarDate,
+  formatLongCalendarDate,
+  formatShortCalendarDate,
+  type CalendarDateString,
+} from "@/lib/date";
 
 type MetricDetailChartProps = {
   entries: {
-    date: string;
+    date: CalendarDateString;
     value: number;
   }[];
   unitSymbol: string;
@@ -41,7 +47,9 @@ export function MetricDetailChart({
           axisLine={false}
           dataKey="date"
           interval={Math.max(0, Math.floor(chartData.length / 6) - 1)}
-          tickFormatter={(value) => format(parseISO(String(value)), "d MMM")}
+          tickFormatter={(value) =>
+            formatShortCalendarDate(String(value) as CalendarDateString)
+          }
           tickLine={false}
           tickMargin={12}
         />
@@ -57,7 +65,9 @@ export function MetricDetailChart({
             <ChartTooltipContent
               indicator="line"
               labelFormatter={(value) => {
-                return format(parseISO(String(value)), "PPP");
+                return formatLongCalendarDate(
+                  String(value) as CalendarDateString,
+                );
               }}
             />
           }
@@ -66,7 +76,7 @@ export function MetricDetailChart({
           activeDot={{ r: 5 }}
           connectNulls={true}
           dataKey="value"
-          dot={{ r: 2 }}
+          dot={false}
           isAnimationActive={false}
           stroke="var(--color-value)"
           strokeLinecap="round"
@@ -88,7 +98,7 @@ function getLastMonthChartData(
   const valueMap = new Map(entries.map((entry) => [entry.date, entry.value]));
 
   return eachDayOfInterval({ start, end: today }).map((day) => {
-    const date = format(day, "yyyy-MM-dd");
+    const date = formatCalendarDate(day);
 
     return {
       date,
