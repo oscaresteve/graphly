@@ -1,17 +1,26 @@
-import type { ReactNode } from "react";
+import { Children, type ReactNode } from "react";
+
+type AppSubbarSlot = ReactNode | ReactNode[];
 
 type AppSubbarProps = {
-  left?: ReactNode;
-  right?: ReactNode;
+  left?: AppSubbarSlot;
+  right?: AppSubbarSlot;
 };
 
 export function AppSubbar({ left, right }: AppSubbarProps) {
+  const leftItems = Children.toArray(left);
+  const rightItems = Children.toArray(right);
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="flex flex-wrap items-center gap-2">{left}</div>
-      <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-        {right}
-      </div>
+      {leftItems.length ? (
+        <div className="flex flex-wrap items-center gap-2">{leftItems}</div>
+      ) : null}
+      {rightItems.length ? (
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+          {rightItems}
+        </div>
+      ) : null}
     </div>
   );
 }

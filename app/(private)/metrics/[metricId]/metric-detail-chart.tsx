@@ -1,13 +1,16 @@
 "use client";
 
-import { eachDayOfInterval, subMonths } from "date-fns";
+import { eachDayOfInterval, subMonths, subWeeks, subYears } from "date-fns";
+import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
+import { AppSubbar } from "@/components/app-subbar";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   formatCalendarDate,
   formatLongCalendarDate,
@@ -24,12 +27,68 @@ type MetricDetailChartProps = {
   unitName: string;
 };
 
+const chartRanges = [
+  { value: "last-year", label: "Last year" },
+  { value: "last-month", label: "Last month" },
+  { value: "last-week", label: "Last week" },
+] as const;
+
+type ChartRange = (typeof chartRanges)[number]["value"];
+
 export function MetricDetailChart({
   entries,
   unitSymbol,
   unitName,
 }: MetricDetailChartProps) {
-  const chartData = getLastMonthChartData(entries, unitSymbol);
+  const [range, setRange] = useState<ChartRange>("last-month");
+
+  return (
+    <div className="flex flex-col gap-3">
+      <AppSubbar
+        right={
+          <ToggleGroup
+            aria-label="Chart range"
+            onValueChange={(value) => {
+              if (value) {
+                setRange(value as ChartRange);
+              }
+            }}
+            size="sm"
+            variant="outline"
+            type="single"
+            value={range}
+          >
+            {chartRanges.map((chartRange) => (
+              <ToggleGroupItem key={chartRange.value} value={chartRange.value}>
+                {chartRange.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        }
+      />
+
+      <MetricRangeChart
+        entries={entries}
+        range={range}
+        unitName={unitName}
+        unitSymbol={unitSymbol}
+      />
+    </div>
+  );
+}
+
+function MetricRangeChart({
+  entries,
+  range,
+  unitSymbol,
+  unitName,
+}: MetricDetailChartProps & {
+  range: ChartRange;
+}) {
+  const chartData = useMemo(
+    () => getChartData(entries, unitSymbol, range),
+    [entries, unitSymbol, range],
+  );
 
   return (
     <ChartContainer
@@ -77,7 +136,7 @@ export function MetricDetailChart({
           connectNulls={true}
           dataKey="value"
           dot={false}
-          isAnimationActive={false}
+          isAnimationActive={true}
           stroke="var(--color-value)"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -89,12 +148,13 @@ export function MetricDetailChart({
   );
 }
 
-function getLastMonthChartData(
+function getChartData(
   entries: MetricDetailChartProps["entries"],
   unitSymbol: string,
+  range: ChartRange,
 ) {
   const today = new Date();
-  const start = subMonths(today, 1);
+  const start = getRangeStart(today, range);
   const valueMap = new Map(entries.map((entry) => [entry.date, entry.value]));
 
   return eachDayOfInterval({ start, end: today }).map((day) => {
@@ -106,6 +166,18 @@ function getLastMonthChartData(
       value: valueMap.get(date) ?? null,
     };
   });
+}
+
+function getRangeStart(date: Date, range: ChartRange) {
+  if (range === "last-week") {
+    return subWeeks(date, 1);
+  }
+
+  if (range === "last-year") {
+    return subYears(date, 1);
+  }
+
+  return subMonths(date, 1);
 }
 
 function formatCompactValue(value: number) {
