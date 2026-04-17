@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { eachDayOfInterval, format, parseISO, subMonths } from "date-fns";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from "@/components/ui/chart";
 
 type MetricDetailChartProps = {
@@ -21,36 +15,33 @@ type MetricDetailChartProps = {
     value: number;
   }[];
   unitSymbol: string;
+  unitName: string;
 };
-
-const metricChartConfig = {
-  value: {
-    label: "Value",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig;
 
 export function MetricDetailChart({
   entries,
   unitSymbol,
+  unitName,
 }: MetricDetailChartProps) {
+  const chartData = getLastMonthChartData(entries, unitSymbol);
+
   return (
     <ChartContainer
-      className="aspect-auto h-[62svh] min-h-96 w-full rounded-lg bg-muted/30"
-      config={metricChartConfig}
-      initialDimension={{ width: 360, height: 520 }}
+      className="aspect-auto h-80 w-full"
+      config={{
+        value: {
+          label: unitName,
+          color: "var(--chart-1)",
+        },
+      }}
     >
-      <LineChart
-        accessibilityLayer
-        data={entries}
-        margin={{ top: 24, right: 16, bottom: 8, left: 0 }}
-      >
+      <LineChart accessibilityLayer data={chartData}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
           axisLine={false}
           dataKey="date"
-          minTickGap={28}
-          tickFormatter={formatShortDate}
+          interval={Math.max(0, Math.floor(chartData.length / 6) - 1)}
+          tickFormatter={(value) => format(parseISO(String(value)), "d MMM")}
           tickLine={false}
           tickMargin={12}
         />
@@ -65,22 +56,17 @@ export function MetricDetailChart({
           content={
             <ChartTooltipContent
               indicator="line"
-              labelFormatter={(value) => formatLongDate(String(value))}
-              formatter={(value) => (
-                <span className="font-mono font-medium tabular-nums">
-                  {formatValue(Number(value))}
-                  <span className="text-muted-foreground ml-1 font-sans font-normal">
-                    {unitSymbol}
-                  </span>
-                </span>
-              )}
+              labelFormatter={(value) => {
+                return format(parseISO(String(value)), "PPP");
+              }}
             />
           }
         />
         <Line
           activeDot={{ r: 5 }}
+          connectNulls={true}
           dataKey="value"
-          dot={entries.length <= 14}
+          dot={{ r: 2 }}
           isAnimationActive={false}
           stroke="var(--color-value)"
           strokeLinecap="round"
@@ -93,30 +79,28 @@ export function MetricDetailChart({
   );
 }
 
-function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    day: "numeric",
-    month: "short",
-  }).format(new Date(value));
-}
+function getLastMonthChartData(
+  entries: MetricDetailChartProps["entries"],
+  unitSymbol: string,
+) {
+  const today = new Date();
+  const start = subMonths(today, 1);
+  const valueMap = new Map(entries.map((entry) => [entry.date, entry.value]));
 
-function formatLongDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
+  return eachDayOfInterval({ start, end: today }).map((day) => {
+    const date = format(day, "yyyy-MM-dd");
+
+    return {
+      date,
+      unitSymbol,
+      value: valueMap.get(date) ?? null,
+    };
+  });
 }
 
 function formatCompactValue(value: number) {
   return new Intl.NumberFormat("en", {
     notation: "compact",
     maximumFractionDigits: 1,
-  }).format(value);
-}
-
-function formatValue(value: number) {
-  return new Intl.NumberFormat("en", {
-    maximumFractionDigits: 2,
   }).format(value);
 }

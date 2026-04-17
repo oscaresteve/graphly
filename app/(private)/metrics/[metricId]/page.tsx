@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 
 import { deleteMetricAction } from "../actions";
 import { getMetricPageData } from "../queries";
+import { MetricEntryCalendar } from "./metric-entry-calendar";
 import { MetricDetailChart } from "./metric-detail-chart";
 
 type MetricPageProps = {
@@ -83,7 +84,10 @@ export default async function MetricPage({ params }: MetricPageProps) {
       <MetricDetailChart
         entries={metric.entries}
         unitSymbol={metric.unit.symbol}
+        unitName={metric.unit.name}
       />
+
+      <MetricEntryCalendar entries={metric.entries} />
     </div>
   );
 }
