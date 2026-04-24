@@ -13,8 +13,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   formatCalendarDate,
-  formatLongCalendarDate,
-  formatShortCalendarDate,
+  parseCalendarDate,
   type CalendarDateString,
 } from "@/lib/date";
 
@@ -106,9 +105,7 @@ function MetricRangeChart({
           axisLine={false}
           dataKey="date"
           interval={Math.max(0, Math.floor(chartData.length / 6) - 1)}
-          tickFormatter={(value) =>
-            formatShortCalendarDate(String(value) as CalendarDateString)
-          }
+          tickFormatter={(value) => formatShortDate(String(value))}
           tickLine={false}
           tickMargin={12}
         />
@@ -123,11 +120,7 @@ function MetricRangeChart({
           content={
             <ChartTooltipContent
               indicator="line"
-              labelFormatter={(value) => {
-                return formatLongCalendarDate(
-                  String(value) as CalendarDateString,
-                );
-              }}
+              labelFormatter={(value) => formatLongDate(String(value))}
             />
           }
         />
@@ -185,4 +178,19 @@ function formatCompactValue(value: number) {
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(value);
+}
+
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+  }).format(parseCalendarDate(value as CalendarDateString));
+}
+
+function formatLongDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(parseCalendarDate(value as CalendarDateString));
 }

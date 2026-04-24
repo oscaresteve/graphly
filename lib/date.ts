@@ -17,11 +17,3 @@ export function formatCalendarDate(date: Date): CalendarDateString {
 export function parseCalendarDate(value: CalendarDateString): Date {
   return parseISO(value);
 }
-
-export function formatShortCalendarDate(value: CalendarDateString): string {
-  return format(parseCalendarDate(value), "d MMM");
-}
-
-export function formatLongCalendarDate(value: CalendarDateString): string {
-  return format(parseCalendarDate(value), "PPP");
-}
