@@ -1,23 +1,19 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 import { type Unit } from "@/lib/db/types";
-import { getTodayCalendarDate, type CalendarDateString } from "@/lib/date";
+import {
+  formatCalendarDate,
+  getTodayCalendarDate,
+  parseCalendarDate,
+  type CalendarDateString,
+} from "@/lib/date";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Line, LineChart } from "recharts";
 
-import { EntryDialogForm } from "./entry-dialog-form";
+import { Separator } from "@/components/ui/separator";
 
 type MetricCardProps = {
   id: string;
@@ -26,7 +22,6 @@ type MetricCardProps = {
     value: number;
   }[];
   title: string;
-  description: string | null;
   unit: {
     symbol: string;
     type: Unit["type"];
@@ -34,29 +29,33 @@ type MetricCardProps = {
   };
 };
 
-const previewChartConfig = {
-  value: {
-    label: "Value",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig;
-
-export function MetricCard({
-  id,
-  entries,
-  title,
-  description,
-  unit,
-}: MetricCardProps) {
-  const todayDate = getTodayCalendarDate();
-  const todayEntry = entries.find((entry) => entry.date === todayDate);
+export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
+  const lastEntry = entries[entries.length - 1];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-        <CardAction>
+    <div className="flex overflow-hidden rounded-lg border">
+      <div className="flex w-3/5 flex-col justify-between p-4">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-foreground truncate font-medium">{title}</h2>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-muted-foreground truncate text-sm">
+            {lastEntry
+              ? formatVerboseDate(lastEntry.date)
+              : "No data available"}
+          </p>
+          <p className="text-foreground text-xl font-medium">
+            {lastEntry ? formatValue(lastEntry.value) : "N/A"}{" "}
+            <span className="text-muted-foreground text-xs">{unit.symbol}</span>
+          </p>
+        </div>
+      </div>
+      <Separator orientation="vertical" />
+      <div className="flex w-2/5 flex-col gap-2 py-2">
+        <div className="flex justify-between gap-2 px-2">
+          <p className="text-muted-foreground truncate text-[0.625rem] font-medium tracking-normal uppercase">
+            {unit.name}
+          </p>
           <Button
             asChild
             variant="ghost"
@@ -67,53 +66,36 @@ export function MetricCard({
               <ChevronRight />
             </Link>
           </Button>
-        </CardAction>
-      </CardHeader>
+        </div>
 
-      <CardContent>
-        {entries.length > 1 ? (
-          <ChartContainer
-            aria-hidden="true"
-            className="pointer-events-none aspect-auto h-10"
-            config={previewChartConfig}
+        <ChartContainer
+          aria-hidden="true"
+          className="pointer-events-none h-12 w-full"
+          config={{
+            value: {
+              label: "Value",
+              color: "var(--chart-1)",
+            },
+          }}
+        >
+          <LineChart
+            data={entries}
+            margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
           >
-            <LineChart data={entries}>
-              <Line
-                dataKey="value"
-                dot={false}
-                isAnimationActive={false}
-                stroke="var(--color-value)"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                type="monotone"
-              />
-            </LineChart>
-          </ChartContainer>
-        ) : (
-          <div className="bg-muted h-10 rounded-md" />
-        )}
-      </CardContent>
-
-      <CardFooter className="justify-between">
-        {todayEntry ? (
-          <>
-            <p className="text-muted-foreground">Today</p>
-            <p className="font-medium tabular-nums">
-              {formatValue(todayEntry.value)}
-              <span className="text-muted-foreground ml-1 font-normal">
-                {unit.symbol}
-              </span>
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="text-muted-foreground">Pending today</p>
-            <EntryDialogForm metricId={id} metricName={title} unit={unit} />
-          </>
-        )}
-      </CardFooter>
-    </Card>
+            <Line
+              dataKey="value"
+              dot={false}
+              isAnimationActive={false}
+              stroke="var(--color-value)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              type="monotone"
+            />
+          </LineChart>
+        </ChartContainer>
+      </div>
+    </div>
   );
 }
 
@@ -121,4 +103,22 @@ function formatValue(value: number) {
   return new Intl.NumberFormat("en", {
     maximumFractionDigits: 2,
   }).format(value);
+}
+
+function formatVerboseDate(value: string) {
+  const todayDate = getTodayCalendarDate();
+  const yesterdayDate = formatCalendarDate(
+    new Date(new Date().setDate(new Date().getDate() - 1)),
+  );
+  if (value === todayDate) {
+    return "Today";
+  }
+  if (value === yesterdayDate) {
+    return "Yesterday";
+  }
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(parseCalendarDate(value as CalendarDateString));
 }

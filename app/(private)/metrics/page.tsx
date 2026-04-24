@@ -52,7 +52,6 @@ export default async function MetricsPage() {
             entries={metric.entries}
             key={metric.id}
             title={metric.name}
-            description={metric.description}
             unit={metric.unit}
           />
         ))}
