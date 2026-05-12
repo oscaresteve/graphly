@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getTodayCalendarDate } from "@/lib/date";
 
 export const createMetricSchema = z.object({
   name: z
@@ -104,26 +105,41 @@ export function validateDeleteMetricFormData(
   };
 }
 
-export const createEntrySchema = z.object({
-  metricId: z.uuid("Metric is invalid"),
-  date: z.iso.date("Date is invalid"),
-  value: z.preprocess(
-    (value) => (typeof value === "string" ? value.trim() : value),
-    z
-      .string("Value is required")
-      .min(1, "Value is required")
-      .regex(
-        /^\d{1,9}(\.\d{1,3})?$/,
-        "Value must have up to 9 digits and 3 decimals",
-      )
-      .transform(Number),
-  ),
+const entryMetricIdSchema = z.uuid("Metric is invalid");
+
+const entryValueSchema = z.preprocess(
+  (value) => (typeof value === "string" ? value.trim() : value),
+  z
+    .string("Value is required")
+    .min(1, "Value is required")
+    .regex(
+      /^\d{1,9}(\.\d{1,3})?$/,
+      "Value must have up to 9 digits and 3 decimals",
+    )
+    .transform(Number),
+);
+
+export const createTodayEntrySchema = z.object({
+  metricId: entryMetricIdSchema,
+  value: entryValueSchema,
 });
 
-export type CreateEntryInput = z.infer<typeof createEntrySchema>;
+export const createPastEntrySchema = z.object({
+  metricId: entryMetricIdSchema,
+  date: z
+    .iso.date("Date is invalid")
+    .refine((date) => date < getTodayCalendarDate(), {
+      message: "Date must be before today",
+    }),
+  value: entryValueSchema,
+});
+
+export type CreateTodayEntryInput = z.infer<typeof createTodayEntrySchema>;
+export type CreatePastEntryInput = z.infer<typeof createPastEntrySchema>;
+export type CreateEntryInput = CreateTodayEntryInput | CreatePastEntryInput;
 
 export type CreateEntryFieldErrors = Partial<
-  Record<keyof CreateEntryInput, string[]>
+  Record<"metricId" | "date" | "value", string[]>
 >;
 
 export type CreateEntryActionState = {
@@ -141,17 +157,48 @@ export const initialCreateEntryActionState: CreateEntryActionState = {
 type CreateEntryValidationResult =
   | {
       success: true;
-      data: CreateEntryInput;
+      data: CreateTodayEntryInput;
     }
   | {
       success: false;
       fieldErrors: CreateEntryFieldErrors;
     };
 
-export function validateCreateEntryFormData(
+export function validateCreateTodayEntryFormData(
   formData: FormData,
 ): CreateEntryValidationResult {
-  const parsed = createEntrySchema.safeParse({
+  const parsed = createTodayEntrySchema.safeParse({
+    metricId: formData.get("metricId"),
+    value: formData.get("value"),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  return {
+    success: true,
+    data: parsed.data,
+  };
+}
+
+type CreatePastEntryValidationResult =
+  | {
+      success: true;
+      data: CreatePastEntryInput;
+    }
+  | {
+      success: false;
+      fieldErrors: CreateEntryFieldErrors;
+    };
+
+export function validateCreatePastEntryFormData(
+  formData: FormData,
+): CreatePastEntryValidationResult {
+  const parsed = createPastEntrySchema.safeParse({
     metricId: formData.get("metricId"),
     date: formData.get("date"),
     value: formData.get("value"),
