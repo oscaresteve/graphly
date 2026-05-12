@@ -1,5 +1,8 @@
 "use client";
 
+import { useActionState, useRef, useState } from "react";
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,17 +21,15 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { type Unit } from "@/lib/db/types";
-import { getTodayCalendarDate } from "@/lib/date";
-import { Plus } from "lucide-react";
-import { useActionState } from "react";
 
-import { createEntryAction } from "./actions";
+import { createTodayEntryAction } from "./actions";
 import {
   initialCreateEntryActionState,
   type CreateEntryActionState,
 } from "./validation";
 
-type EntryDialogFormProps = {
+type TodayEntryDialogFormProps = {
+  disabled: boolean;
   metricId: string;
   metricName: string;
   unit: {
@@ -37,24 +38,38 @@ type EntryDialogFormProps = {
   };
 };
 
-export function EntryDialogForm({
+export function TodayEntryDialogForm({
+  disabled,
   metricId,
   metricName,
   unit,
-}: EntryDialogFormProps) {
+}: TodayEntryDialogFormProps) {
+  const [open, setOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
-    createEntryAction,
+    async (
+      previousState: CreateEntryActionState,
+      formData: FormData,
+    ): Promise<CreateEntryActionState> => {
+      const nextState = await createTodayEntryAction(previousState, formData);
+
+      if (nextState.success) {
+        setOpen(false);
+        formRef.current?.reset();
+      }
+
+      return nextState;
+    },
     initialCreateEntryActionState,
   );
-  const todayDate = getTodayCalendarDate();
   const inputConfig = getInputConfig(unit.type);
   const valueErrors = getFieldErrors(state, "value");
   const hasValueErrors = valueErrors.length > 0;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button">
+        <Button type="button" disabled={disabled}>
           <Plus data-icon="inline-start" />
           Log today
         </Button>
@@ -64,9 +79,8 @@ export function EntryDialogForm({
           <DialogTitle>{metricName}</DialogTitle>
         </DialogHeader>
 
-        <form action={formAction} className="flex flex-col gap-4">
+        <form ref={formRef} action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="metricId" value={metricId} />
-          <input type="hidden" name="date" value={todayDate} />
 
           <FieldGroup>
             {state.formError ? (

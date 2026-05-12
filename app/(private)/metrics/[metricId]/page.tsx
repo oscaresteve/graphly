@@ -1,17 +1,12 @@
 import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Edit, Ellipsis, Pin, Trash } from "lucide-react";
+import { getTodayCalendarDate } from "@/lib/date";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { deleteMetricAction } from "../actions";
+import { MetricActionsDropdown } from "../metric-actions-dropdown";
+import { TodayEntryDialogForm } from "../today-entry-dialog-form";
 import { getMetricPageData } from "../queries";
 import { MetricEntryCalendar } from "./metric-entry-calendar";
 import { MetricDetailChart } from "./metric-detail-chart";
@@ -30,6 +25,9 @@ export default async function MetricPage({ params }: MetricPageProps) {
     notFound();
   }
 
+  const entryDates = metric.entries.map((entry) => entry.date);
+  const hasTodayEntry = entryDates.includes(getTodayCalendarDate());
+
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
       <AppSubbar
@@ -42,33 +40,20 @@ export default async function MetricPage({ params }: MetricPageProps) {
           </Button>
         }
         right={
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm">
-                <Ellipsis />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>
-                <Edit />
-                Edit
-              </DropdownMenuItem>
-              <form action={deleteMetricAction}>
-                <input type="hidden" name="metricId" value={metric.id} />
-                <DropdownMenuItem asChild variant="destructive">
-                  <button type="submit" className="w-full">
-                    <Trash />
-                    Delete
-                  </button>
-                </DropdownMenuItem>
-              </form>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Pin />
-                Pin
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <TodayEntryDialogForm
+              disabled={hasTodayEntry}
+              metricId={metric.id}
+              metricName={metric.name}
+              unit={metric.unit}
+            />
+            <MetricActionsDropdown
+              entryDates={entryDates}
+              metricId={metric.id}
+              metricName={metric.name}
+              unit={metric.unit}
+            />
+          </>
         }
       />
 
