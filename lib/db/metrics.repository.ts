@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { getEntriesByMetricIdForUser } from "@/lib/db/entries.queries";
+import { getEntriesByMetricIdForUser } from "@/lib/db/entries.repository";
 import { metrics, units } from "@/lib/db/schema";
 import {
   type Metric,
