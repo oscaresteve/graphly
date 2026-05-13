@@ -107,6 +107,7 @@ export function AppSidebar() {
               type="button"
               variant="ghost"
               size="icon-sm"
+              className="cursor-pointer"
               onClick={() => void signOut({ redirectUrl: "/auth/sign-in" })}
             >
               <LogOut />
