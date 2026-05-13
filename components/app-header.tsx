@@ -13,7 +13,7 @@ export function AppHeader() {
   return (
     <header className="relative flex h-12 items-center border-b p-2">
       <div className="flex items-center gap-2">
-        <SidebarTrigger />
+        <SidebarTrigger className="cursor-pointer" />
         <Separator orientation="vertical" className="my-auto h-4" />
       </div>
 
