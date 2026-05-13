@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createMetricSchema = z.object({
+const createMetricSchema = z.object({
   name: z
     .string()
     .trim()
@@ -22,9 +22,9 @@ export const createMetricSchema = z.object({
   unitId: z.uuid("Unit is invalid"),
 });
 
-export type CreateMetricInput = z.infer<typeof createMetricSchema>;
+type CreateMetricInput = z.infer<typeof createMetricSchema>;
 
-export type CreateMetricFieldErrors = Partial<
+type CreateMetricFieldErrors = Partial<
   Record<keyof CreateMetricInput, string[]>
 >;
 
@@ -72,7 +72,7 @@ export function validateCreateMetricFormData(
   };
 }
 
-export const deleteMetricSchema = z.object({
+const deleteMetricSchema = z.object({
   metricId: z.uuid("Metric is invalid"),
 });
 

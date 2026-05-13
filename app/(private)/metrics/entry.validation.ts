@@ -16,12 +16,12 @@ const entryValueSchema = z.preprocess(
     .transform(Number),
 );
 
-export const createTodayEntrySchema = z.object({
+const createTodayEntrySchema = z.object({
   metricId: entryMetricIdSchema,
   value: entryValueSchema,
 });
 
-export const createPastEntrySchema = z.object({
+const createPastEntrySchema = z.object({
   metricId: entryMetricIdSchema,
   date: z
     .iso.date("Date is invalid")
@@ -31,11 +31,10 @@ export const createPastEntrySchema = z.object({
   value: entryValueSchema,
 });
 
-export type CreateTodayEntryInput = z.infer<typeof createTodayEntrySchema>;
-export type CreatePastEntryInput = z.infer<typeof createPastEntrySchema>;
-export type CreateEntryInput = CreateTodayEntryInput | CreatePastEntryInput;
+type CreateTodayEntryInput = z.infer<typeof createTodayEntrySchema>;
+type CreatePastEntryInput = z.infer<typeof createPastEntrySchema>;
 
-export type CreateEntryFieldErrors = Partial<
+type CreateEntryFieldErrors = Partial<
   Record<"metricId" | "date" | "value", string[]>
 >;
 
