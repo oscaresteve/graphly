@@ -2,9 +2,9 @@ import { z } from "zod";
 
 import { getTodayCalendarDate } from "@/lib/date";
 
-const entryMetricIdSchema = z.uuid("Metric is invalid");
-
-const entryValueSchema = z.preprocess(
+const createTodayEntrySchema = z.object({
+  metricId: z.uuid("Metric is invalid"),
+  value: z.preprocess(
   (value) => (typeof value === "string" ? value.trim() : value),
   z
     .string("Value is required")
@@ -14,21 +14,27 @@ const entryValueSchema = z.preprocess(
       "Value must have up to 9 digits and 3 decimals",
     )
     .transform(Number),
-);
-
-const createTodayEntrySchema = z.object({
-  metricId: entryMetricIdSchema,
-  value: entryValueSchema,
+),
 });
 
 const createPastEntrySchema = z.object({
-  metricId: entryMetricIdSchema,
+  metricId: z.uuid("Metric is invalid"),
   date: z
     .iso.date("Date is invalid")
     .refine((date) => date < getTodayCalendarDate(), {
       message: "Date must be before today",
     }),
-  value: entryValueSchema,
+  value: z.preprocess(
+  (value) => (typeof value === "string" ? value.trim() : value),
+  z
+    .string("Value is required")
+    .min(1, "Value is required")
+    .regex(
+      /^\d{1,9}(\.\d{1,3})?$/,
+      "Value must have up to 9 digits and 3 decimals",
+    )
+    .transform(Number),
+),
 });
 
 export type CreateEntryActionState = {
