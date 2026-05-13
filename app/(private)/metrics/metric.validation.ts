@@ -34,7 +34,19 @@ export const initialCreateMetricActionState: CreateMetricActionState = {
   formError: null,
 };
 
-export function validateCreateMetricFormData(formData: FormData) {
+type CreateMetricValidationResult =
+  | {
+      success: true;
+      data: z.infer<typeof createMetricSchema>;
+    }
+  | {
+      success: false;
+      fieldErrors: CreateMetricActionState["fieldErrors"];
+    };
+
+export function validateCreateMetricFormData(
+  formData: FormData,
+): CreateMetricValidationResult {
   const parsed = createMetricSchema.safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
@@ -58,7 +70,18 @@ const deleteMetricSchema = z.object({
   metricId: z.uuid("Metric is invalid"),
 });
 
-export function validateDeleteMetricFormData(formData: FormData) {
+type DeleteMetricValidationResult =
+  | {
+      success: true;
+      data: z.infer<typeof deleteMetricSchema>;
+    }
+  | {
+      success: false;
+    };
+
+export function validateDeleteMetricFormData(
+  formData: FormData,
+): DeleteMetricValidationResult {
   const parsed = deleteMetricSchema.safeParse({
     metricId: formData.get("metricId"),
   });
