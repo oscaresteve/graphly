@@ -31,16 +31,9 @@ const createPastEntrySchema = z.object({
   value: entryValueSchema,
 });
 
-type CreateTodayEntryInput = z.infer<typeof createTodayEntrySchema>;
-type CreatePastEntryInput = z.infer<typeof createPastEntrySchema>;
-
-type CreateEntryFieldErrors = Partial<
-  Record<"metricId" | "date" | "value", string[]>
->;
-
 export type CreateEntryActionState = {
   success: boolean;
-  fieldErrors: CreateEntryFieldErrors;
+  fieldErrors: Partial<Record<"metricId" | "date" | "value", string[]>>;
   formError: string | null;
 };
 
@@ -50,19 +43,7 @@ export const initialCreateEntryActionState: CreateEntryActionState = {
   formError: null,
 };
 
-type CreateEntryValidationResult =
-  | {
-      success: true;
-      data: CreateTodayEntryInput;
-    }
-  | {
-      success: false;
-      fieldErrors: CreateEntryFieldErrors;
-    };
-
-export function validateCreateTodayEntryFormData(
-  formData: FormData,
-): CreateEntryValidationResult {
+export function validateCreateTodayEntryFormData(formData: FormData) {
   const parsed = createTodayEntrySchema.safeParse({
     metricId: formData.get("metricId"),
     value: formData.get("value"),
@@ -81,19 +62,7 @@ export function validateCreateTodayEntryFormData(
   };
 }
 
-type CreatePastEntryValidationResult =
-  | {
-      success: true;
-      data: CreatePastEntryInput;
-    }
-  | {
-      success: false;
-      fieldErrors: CreateEntryFieldErrors;
-    };
-
-export function validateCreatePastEntryFormData(
-  formData: FormData,
-): CreatePastEntryValidationResult {
+export function validateCreatePastEntryFormData(formData: FormData) {
   const parsed = createPastEntrySchema.safeParse({
     metricId: formData.get("metricId"),
     date: formData.get("date"),
