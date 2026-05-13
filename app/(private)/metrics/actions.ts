@@ -4,11 +4,11 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createEntryByMetricIdForUser } from "@/lib/db/entries.queries";
+import { createEntryByMetricIdForUser } from "@/lib/db/entries.repository";
 import {
   createMetricForUser,
   deleteMetricForUser,
-} from "@/lib/db/metrics.queries";
+} from "@/lib/db/metrics.repository";
 import { getTodayCalendarDate } from "@/lib/date";
 
 import {

@@ -11,11 +11,11 @@ import {
 import { LineChart, Plus } from "lucide-react";
 import Link from "next/link";
 
-import { getMetricsPageData } from "./queries";
+import { loadMetricsPageData } from "./loader";
 import { MetricCard } from "./metric-card";
 
 export default async function MetricsPage() {
-  const { metrics } = await getMetricsPageData();
+  const { metrics } = await loadMetricsPageData();
 
   if (metrics.length === 0) {
     return (

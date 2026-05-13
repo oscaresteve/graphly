@@ -1,12 +1,13 @@
 import { AppSubbar } from "@/components/app-subbar";
-import { getNewMetricPageData } from "../queries";
 import { NewMetricForm } from "./new-metric-form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+import { loadNewMetricPageData } from "./loader";
+
 export default async function NewMetricPage() {
-  const { unitOptions } = await getNewMetricPageData();
+  const { unitOptions } = await loadNewMetricPageData();
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">

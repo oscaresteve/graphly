@@ -7,9 +7,9 @@ import { notFound } from "next/navigation";
 
 import { MetricActionsDropdown } from "../metric-actions-dropdown";
 import { TodayEntryDialogForm } from "../today-entry-dialog-form";
-import { getMetricPageData } from "../queries";
 import { MetricEntryCalendar } from "./metric-entry-calendar";
 import { MetricDetailChart } from "./metric-detail-chart";
+import { loadMetricPageData } from "./loader";
 
 type MetricPageProps = {
   params: Promise<{
@@ -19,7 +19,7 @@ type MetricPageProps = {
 
 export default async function MetricPage({ params }: MetricPageProps) {
   const { metricId } = await params;
-  const { metric } = await getMetricPageData(metricId);
+  const { metric } = await loadMetricPageData(metricId);
 
   if (!metric) {
     notFound();
