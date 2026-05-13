@@ -26,7 +26,7 @@ import { createTodayEntryAction } from "./actions";
 import {
   initialCreateEntryActionState,
   type CreateEntryActionState,
-} from "./validation";
+} from "./entry.validation";
 
 type TodayEntryDialogFormProps = {
   disabled: boolean;

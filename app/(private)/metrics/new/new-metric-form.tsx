@@ -26,7 +26,7 @@ import { createMetricAction } from "../actions";
 import {
   initialCreateMetricActionState,
   type CreateMetricActionState,
-} from "../validation";
+} from "../metric.validation";
 
 type UnitOption = {
   id: string;

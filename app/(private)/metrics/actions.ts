@@ -13,12 +13,14 @@ import { getTodayCalendarDate } from "@/lib/date";
 
 import {
   type CreateEntryActionState,
-  type CreateMetricActionState,
   validateCreatePastEntryFormData,
-  validateCreateMetricFormData,
   validateCreateTodayEntryFormData,
+} from "./entry.validation";
+import {
+  type CreateMetricActionState,
+  validateCreateMetricFormData,
   validateDeleteMetricFormData,
-} from "./validation";
+} from "./metric.validation";
 
 export async function createMetricAction(
   _previousState: CreateMetricActionState,

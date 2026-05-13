@@ -37,7 +37,7 @@ import { createPastEntryAction } from "./actions";
 import {
   initialCreateEntryActionState,
   type CreateEntryActionState,
-} from "./validation";
+} from "./entry.validation";
 
 type PastEntryDialogFormProps = {
   entryDates: CalendarDateString[];
