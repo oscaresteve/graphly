@@ -1,24 +1,16 @@
 import { z } from "zod";
 
-const createMetricSchema = z.object({
+export const createMetricSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Name is required")
+    .min(3, "Name must be at least 3 characters")
     .max(100, "Name must be 100 characters or fewer"),
   description: z
-    .preprocess(
-      (value) =>
-        value === null || (typeof value === "string" && value.trim() === "")
-          ? undefined
-          : value,
-      z
-        .string()
-        .trim()
-        .max(500, "Description must be 500 characters or fewer")
-        .optional(),
-    )
-    .transform((value) => value ?? null),
+    .string()
+    .trim()
+    .max(500, "Description must be 500 characters or fewer")
+    .optional(),
   unitId: z.uuid("Unit is invalid"),
 });
 
@@ -37,7 +29,9 @@ export const initialCreateMetricActionState: CreateMetricActionState = {
 type CreateMetricValidationResult =
   | {
       success: true;
-      data: z.infer<typeof createMetricSchema>;
+      data: Omit<z.infer<typeof createMetricSchema>, "description"> & {
+        description: string | null;
+      };
     }
   | {
       success: false;
@@ -62,7 +56,10 @@ export function validateCreateMetricFormData(
 
   return {
     success: true,
-    data: parsed.data,
+    data: {
+      ...parsed.data,
+      description: parsed.data.description || null,
+    },
   };
 }
 
