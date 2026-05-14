@@ -28,14 +28,12 @@ import {
   type CreateMetricActionState,
 } from "../metric.validation";
 
-type UnitOption = {
-  id: string;
-  name: string;
-  symbol: string;
-};
-
 type NewMetricFormProps = {
-  units: UnitOption[];
+  units: {
+    id: string;
+    name: string;
+    symbol: string;
+  }[];
 };
 
 export function NewMetricForm({ units }: NewMetricFormProps) {
@@ -43,7 +41,6 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
     createMetricAction,
     initialCreateMetricActionState,
   );
-  const defaultUnitId = units[0]?.id;
   const nameErrors = getFieldErrors(state, "name");
   const descriptionErrors = getFieldErrors(state, "description");
   const unitErrors = getFieldErrors(state, "unitId");
@@ -86,11 +83,7 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
           data-invalid={hasErrors(unitErrors) ? true : undefined}
         >
           <FieldLabel>Unit</FieldLabel>
-          <Select
-            name="unitId"
-            defaultValue={defaultUnitId}
-            disabled={units.length === 0}
-          >
+          <Select name="unitId" disabled={units.length === 0}>
             <SelectTrigger
               className="w-full"
               aria-invalid={hasErrors(unitErrors) ? true : undefined}
@@ -115,21 +108,17 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
             </FieldDescription>
           )}
         </Field>
-      </FieldGroup>
 
-      <div className="flex flex-col gap-2">
-        <Button
-          type="submit"
-          className="h-11"
-          disabled={units.length === 0 || isPending}
-        >
-          <Plus data-icon="inline-start" />
-          {isPending ? "Creating..." : "Create Metric"}
-        </Button>
-        <Button asChild variant="ghost">
-          <Link href="/metrics">Cancel</Link>
-        </Button>
-      </div>
+        <Field orientation="horizontal">
+          <Button type="submit" disabled={units.length === 0 || isPending}>
+            <Plus data-icon="inline-start" />
+            {isPending ? "Creating..." : "Create Metric"}
+          </Button>
+          <Button asChild variant="ghost">
+            <Link href="/metrics">Cancel</Link>
+          </Button>
+        </Field>
+      </FieldGroup>
     </form>
   );
 }
