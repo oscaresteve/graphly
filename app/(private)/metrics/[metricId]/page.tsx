@@ -41,12 +41,14 @@ export default async function MetricPage({ params }: MetricPageProps) {
         }
         right={
           <>
-            <TodayEntryDialogForm
-              disabled={hasTodayEntry}
-              metricId={metric.id}
-              metricName={metric.name}
-              unit={metric.unit}
-            />
+            {!hasTodayEntry && (
+              <TodayEntryDialogForm
+                disabled={hasTodayEntry}
+                metricId={metric.id}
+                metricName={metric.name}
+                unit={metric.unit}
+              />
+            )}
             <MetricActionsDropdown
               entryDates={entryDates}
               metricId={metric.id}
@@ -71,8 +73,6 @@ export default async function MetricPage({ params }: MetricPageProps) {
         unitSymbol={metric.unit.symbol}
         unitName={metric.unit.name}
       />
-
-      <MetricEntryCalendar entries={metric.entries} />
     </div>
   );
 }
