@@ -13,8 +13,7 @@ import { getTodayCalendarDate } from "@/lib/date";
 
 import {
   type CreateEntryActionState,
-  validateCreatePastEntryFormData,
-  validateCreateTodayEntryFormData,
+  validateCreateEntryFormData,
 } from "./entry.validation";
 import {
   type CreateMetricActionState,
@@ -57,66 +56,12 @@ export async function deleteMetricAction(formData: FormData) {
   redirect("/metrics");
 }
 
-export async function createTodayEntryAction(
+export async function createEntryAction(
   _previousState: CreateEntryActionState,
   formData: FormData,
 ): Promise<CreateEntryActionState> {
   const { userId } = await auth.protect();
-  const validation = validateCreateTodayEntryFormData(formData);
-
-  if (!validation.success) {
-    return {
-      success: false,
-      fieldErrors: validation.fieldErrors,
-      formError: null,
-    };
-  }
-
-  try {
-    const entry = await createEntryByMetricIdForUser(
-      validation.data.metricId,
-      userId,
-      {
-        date: getTodayCalendarDate(),
-        value: validation.data.value,
-      },
-    );
-
-    if (!entry) {
-      return {
-        success: false,
-        fieldErrors: {},
-        formError: "Metric not found",
-      };
-    }
-  } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return {
-        success: false,
-        fieldErrors: {},
-        formError: "There is already an entry for today",
-      };
-    }
-
-    throw error;
-  }
-
-  revalidatePath("/metrics");
-  revalidatePath(`/metrics/${validation.data.metricId}`);
-
-  return {
-    success: true,
-    fieldErrors: {},
-    formError: null,
-  };
-}
-
-export async function createPastEntryAction(
-  _previousState: CreateEntryActionState,
-  formData: FormData,
-): Promise<CreateEntryActionState> {
-  const { userId } = await auth.protect();
-  const validation = validateCreatePastEntryFormData(formData);
+  const validation = validateCreateEntryFormData(formData);
 
   if (!validation.success) {
     return {
@@ -148,7 +93,10 @@ export async function createPastEntryAction(
       return {
         success: false,
         fieldErrors: {},
-        formError: "There is already an entry for this date",
+        formError:
+          validation.data.date === getTodayCalendarDate()
+            ? "There is already an entry for today"
+            : "There is already an entry for this date",
       };
     }
 
