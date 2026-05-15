@@ -109,13 +109,13 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
           )}
         </Field>
 
-        <Field orientation="horizontal">
+        <Field orientation="horizontal" className="justify-end">
+          <Button asChild variant="outline" disabled={isPending}>
+            <Link href="/metrics">Cancel</Link>
+          </Button>
           <Button type="submit" disabled={units.length === 0 || isPending}>
             <Plus data-icon="inline-start" />
             {isPending ? "Creating..." : "Create Metric"}
-          </Button>
-          <Button asChild variant="ghost">
-            <Link href="/metrics">Cancel</Link>
           </Button>
         </Field>
       </FieldGroup>
