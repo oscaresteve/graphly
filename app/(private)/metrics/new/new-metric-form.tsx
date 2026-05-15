@@ -44,32 +44,35 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
   const nameErrors = getFieldErrors(state, "name");
   const descriptionErrors = getFieldErrors(state, "description");
   const unitErrors = getFieldErrors(state, "unitId");
+  const hasNameErrors = hasErrors(nameErrors);
+  const hasDescriptionErrors = hasErrors(descriptionErrors);
+  const hasUnitErrors = hasErrors(unitErrors);
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
       <FieldGroup>
         {state.formError ? <FieldError>{state.formError}</FieldError> : null}
 
-        <Field data-invalid={hasErrors(nameErrors) ? true : undefined}>
+        <Field data-invalid={hasNameErrors}>
           <FieldLabel htmlFor="name">Name</FieldLabel>
           <Input
             id="name"
             name="name"
             placeholder="Weight, revenue, sleep"
-            aria-invalid={hasErrors(nameErrors) ? true : undefined}
+            aria-invalid={hasNameErrors}
           />
           <FieldError errors={nameErrors} />
         </Field>
 
-        <Field data-invalid={hasErrors(descriptionErrors) ? true : undefined}>
+        <Field data-invalid={hasDescriptionErrors}>
           <FieldLabel htmlFor="description">Description</FieldLabel>
           <Textarea
             id="description"
             name="description"
             placeholder="What this metric helps you understand"
-            aria-invalid={hasErrors(descriptionErrors) ? true : undefined}
+            aria-invalid={hasDescriptionErrors}
           />
-          {hasErrors(descriptionErrors) ? (
+          {hasDescriptionErrors ? (
             <FieldError errors={descriptionErrors} />
           ) : (
             <FieldDescription>
@@ -80,14 +83,11 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
 
         <Field
           data-disabled={units.length === 0 ? true : undefined}
-          data-invalid={hasErrors(unitErrors) ? true : undefined}
+          data-invalid={hasUnitErrors}
         >
           <FieldLabel>Unit</FieldLabel>
           <Select name="unitId" disabled={units.length === 0}>
-            <SelectTrigger
-              className="w-full"
-              aria-invalid={hasErrors(unitErrors) ? true : undefined}
-            >
+            <SelectTrigger className="w-full" aria-invalid={hasUnitErrors}>
               <SelectValue placeholder="Select a unit" />
             </SelectTrigger>
             <SelectContent>
@@ -100,7 +100,7 @@ export function NewMetricForm({ units }: NewMetricFormProps) {
               </SelectGroup>
             </SelectContent>
           </Select>
-          {hasErrors(unitErrors) ? (
+          {hasUnitErrors ? (
             <FieldError errors={unitErrors} />
           ) : (
             <FieldDescription>
@@ -131,5 +131,5 @@ function getFieldErrors(
 }
 
 function hasErrors(errors: ReturnType<typeof getFieldErrors>) {
-  return errors.length > 0;
+  return errors.length > 0 ? true : undefined;
 }
