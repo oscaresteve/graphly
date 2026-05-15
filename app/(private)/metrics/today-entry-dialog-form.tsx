@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -76,6 +77,9 @@ export function TodayEntryDialogForm({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{metricName}</DialogTitle>
+          <DialogDescription>
+            Create a new entry for today.
+          </DialogDescription>
         </DialogHeader>
 
         <form ref={formRef} action={formAction} className="flex flex-col gap-4">
@@ -87,11 +91,8 @@ export function TodayEntryDialogForm({
             ) : null}
 
             <Field data-invalid={hasValueErrors}>
-              <FieldLabel
-                htmlFor={`entry-value-${metricId}`}
-                className="text-muted-foreground text-xs font-medium tracking-normal uppercase"
-              >
-                {unit.name}
+              <FieldLabel htmlFor={`entry-value-${metricId}`}>
+                {metricName}
               </FieldLabel>
               <Input
                 id={`entry-value-${metricId}`}
@@ -101,7 +102,7 @@ export function TodayEntryDialogForm({
                 min={0}
                 max={inputConfig.max}
                 step={inputConfig.step}
-                placeholder={`123${unit.type === "decimal" ? ".456" : ""}`}
+                placeholder={inputConfig.placeholder}
                 aria-invalid={hasValueErrors}
               />
               {hasValueErrors ? (
@@ -137,6 +138,7 @@ function hasErrors(errors: ReturnType<typeof getFieldErrors>) {
 
 function getInputConfig(type: Unit["type"]): {
   description: string;
+  placeholder: string;
   inputMode: "decimal" | "numeric";
   max: number;
   step: string;
@@ -144,6 +146,7 @@ function getInputConfig(type: Unit["type"]): {
   if (type === "integer") {
     return {
       description: "Use a whole number.",
+      placeholder: "123",
       inputMode: "numeric",
       max: 999999999,
       step: "1",
@@ -152,6 +155,7 @@ function getInputConfig(type: Unit["type"]): {
 
   return {
     description: "Decimals are allowed.",
+    placeholder: "123.456",
     inputMode: "decimal",
     max: 999999999.999,
     step: "0.001",
