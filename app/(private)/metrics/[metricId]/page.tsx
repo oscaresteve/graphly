@@ -1,13 +1,12 @@
 import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
 import { getTodayCalendarDate } from "@/lib/date";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { EntryDialogForm } from "../entry-dialog-form";
 import { MetricActionsDropdown } from "../metric-actions-dropdown";
-import { TodayEntryDialogForm } from "../today-entry-dialog-form";
-import { MetricEntryCalendar } from "./metric-entry-calendar";
 import { MetricDetailChart } from "./metric-detail-chart";
 import { loadMetricPageData } from "./loader";
 
@@ -42,10 +41,16 @@ export default async function MetricPage({ params }: MetricPageProps) {
         right={
           <>
             {!hasTodayEntry && (
-              <TodayEntryDialogForm
-                disabled={hasTodayEntry}
+              <EntryDialogForm
                 metricId={metric.id}
                 metricName={metric.name}
+                mode="today"
+                trigger={
+                  <Button type="button" disabled={hasTodayEntry}>
+                    <Plus data-icon="inline-start" />
+                    Log today
+                  </Button>
+                }
                 unit={metric.unit}
               />
             )}

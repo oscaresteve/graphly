@@ -15,7 +15,7 @@ import { type Unit } from "@/lib/db/types";
 import { type CalendarDateString } from "@/lib/date";
 
 import { deleteMetricAction } from "./actions";
-import { PastEntryDialogForm } from "./past-entry-dialog-form";
+import { EntryDialogForm } from "./entry-dialog-form";
 
 type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
@@ -33,7 +33,7 @@ export function MetricActionsDropdown({
   metricName,
   unit,
 }: MetricActionsDropdownProps) {
-  const [pastEntryOpen, setPastEntryOpen] = useState(false);
+  const [entryDialogOpen, setEntryDialogOpen] = useState(false);
 
   return (
     <>
@@ -48,7 +48,7 @@ export function MetricActionsDropdown({
             <Edit />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setPastEntryOpen(true)}>
+          <DropdownMenuItem onSelect={() => setEntryDialogOpen(true)}>
             <CalendarIcon />
             Log past entry
           </DropdownMenuItem>
@@ -68,12 +68,13 @@ export function MetricActionsDropdown({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <PastEntryDialogForm
+      <EntryDialogForm
         entryDates={entryDates}
         metricId={metricId}
         metricName={metricName}
-        open={pastEntryOpen}
-        onOpenChange={setPastEntryOpen}
+        mode="past"
+        open={entryDialogOpen}
+        onOpenChange={setEntryDialogOpen}
         unit={unit}
       />
     </>

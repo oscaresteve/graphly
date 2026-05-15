@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, type ReactNode } from "react";
 import { CalendarIcon, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Field,
@@ -33,48 +35,65 @@ import {
   type CalendarDateString,
 } from "@/lib/date";
 
-import { createPastEntryAction } from "./actions";
+import { createEntryAction } from "./actions";
 import {
   initialCreateEntryActionState,
   type CreateEntryActionState,
 } from "./entry.validation";
 
-type PastEntryDialogFormProps = {
-  entryDates: CalendarDateString[];
+type EntryDialogFormProps = {
+  entryDates?: CalendarDateString[];
   metricId: string;
   metricName: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  mode: "past" | "today";
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+  trigger?: ReactNode;
   unit: {
     name: string;
     type: Unit["type"];
   };
 };
 
-export function PastEntryDialogForm({
-  entryDates,
+export function EntryDialogForm({
+  entryDates = [],
   metricId,
   metricName,
+  mode,
   onOpenChange,
   open,
+  trigger,
   unit,
-}: PastEntryDialogFormProps) {
+}: EntryDialogFormProps) {
   const todayDate = getTodayCalendarDate();
   const today = parseCalendarDate(todayDate);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(
     getDefaultPastDate(entryDates, today),
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const isPastEntry = mode === "past";
+  const dialogOpen = open ?? internalOpen;
+
+  function setDialogOpen(nextOpen: boolean) {
+    if (onOpenChange) {
+      onOpenChange(nextOpen);
+      return;
+    }
+
+    setInternalOpen(nextOpen);
+  }
+
   const [state, formAction, isPending] = useActionState(
     async (
       previousState: CreateEntryActionState,
       formData: FormData,
     ): Promise<CreateEntryActionState> => {
-      const nextState = await createPastEntryAction(previousState, formData);
+      const nextState = await createEntryAction(previousState, formData);
 
       if (nextState.success) {
-        onOpenChange(false);
+        setDialogOpen(false);
         setDatePickerOpen(false);
         setSelectedDate(getDefaultPastDate(entryDates, today));
         formRef.current?.reset();
@@ -86,21 +105,37 @@ export function PastEntryDialogForm({
   );
   const inputConfig = getInputConfig(unit.type);
   const dateErrors = getFieldErrors(state, "date");
-  const hasDateErrors = dateErrors.length > 0;
+  const hasDateErrors = hasErrors(dateErrors);
   const valueErrors = getFieldErrors(state, "value");
-  const hasValueErrors = valueErrors.length > 0;
-  const selectedCalendarDate = formatCalendarDate(selectedDate);
+  const hasValueErrors = hasErrors(valueErrors);
+  const selectedCalendarDate = isPastEntry
+    ? formatCalendarDate(selectedDate)
+    : todayDate;
   const disabledDates = [
     today,
     { after: today },
     ...entryDates.map((entryDate) => parseCalendarDate(entryDate)),
   ];
 
+  function handleOpenChange(nextOpen: boolean) {
+    setDialogOpen(nextOpen);
+
+    if (!nextOpen) {
+      setDatePickerOpen(false);
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{metricName}</DialogTitle>
+          <DialogDescription>
+            {isPastEntry
+              ? "Create a new entry for a previous date."
+              : "Create a new entry for today."}
+          </DialogDescription>
         </DialogHeader>
 
         <form ref={formRef} action={formAction} className="flex flex-col gap-4">
@@ -112,44 +147,46 @@ export function PastEntryDialogForm({
               <FieldError>{state.formError}</FieldError>
             ) : null}
 
-            <Field data-invalid={hasDateErrors ? true : undefined}>
-              <FieldLabel className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
-                Date
-              </FieldLabel>
-              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    aria-invalid={hasDateErrors ? true : undefined}
-                    className="justify-start"
-                  >
-                    <CalendarIcon data-icon="inline-start" />
-                    {formatPickerDate(selectedDate)}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="start" className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    disabled={disabledDates}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setDatePickerOpen(false);
-                      }
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-              {hasDateErrors ? (
-                <FieldError errors={dateErrors} />
-              ) : (
-                <FieldDescription>Choose a previous date.</FieldDescription>
-              )}
-            </Field>
+            {isPastEntry ? (
+              <Field data-invalid={hasDateErrors}>
+                <FieldLabel className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
+                  Date
+                </FieldLabel>
+                <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      aria-invalid={hasDateErrors}
+                      className="justify-start"
+                    >
+                      <CalendarIcon data-icon="inline-start" />
+                      {formatPickerDate(selectedDate)}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      disabled={disabledDates}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date);
+                          setDatePickerOpen(false);
+                        }
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {hasDateErrors ? (
+                  <FieldError errors={dateErrors} />
+                ) : (
+                  <FieldDescription>Choose a previous date.</FieldDescription>
+                )}
+              </Field>
+            ) : null}
 
-            <Field data-invalid={hasValueErrors ? true : undefined}>
+            <Field data-invalid={hasValueErrors}>
               <FieldLabel
                 htmlFor={`entry-value-${metricId}`}
                 className="text-muted-foreground text-xs font-medium tracking-normal uppercase"
@@ -164,8 +201,8 @@ export function PastEntryDialogForm({
                 min={0}
                 max={inputConfig.max}
                 step={inputConfig.step}
-                placeholder={`123${unit.type === "decimal" ? ".456" : ""}`}
-                aria-invalid={hasValueErrors ? true : undefined}
+                placeholder={inputConfig.placeholder}
+                aria-invalid={hasValueErrors}
               />
               {hasValueErrors ? (
                 <FieldError errors={valueErrors} />
@@ -192,6 +229,10 @@ function getFieldErrors(
   field: keyof CreateEntryActionState["fieldErrors"],
 ) {
   return state.fieldErrors[field]?.map((message) => ({ message })) ?? [];
+}
+
+function hasErrors(errors: ReturnType<typeof getFieldErrors>) {
+  return errors.length > 0 ? true : undefined;
 }
 
 function formatPickerDate(value: Date) {
@@ -222,6 +263,7 @@ function getDefaultPastDate(
 
 function getInputConfig(type: Unit["type"]): {
   description: string;
+  placeholder: string;
   inputMode: "decimal" | "numeric";
   max: number;
   step: string;
@@ -229,6 +271,7 @@ function getInputConfig(type: Unit["type"]): {
   if (type === "integer") {
     return {
       description: "Use a whole number.",
+      placeholder: "123",
       inputMode: "numeric",
       max: 999999999,
       step: "1",
@@ -237,6 +280,7 @@ function getInputConfig(type: Unit["type"]): {
 
   return {
     description: "Decimals are allowed.",
+    placeholder: "123.456",
     inputMode: "decimal",
     max: 999999999.999,
     step: "0.001",
