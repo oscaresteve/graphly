@@ -1,8 +1,14 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { Plus } from "lucide-react";
+import { type Unit } from "@/lib/db/types";
+import { createTodayEntryAction } from "./actions";
+import {
+  initialCreateEntryActionState,
+  type CreateEntryActionState,
+} from "./entry.validation";
 
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,13 +26,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { type Unit } from "@/lib/db/types";
-
-import { createTodayEntryAction } from "./actions";
-import {
-  initialCreateEntryActionState,
-  type CreateEntryActionState,
-} from "./entry.validation";
 
 type TodayEntryDialogFormProps = {
   disabled: boolean;
@@ -64,7 +63,7 @@ export function TodayEntryDialogForm({
   );
   const inputConfig = getInputConfig(unit.type);
   const valueErrors = getFieldErrors(state, "value");
-  const hasValueErrors = valueErrors.length > 0;
+  const hasValueErrors = hasErrors(valueErrors);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -87,7 +86,7 @@ export function TodayEntryDialogForm({
               <FieldError>{state.formError}</FieldError>
             ) : null}
 
-            <Field data-invalid={hasValueErrors ? true : undefined}>
+            <Field data-invalid={hasValueErrors}>
               <FieldLabel
                 htmlFor={`entry-value-${metricId}`}
                 className="text-muted-foreground text-xs font-medium tracking-normal uppercase"
@@ -103,7 +102,7 @@ export function TodayEntryDialogForm({
                 max={inputConfig.max}
                 step={inputConfig.step}
                 placeholder={`123${unit.type === "decimal" ? ".456" : ""}`}
-                aria-invalid={hasValueErrors ? true : undefined}
+                aria-invalid={hasValueErrors}
               />
               {hasValueErrors ? (
                 <FieldError errors={valueErrors} />
@@ -130,6 +129,10 @@ function getFieldErrors(
   field: keyof CreateEntryActionState["fieldErrors"],
 ) {
   return state.fieldErrors[field]?.map((message) => ({ message })) ?? [];
+}
+
+function hasErrors(errors: ReturnType<typeof getFieldErrors>) {
+  return errors.length > 0 ? true : undefined;
 }
 
 function getInputConfig(type: Unit["type"]): {
