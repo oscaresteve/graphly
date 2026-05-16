@@ -16,6 +16,7 @@ import { type CalendarDateString } from "@/lib/date";
 
 import { deleteMetricAction } from "./actions";
 import { EntryDialogForm } from "./entry-dialog-form";
+import Link from "next/link";
 
 type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
@@ -44,9 +45,11 @@ export function MetricActionsDropdown({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-max">
-          <DropdownMenuItem>
-            <Edit />
-            Edit
+          <DropdownMenuItem asChild>
+            <Link href={`/metrics/${metricId}/edit`}>
+              <Edit />
+              Edit
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setEntryDialogOpen(true)}>
             <CalendarIcon />
