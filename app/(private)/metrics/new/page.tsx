@@ -1,4 +1,4 @@
-import { NewMetricForm } from "./new-metric-form";
+import { MetricForm } from "@/components/metric-form";
 
 import { loadNewMetricPageData } from "./loader";
 
@@ -13,7 +13,7 @@ export default async function NewMetricPage() {
           Define what you want to track before adding daily values.
         </p>
       </div>
-      <NewMetricForm units={unitOptions} />
+      <MetricForm units={unitOptions} />
     </div>
   );
 }

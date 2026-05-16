@@ -22,13 +22,13 @@ import { Plus } from "lucide-react";
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { createMetricAction } from "../actions";
+import { createMetricAction } from "../app/(private)/metrics/actions";
 import {
   initialCreateMetricActionState,
   type CreateMetricActionState,
-} from "../metric.validation";
+} from "../app/(private)/metrics/metric.validation";
 
-type NewMetricFormProps = {
+type MetricFormProps = {
   units: {
     id: string;
     name: string;
@@ -36,7 +36,7 @@ type NewMetricFormProps = {
   }[];
 };
 
-export function NewMetricForm({ units }: NewMetricFormProps) {
+export function MetricForm({ units }: MetricFormProps) {
   const [state, formAction, isPending] = useActionState(
     createMetricAction,
     initialCreateMetricActionState,
