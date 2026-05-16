@@ -13,7 +13,7 @@ export default async function NewMetricPage() {
           Define what you want to track before adding daily values.
         </p>
       </div>
-      <MetricForm units={unitOptions} />
+      <MetricForm units={unitOptions} mode="create" />
     </div>
   );
 }

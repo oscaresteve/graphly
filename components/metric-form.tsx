@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 
 import { useActionState } from "react";
 import Link from "next/link";
@@ -27,20 +27,38 @@ import {
   initialCreateMetricActionState,
   type CreateMetricActionState,
 } from "../app/(private)/metrics/metric.validation";
+import { UserMetric } from "@/lib/db/types";
 
-type MetricFormProps = {
-  units: {
-    id: string;
-    name: string;
-    symbol: string;
-  }[];
-};
+type MetricFormProps =
+  | {
+      mode: "create";
+      metric?: null;
+      units: {
+        id: string;
+        name: string;
+        symbol: string;
+      }[];
+    }
+  | {
+      mode: "edit";
+      metric: UserMetric | null;
+      units: {
+        id: string;
+        name: string;
+        symbol: string;
+      }[];
+    };
 
-export function MetricForm({ units }: MetricFormProps) {
+export function MetricForm({ units, metric, mode }: MetricFormProps) {
   const [state, formAction, isPending] = useActionState(
     createMetricAction,
     initialCreateMetricActionState,
   );
+  const isEditMode = mode === "edit";
+  const cancelHref =
+    isEditMode && metric ? `/metrics/${metric.id}` : "/metrics";
+  const submitLabel = isEditMode ? "Save changes" : "Create Metric";
+  const pendingLabel = isEditMode ? "Saving..." : "Creating...";
   const nameErrors = getFieldErrors(state, "name");
   const descriptionErrors = getFieldErrors(state, "description");
   const unitErrors = getFieldErrors(state, "unitId");
@@ -58,6 +76,7 @@ export function MetricForm({ units }: MetricFormProps) {
           <Input
             id="name"
             name="name"
+            defaultValue={metric?.name ?? ""}
             placeholder="Weight, revenue, sleep"
             aria-invalid={hasNameErrors}
           />
@@ -69,6 +88,7 @@ export function MetricForm({ units }: MetricFormProps) {
           <Textarea
             id="description"
             name="description"
+            defaultValue={metric?.description ?? ""}
             placeholder="What this metric helps you understand"
             aria-invalid={hasDescriptionErrors}
           />
@@ -86,7 +106,11 @@ export function MetricForm({ units }: MetricFormProps) {
           data-invalid={hasUnitErrors}
         >
           <FieldLabel>Unit</FieldLabel>
-          <Select name="unitId" disabled={units.length === 0}>
+          <Select
+            name="unitId"
+            defaultValue={metric?.unit.id}
+            disabled={units.length === 0}
+          >
             <SelectTrigger className="w-full" aria-invalid={hasUnitErrors}>
               <SelectValue placeholder="Select a unit" />
             </SelectTrigger>
@@ -111,11 +135,15 @@ export function MetricForm({ units }: MetricFormProps) {
 
         <Field orientation="horizontal" className="justify-end">
           <Button asChild variant="outline" disabled={isPending}>
-            <Link href="/metrics">Cancel</Link>
+            <Link href={cancelHref}>Cancel</Link>
           </Button>
           <Button type="submit" disabled={units.length === 0 || isPending}>
-            <Plus data-icon="inline-start" />
-            {isPending ? "Creating..." : "Create Metric"}
+            {!isEditMode ? (
+              <Plus data-icon="inline-start" />
+            ) : (
+              <Save data-icon="inline-start" />
+            )}
+            {isPending ? pendingLabel : submitLabel}
           </Button>
         </Field>
       </FieldGroup>
