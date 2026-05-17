@@ -15,6 +15,12 @@ type CreateMetricValues = {
   unitId: string;
 };
 
+type UpdateMetricValues = {
+  name: string;
+  description: string | null;
+  unitId: string;
+};
+
 export async function getMetricsForUser(userId: string): Promise<UserMetric[]> {
   return db
     .select({
@@ -101,6 +107,24 @@ export async function createMetricForUser(
       description: input.description,
       unitId: input.unitId,
     })
+    .returning();
+
+  return metric;
+}
+
+export async function updateMetricForUser(
+  metricId: string,
+  userId: string,
+  input: UpdateMetricValues,
+): Promise<Metric> {
+  const [metric] = await db
+    .update(metrics)
+    .set({
+      name: input.name,
+      description: input.description,
+      unitId: input.unitId,
+    })
+    .where(and(eq(metrics.id, metricId), eq(metrics.userId, userId)))
     .returning();
 
   return metric;
