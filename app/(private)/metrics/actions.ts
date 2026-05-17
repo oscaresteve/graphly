@@ -8,6 +8,7 @@ import { createEntryByMetricIdForUser } from "@/lib/db/entries.repository";
 import {
   createMetricForUser,
   deleteMetricForUser,
+  updateMetricForUser,
 } from "@/lib/db/metrics.repository";
 import { getTodayCalendarDate } from "@/lib/date";
 
@@ -17,8 +18,10 @@ import {
 } from "./entry.validation";
 import {
   type CreateMetricActionState,
+  UpdateMetricActionState,
   validateCreateMetricFormData,
   validateDeleteMetricFormData,
+  validateUpdateMetricFormData,
 } from "./metric.validation";
 
 export async function createMetricAction(
@@ -40,6 +43,27 @@ export async function createMetricAction(
 
   revalidatePath("/metrics");
   redirect("/metrics");
+}
+
+export async function updateMetricAction(
+  _previousState: UpdateMetricActionState,
+  formData: FormData,
+): Promise<UpdateMetricActionState> {
+  const { userId } = await auth.protect();
+  const validation = validateUpdateMetricFormData(formData);
+
+  if (!validation.success) {
+    return {
+      success: false,
+      fieldErrors: validation.fieldErrors,
+      formError: null,
+    };
+  }
+
+  await updateMetricForUser(validation.data.metricId, userId, validation.data);
+
+  revalidatePath(`/metrics/${validation.data.metricId}`);
+  redirect(`/metrics/${validation.data.metricId}`);
 }
 
 export async function deleteMetricAction(formData: FormData) {
