@@ -18,7 +18,7 @@ export default async function EditMetricPage({ params }: EditMetricPageProps) {
           Update the details of your metric.
         </p>
       </div>
-      <MetricForm units={unitOptions} metric={metric} mode="edit" />
+      <MetricForm units={unitOptions} metric={metric} mode="update" />
     </div>
   );
 }

@@ -22,9 +22,13 @@ import { Plus, Save } from "lucide-react";
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { createMetricAction } from "../app/(private)/metrics/actions";
+import {
+  createMetricAction,
+  updateMetricAction,
+} from "../app/(private)/metrics/actions";
 import {
   initialCreateMetricActionState,
+  initialUpdateMetricActionState,
   type CreateMetricActionState,
 } from "../app/(private)/metrics/metric.validation";
 import { UserMetric } from "@/lib/db/types";
@@ -40,7 +44,7 @@ type MetricFormProps =
       }[];
     }
   | {
-      mode: "edit";
+      mode: "update";
       metric: UserMetric | null;
       units: {
         id: string;
@@ -50,15 +54,17 @@ type MetricFormProps =
     };
 
 export function MetricForm({ units, metric, mode }: MetricFormProps) {
-  const [state, formAction, isPending] = useActionState(
-    createMetricAction,
-    initialCreateMetricActionState,
-  );
-  const isEditMode = mode === "edit";
+  const isUpdateMode = mode === "update";
+  const action = isUpdateMode ? updateMetricAction : createMetricAction;
+  const initialState = isUpdateMode
+    ? initialUpdateMetricActionState
+    : initialCreateMetricActionState;
+
+  const [state, formAction, isPending] = useActionState(action, initialState);
   const cancelHref =
-    isEditMode && metric ? `/metrics/${metric.id}` : "/metrics";
-  const submitLabel = isEditMode ? "Save changes" : "Create Metric";
-  const pendingLabel = isEditMode ? "Saving..." : "Creating...";
+    isUpdateMode && metric ? `/metrics/${metric.id}` : "/metrics";
+  const submitLabel = isUpdateMode ? "Save changes" : "Create Metric";
+  const pendingLabel = isUpdateMode ? "Saving..." : "Creating...";
   const nameErrors = getFieldErrors(state, "name");
   const descriptionErrors = getFieldErrors(state, "description");
   const unitErrors = getFieldErrors(state, "unitId");
@@ -70,6 +76,10 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
     <form action={formAction} className="flex flex-col gap-6">
       <FieldGroup>
         {state.formError ? <FieldError>{state.formError}</FieldError> : null}
+
+        {isUpdateMode && (
+          <input type="hidden" name="metricId" value={metric?.id} />
+        )}
 
         <Field data-invalid={hasNameErrors}>
           <FieldLabel htmlFor="name">Name</FieldLabel>
@@ -138,7 +148,7 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
             <Link href={cancelHref}>Cancel</Link>
           </Button>
           <Button type="submit" disabled={units.length === 0 || isPending}>
-            {!isEditMode ? (
+            {!isUpdateMode ? (
               <Plus data-icon="inline-start" />
             ) : (
               <Save data-icon="inline-start" />
