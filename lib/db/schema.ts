@@ -9,7 +9,9 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-export const unitTypeEnum = pgEnum("unit_type", ["integer", "decimal"]);
+export const unitTypeValues = ["integer", "decimal"] as const;
+
+export const unitTypeEnum = pgEnum("unit_type", unitTypeValues);
 
 export const units = pgTable("units", {
   id: uuid("id").defaultRandom().primaryKey(),

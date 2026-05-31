@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { type MetricView, type UnitOption } from "@/lib/metrics/types";
 import { Plus, Save } from "lucide-react";
 
 import { useActionState } from "react";
@@ -25,32 +26,30 @@ import Link from "next/link";
 import {
   createMetricAction,
   updateMetricAction,
-} from "../app/(private)/metrics/actions";
+} from "../_lib/actions";
 import {
-  initialCreateMetricActionState,
-  initialUpdateMetricActionState,
-  type CreateMetricActionState,
-} from "../app/(private)/metrics/metric.validation";
-import { UserMetric } from "@/lib/db/types";
+  createInitialActionState,
+  type ActionState,
+} from "../_lib/action-state";
+
+type CreateMetricField = "name" | "description" | "unitId";
+type UpdateMetricField = "metricId" | CreateMetricField;
+
+const initialCreateMetricActionState =
+  createInitialActionState<CreateMetricField>();
+const initialUpdateMetricActionState =
+  createInitialActionState<UpdateMetricField>();
 
 type MetricFormProps =
   | {
       mode: "create";
       metric?: null;
-      units: {
-        id: string;
-        name: string;
-        symbol: string;
-      }[];
+      units: UnitOption[];
     }
   | {
       mode: "update";
-      metric: UserMetric | null;
-      units: {
-        id: string;
-        name: string;
-        symbol: string;
-      }[];
+      metric: MetricView | null;
+      units: UnitOption[];
     };
 
 export function MetricForm({ units, metric, mode }: MetricFormProps) {
@@ -161,9 +160,9 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
   );
 }
 
-function getFieldErrors(
-  state: CreateMetricActionState,
-  field: keyof CreateMetricActionState["fieldErrors"],
+function getFieldErrors<TField extends string>(
+  state: ActionState<TField>,
+  field: TField,
 ) {
   return state.fieldErrors[field]?.map((message) => ({ message })) ?? [];
 }

@@ -1,15 +1,12 @@
 import "server-only";
 
-import { getUnits } from "@/lib/db/units.repository";
+import { listUnitOptions } from "@/lib/metrics/queries";
+import { type UnitOption } from "@/lib/metrics/types";
 
-export async function loadNewMetricPageData() {
-  const units = await getUnits();
-
+export async function loadNewMetricPageData(): Promise<{
+  unitOptions: UnitOption[];
+}> {
   return {
-    unitOptions: units.map(({ id, name, symbol }) => ({
-      id,
-      name,
-      symbol,
-    })),
+    unitOptions: await listUnitOptions(),
   };
 }

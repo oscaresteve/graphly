@@ -2,27 +2,15 @@ import "server-only";
 
 import { auth } from "@clerk/nextjs/server";
 
-import { getMetricWithEntriesForUser } from "@/lib/db/metrics.repository";
-import { type UserMetricWithEntriesResponse } from "@/lib/db/types";
-import { type CalendarDateString } from "@/lib/date";
+import { findMetricViewForUser } from "@/lib/metrics/queries";
+import { type MetricView } from "@/lib/metrics/types";
 
 export async function loadMetricPageData(
   metricId: string,
-): Promise<{ metric: UserMetricWithEntriesResponse | null }> {
+): Promise<{ metric: MetricView | null }> {
   const { userId } = await auth.protect();
-  const metric = await getMetricWithEntriesForUser(metricId, userId);
 
   return {
-    metric: metric
-      ? {
-          ...metric,
-          createdAt: metric.createdAt.toISOString(),
-          entries: metric.entries.map((entry) => ({
-            id: entry.id,
-            value: Number(entry.value),
-            date: entry.date as CalendarDateString,
-          })),
-        }
-      : null,
+    metric: await findMetricViewForUser(metricId, userId),
   };
 }

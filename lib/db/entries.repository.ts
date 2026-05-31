@@ -2,17 +2,23 @@ import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { entries, metrics } from "@/lib/db/schema";
-import { type Entry, type UserMetricEntry } from "@/lib/db/types";
+
+type EntryRecord = typeof entries.$inferSelect;
+
+export type MetricEntryRecord = Pick<
+  EntryRecord,
+  "id" | "metricId" | "value" | "date" | "createdAt"
+>;
 
 type CreateEntryValues = {
   date: string;
   value: number;
 };
 
-export async function getEntriesByMetricIdForUser(
+export async function listEntriesForMetricForUser(
   metricId: string,
   userId: string,
-): Promise<UserMetricEntry[]> {
+): Promise<MetricEntryRecord[]> {
   return db
     .select({
       id: entries.id,
@@ -27,11 +33,11 @@ export async function getEntriesByMetricIdForUser(
     .orderBy(asc(entries.date));
 }
 
-export async function createEntryByMetricIdForUser(
+export async function createEntryForMetricForUser(
   metricId: string,
   userId: string,
   input: CreateEntryValues,
-): Promise<Entry | null> {
+): Promise<EntryRecord | null> {
   const [metric] = await db
     .select({ id: metrics.id })
     .from(metrics)

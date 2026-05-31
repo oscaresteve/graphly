@@ -4,7 +4,8 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createEntryByMetricIdForUser } from "@/lib/db/entries.repository";
+import { createEntryForMetricForUser } from "@/lib/db/entries.repository";
+import { isUniqueConstraintError } from "@/lib/db/errors";
 import {
   createMetricForUser,
   deleteMetricForUser,
@@ -18,7 +19,7 @@ import {
 } from "./entry.validation";
 import {
   type CreateMetricActionState,
-  UpdateMetricActionState,
+  type UpdateMetricActionState,
   validateCreateMetricFormData,
   validateDeleteMetricFormData,
   validateUpdateMetricFormData,
@@ -96,7 +97,7 @@ export async function createEntryAction(
   }
 
   try {
-    const entry = await createEntryByMetricIdForUser(
+    const entry = await createEntryForMetricForUser(
       validation.data.metricId,
       userId,
       {
@@ -137,11 +138,3 @@ export async function createEntryAction(
   };
 }
 
-function isUniqueConstraintError(error: unknown) {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "23505"
-  );
-}

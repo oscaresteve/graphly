@@ -11,17 +11,16 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { formatCalendarDate, toCalendarDateString } from "@/lib/date";
 import {
-  formatCalendarDate,
-  parseCalendarDate,
-  type CalendarDateString,
-} from "@/lib/date";
+  formatCompactMetricValue,
+  formatLongCalendarDate,
+  formatShortCalendarDate,
+} from "@/lib/metrics/format";
+import { type MetricEntryView } from "@/lib/metrics/types";
 
 type MetricDetailChartProps = {
-  entries: {
-    date: CalendarDateString;
-    value: number;
-  }[];
+  entries: MetricEntryView[];
   unitSymbol: string;
   unitName: string;
 };
@@ -105,13 +104,15 @@ function MetricRangeChart({
           axisLine={false}
           dataKey="date"
           interval={Math.max(0, Math.floor(chartData.length / 6) - 1)}
-          tickFormatter={(value) => formatShortDate(String(value))}
+          tickFormatter={(value) =>
+            formatShortCalendarDate(toCalendarDateString(String(value)))
+          }
           tickLine={false}
           tickMargin={12}
         />
         <YAxis
           axisLine={false}
-          tickFormatter={formatCompactValue}
+          tickFormatter={formatCompactMetricValue}
           tickLine={false}
           tickMargin={8}
           width={40}
@@ -120,7 +121,9 @@ function MetricRangeChart({
           content={
             <ChartTooltipContent
               indicator="line"
-              labelFormatter={(value) => formatLongDate(String(value))}
+              labelFormatter={(value) =>
+                formatLongCalendarDate(toCalendarDateString(String(value)))
+              }
             />
           }
         />
@@ -173,24 +176,3 @@ function getRangeStart(date: Date, range: ChartRange) {
   return subMonths(date, 1);
 }
 
-function formatCompactValue(value: number) {
-  return new Intl.NumberFormat("en", {
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(value);
-}
-
-function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    day: "numeric",
-    month: "short",
-  }).format(parseCalendarDate(value as CalendarDateString));
-}
-
-function formatLongDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(parseCalendarDate(value as CalendarDateString));
-}

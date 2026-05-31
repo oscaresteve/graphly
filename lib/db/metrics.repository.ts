@@ -1,13 +1,17 @@
 import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { getEntriesByMetricIdForUser } from "@/lib/db/entries.repository";
 import { metrics, units } from "@/lib/db/schema";
-import {
-  type Metric,
-  type UserMetric,
-  type UserMetricWithEntries,
-} from "@/lib/db/types";
+
+type MetricRecord = typeof metrics.$inferSelect;
+type UnitRecord = typeof units.$inferSelect;
+
+export type MetricWithUnitRecord = Pick<
+  MetricRecord,
+  "id" | "name" | "description" | "createdAt"
+> & {
+  unit: Pick<UnitRecord, "id" | "name" | "symbol" | "type">;
+};
 
 type CreateMetricValues = {
   name: string;
@@ -21,7 +25,9 @@ type UpdateMetricValues = {
   unitId: string;
 };
 
-export async function getMetricsForUser(userId: string): Promise<UserMetric[]> {
+export async function listMetricsForUser(
+  userId: string,
+): Promise<MetricWithUnitRecord[]> {
   return db
     .select({
       id: metrics.id,
@@ -41,10 +47,10 @@ export async function getMetricsForUser(userId: string): Promise<UserMetric[]> {
     .orderBy(desc(metrics.createdAt));
 }
 
-export async function getMetricForUser(
+export async function findMetricForUser(
   metricId: string,
   userId: string,
-): Promise<UserMetric | null> {
+): Promise<MetricWithUnitRecord | null> {
   const [metric] = await db
     .select({
       id: metrics.id,
@@ -66,39 +72,10 @@ export async function getMetricForUser(
   return metric ?? null;
 }
 
-export async function getMetricsWithEntriesForUser(
-  userId: string,
-): Promise<UserMetricWithEntries[]> {
-  const userMetrics = await getMetricsForUser(userId);
-
-  return Promise.all(
-    userMetrics.map(async (metric) => ({
-      ...metric,
-      entries: await getEntriesByMetricIdForUser(metric.id, userId),
-    })),
-  );
-}
-
-export async function getMetricWithEntriesForUser(
-  metricId: string,
-  userId: string,
-): Promise<UserMetricWithEntries | null> {
-  const metric = await getMetricForUser(metricId, userId);
-
-  if (!metric) {
-    return null;
-  }
-
-  return {
-    ...metric,
-    entries: await getEntriesByMetricIdForUser(metric.id, userId),
-  };
-}
-
 export async function createMetricForUser(
   userId: string,
   input: CreateMetricValues,
-): Promise<Metric> {
+): Promise<MetricRecord> {
   const [metric] = await db
     .insert(metrics)
     .values({
@@ -116,7 +93,7 @@ export async function updateMetricForUser(
   metricId: string,
   userId: string,
   input: UpdateMetricValues,
-): Promise<Metric> {
+): Promise<MetricRecord> {
   const [metric] = await db
     .update(metrics)
     .set({
@@ -133,7 +110,7 @@ export async function updateMetricForUser(
 export async function deleteMetricForUser(
   metricId: string,
   userId: string,
-): Promise<Metric | null> {
+): Promise<MetricRecord | null> {
   const [metric] = await db
     .delete(metrics)
     .where(and(eq(metrics.id, metricId), eq(metrics.userId, userId)))

@@ -2,13 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { ChartContainer } from "@/components/ui/chart";
-import { type Unit } from "@/lib/db/types";
 import {
-  formatCalendarDate,
-  getTodayCalendarDate,
-  parseCalendarDate,
-  type CalendarDateString,
-} from "@/lib/date";
+  formatMetricValue,
+  formatRelativeCalendarDate,
+} from "@/lib/metrics/format";
+import { type MetricEntryView, type MetricUnitView } from "@/lib/metrics/types";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Line, LineChart } from "recharts";
@@ -17,16 +15,9 @@ import { Separator } from "@/components/ui/separator";
 
 type MetricCardProps = {
   id: string;
-  entries: {
-    date: CalendarDateString;
-    value: number;
-  }[];
+  entries: MetricEntryView[];
   title: string;
-  unit: {
-    symbol: string;
-    type: Unit["type"];
-    name: string;
-  };
+  unit: Pick<MetricUnitView, "name" | "symbol" | "type">;
 };
 
 export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
@@ -41,11 +32,11 @@ export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
         <div className="flex items-center justify-between gap-2">
           <p className="text-muted-foreground truncate text-sm">
             {lastEntry
-              ? formatVerboseDate(lastEntry.date)
+              ? formatRelativeCalendarDate(lastEntry.date)
               : "No data available"}
           </p>
           <p className="text-foreground text-xl font-medium">
-            {lastEntry ? formatValue(lastEntry.value) : "N/A"}{" "}
+            {lastEntry ? formatMetricValue(lastEntry.value) : "N/A"}{" "}
             <span className="text-muted-foreground text-xs">{unit.symbol}</span>
           </p>
         </div>
@@ -97,28 +88,4 @@ export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
       </div>
     </div>
   );
-}
-
-function formatValue(value: number) {
-  return new Intl.NumberFormat("en", {
-    maximumFractionDigits: 2,
-  }).format(value);
-}
-
-function formatVerboseDate(value: string) {
-  const todayDate = getTodayCalendarDate();
-  const yesterdayDate = formatCalendarDate(
-    new Date(new Date().setDate(new Date().getDate() - 1)),
-  );
-  if (value === todayDate) {
-    return "Today";
-  }
-  if (value === yesterdayDate) {
-    return "Yesterday";
-  }
-  return new Intl.DateTimeFormat("en", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(parseCalendarDate(value as CalendarDateString));
 }

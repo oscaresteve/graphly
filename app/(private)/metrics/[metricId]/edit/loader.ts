@@ -1,25 +1,21 @@
 import "server-only";
 
-import { getUnits } from "@/lib/db/units.repository";
-import { getMetricForUser } from "@/lib/db/metrics.repository";
 import { auth } from "@clerk/nextjs/server";
+import {
+  findMetricViewForUser,
+  listUnitOptions,
+} from "@/lib/metrics/queries";
+import { type MetricView, type UnitOption } from "@/lib/metrics/types";
 
 export async function loadEditMetricPageData({
   metricId,
 }: {
   metricId: string;
-}) {
+}): Promise<{ metric: MetricView | null; unitOptions: UnitOption[] }> {
   const { userId } = await auth.protect();
 
-  const units = await getUnits();
-  const metric = await getMetricForUser(metricId, userId);
-
   return {
-    unitOptions: units.map(({ id, name, symbol }) => ({
-      id,
-      name,
-      symbol,
-    })),
-    metric,
+    metric: await findMetricViewForUser(metricId, userId),
+    unitOptions: await listUnitOptions(),
   };
 }

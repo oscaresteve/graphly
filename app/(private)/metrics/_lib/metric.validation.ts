@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+import { type ActionState, type FormValidationResult } from "./action-state";
+
+type CreateMetricField = "name" | "description" | "unitId";
+type UpdateMetricField = "metricId" | CreateMetricField;
+type MetricMutationData = Omit<
+  z.infer<typeof createMetricSchema>,
+  "description"
+> & {
+  description: string | null;
+};
+
 export const createMetricSchema = z.object({
   name: z
     .string()
@@ -14,29 +25,12 @@ export const createMetricSchema = z.object({
   unitId: z.uuid("Unit is invalid"),
 });
 
-export type CreateMetricActionState = {
-  success: boolean;
-  fieldErrors: Partial<Record<"name" | "description" | "unitId", string[]>>;
-  formError: string | null;
-};
+export type CreateMetricActionState = ActionState<CreateMetricField>;
 
-export const initialCreateMetricActionState: CreateMetricActionState = {
-  success: false,
-  fieldErrors: {},
-  formError: null,
-};
-
-type CreateMetricValidationResult =
-  | {
-      success: true;
-      data: Omit<z.infer<typeof createMetricSchema>, "description"> & {
-        description: string | null;
-      };
-    }
-  | {
-      success: false;
-      fieldErrors: CreateMetricActionState["fieldErrors"];
-    };
+type CreateMetricValidationResult = FormValidationResult<
+  MetricMutationData,
+  CreateMetricField
+>;
 
 export function validateCreateMetricFormData(
   formData: FormData,
@@ -78,31 +72,14 @@ export const updateMetricSchema = z.object({
   unitId: z.uuid("Unit is invalid"),
 });
 
-export type UpdateMetricActionState = {
-  success: boolean;
-  fieldErrors: Partial<
-    Record<"metricId" | "name" | "description" | "unitId", string[]>
-  >;
-  formError: string | null;
-};
+export type UpdateMetricActionState = ActionState<UpdateMetricField>;
 
-export const initialUpdateMetricActionState: UpdateMetricActionState = {
-  success: false,
-  fieldErrors: {},
-  formError: null,
-};
-
-type UpdateMetricValidationResult =
-  | {
-      success: true;
-      data: Omit<z.infer<typeof updateMetricSchema>, "description"> & {
-        description: string | null;
-      };
-    }
-  | {
-      success: false;
-      fieldErrors: UpdateMetricActionState["fieldErrors"];
-    };
+type UpdateMetricValidationResult = FormValidationResult<
+  Omit<z.infer<typeof updateMetricSchema>, "description"> & {
+    description: string | null;
+  },
+  UpdateMetricField
+>;
 
 export function validateUpdateMetricFormData(
   formData: FormData,

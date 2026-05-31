@@ -11,10 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type Unit } from "@/lib/db/types";
 import { type CalendarDateString } from "@/lib/date";
+import { type UnitType } from "@/lib/metrics/types";
 
-import { deleteMetricAction } from "./actions";
+import { deleteMetricAction } from "../_lib/actions";
 import { EntryDialogForm } from "./entry-dialog-form";
 import Link from "next/link";
 
@@ -24,7 +24,7 @@ type MetricActionsDropdownProps = {
   metricName: string;
   unit: {
     name: string;
-    type: Unit["type"];
+    type: UnitType;
   };
 };
 

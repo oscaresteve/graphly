@@ -2,8 +2,9 @@ import { asc } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { units } from "@/lib/db/schema";
-import { type Unit } from "@/lib/db/types";
 
-export async function getUnits(): Promise<Unit[]> {
+export type UnitRecord = typeof units.$inferSelect;
+
+export async function listUnits(): Promise<UnitRecord[]> {
   return db.select().from(units).orderBy(asc(units.name));
 }

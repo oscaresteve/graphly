@@ -27,19 +27,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { type Unit } from "@/lib/db/types";
 import {
   formatCalendarDate,
   getTodayCalendarDate,
   parseCalendarDate,
   type CalendarDateString,
 } from "@/lib/date";
+import { type UnitType } from "@/lib/metrics/types";
 
-import { createEntryAction } from "./actions";
+import { createEntryAction } from "../_lib/actions";
 import {
-  initialCreateEntryActionState,
-  type CreateEntryActionState,
-} from "./entry.validation";
+  createInitialActionState,
+  type ActionState,
+} from "../_lib/action-state";
+import { type CreateEntryActionState } from "../_lib/entry.validation";
+
+const initialCreateEntryActionState =
+  createInitialActionState<"metricId" | "date" | "value">();
 
 type EntryDialogFormProps = {
   entryDates?: CalendarDateString[];
@@ -51,7 +55,7 @@ type EntryDialogFormProps = {
   trigger?: ReactNode;
   unit: {
     name: string;
-    type: Unit["type"];
+    type: UnitType;
   };
 };
 
@@ -224,9 +228,9 @@ export function EntryDialogForm({
   );
 }
 
-function getFieldErrors(
-  state: CreateEntryActionState,
-  field: keyof CreateEntryActionState["fieldErrors"],
+function getFieldErrors<TField extends string>(
+  state: ActionState<TField>,
+  field: TField,
 ) {
   return state.fieldErrors[field]?.map((message) => ({ message })) ?? [];
 }
@@ -261,7 +265,7 @@ function getDefaultPastDate(
   return date;
 }
 
-function getInputConfig(type: Unit["type"]): {
+function getInputConfig(type: UnitType): {
   description: string;
   placeholder: string;
   inputMode: "decimal" | "numeric";

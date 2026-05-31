@@ -1,4 +1,4 @@
-import { MetricForm } from "@/components/metric-form";
+import { MetricForm } from "../_components/metric-form";
 
 import { loadNewMetricPageData } from "./loader";
 

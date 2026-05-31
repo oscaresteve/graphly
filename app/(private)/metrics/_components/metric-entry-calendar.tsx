@@ -2,12 +2,11 @@
 
 import { Calendar } from "@/components/ui/calendar";
 
-import { parseCalendarDate, type CalendarDateString } from "@/lib/date";
+import { parseCalendarDate } from "@/lib/date";
+import { type MetricEntryView } from "@/lib/metrics/types";
 
 type MetricEntryCalendarProps = {
-  entries: {
-    date: CalendarDateString;
-  }[];
+  entries: Pick<MetricEntryView, "date">[];
 };
 
 export function MetricEntryCalendar({ entries }: MetricEntryCalendarProps) {

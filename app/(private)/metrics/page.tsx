@@ -12,7 +12,7 @@ import { LineChart, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { loadMetricsPageData } from "./loader";
-import { MetricCard } from "./metric-card";
+import { MetricCard } from "./_components/metric-card";
 
 export default async function MetricsPage() {
   const { metrics } = await loadMetricsPageData();

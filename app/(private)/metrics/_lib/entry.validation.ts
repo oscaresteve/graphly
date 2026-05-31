@@ -2,6 +2,10 @@ import { z } from "zod";
 
 import { getTodayCalendarDate } from "@/lib/date";
 
+import { type ActionState, type FormValidationResult } from "./action-state";
+
+type CreateEntryField = "metricId" | "date" | "value";
+
 const createEntrySchema = z.object({
   metricId: z.uuid("Metric is invalid"),
   date: z.iso
@@ -22,27 +26,12 @@ const createEntrySchema = z.object({
   ),
 });
 
-export type CreateEntryActionState = {
-  success: boolean;
-  fieldErrors: Partial<Record<"metricId" | "date" | "value", string[]>>;
-  formError: string | null;
-};
+export type CreateEntryActionState = ActionState<CreateEntryField>;
 
-export const initialCreateEntryActionState: CreateEntryActionState = {
-  success: false,
-  fieldErrors: {},
-  formError: null,
-};
-
-type CreateEntryValidationResult =
-  | {
-      success: true;
-      data: z.infer<typeof createEntrySchema>;
-    }
-  | {
-      success: false;
-      fieldErrors: CreateEntryActionState["fieldErrors"];
-    };
+type CreateEntryValidationResult = FormValidationResult<
+  z.infer<typeof createEntrySchema>,
+  CreateEntryField
+>;
 
 export function validateCreateEntryFormData(
   formData: FormData,

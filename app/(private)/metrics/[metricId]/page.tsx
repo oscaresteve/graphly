@@ -5,9 +5,9 @@ import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { EntryDialogForm } from "../entry-dialog-form";
-import { MetricActionsDropdown } from "../metric-actions-dropdown";
-import { MetricDetailChart } from "./metric-detail-chart";
+import { EntryDialogForm } from "../_components/entry-dialog-form";
+import { MetricActionsDropdown } from "../_components/metric-actions-dropdown";
+import { MetricDetailChart } from "../_components/metric-detail-chart";
 import { loadMetricPageData } from "./loader";
 
 type MetricPageProps = {
