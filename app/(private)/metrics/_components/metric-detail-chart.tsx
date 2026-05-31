@@ -1,6 +1,6 @@
 "use client";
 
-import { eachDayOfInterval, subMonths, subWeeks, subYears } from "date-fns";
+import { subMonths, subWeeks, subYears } from "date-fns";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
@@ -11,7 +11,12 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { formatCalendarDate, toCalendarDateString } from "@/lib/date";
+import {
+  type CalendarDateString,
+  formatCalendarDate,
+  parseCalendarDate,
+  toCalendarDateString,
+} from "@/lib/date";
 import {
   formatCompactMetricValue,
   formatLongCalendarDate,
@@ -32,6 +37,13 @@ const chartRanges = [
 ] as const;
 
 type ChartRange = (typeof chartRanges)[number]["value"];
+
+type ChartDatum = {
+  date: CalendarDateString;
+  timestamp: number;
+  unitSymbol: string;
+  value: number;
+};
 
 export function MetricDetailChart({
   entries,
@@ -83,7 +95,7 @@ function MetricRangeChart({
 }: MetricDetailChartProps & {
   range: ChartRange;
 }) {
-  const chartData = useMemo(
+  const { data, xDomain } = useMemo(
     () => getChartData(entries, unitSymbol, range),
     [entries, unitSymbol, range],
   );
@@ -98,17 +110,21 @@ function MetricRangeChart({
         },
       }}
     >
-      <LineChart accessibilityLayer data={chartData}>
+      <LineChart accessibilityLayer data={data}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
+          allowDataOverflow
           axisLine={false}
-          dataKey="date"
-          interval={Math.max(0, Math.floor(chartData.length / 6) - 1)}
+          dataKey="timestamp"
+          domain={xDomain}
+          scale="time"
+          tickCount={6}
           tickFormatter={(value) =>
-            formatShortCalendarDate(toCalendarDateString(String(value)))
+            formatShortCalendarDate(formatCalendarDate(new Date(value)))
           }
           tickLine={false}
           tickMargin={12}
+          type="number"
         />
         <YAxis
           axisLine={false}
@@ -121,18 +137,31 @@ function MetricRangeChart({
           content={
             <ChartTooltipContent
               indicator="line"
-              labelFormatter={(value) =>
-                formatLongCalendarDate(toCalendarDateString(String(value)))
-              }
+              labelFormatter={(_value, payload) => {
+                const date = payload[0]?.payload?.date;
+
+                if (typeof date === "string") {
+                  return formatLongCalendarDate(toCalendarDateString(date));
+                }
+
+                const timestamp = payload[0]?.payload?.timestamp;
+
+                if (typeof timestamp === "number") {
+                  return formatLongCalendarDate(
+                    formatCalendarDate(new Date(timestamp)),
+                  );
+                }
+
+                return null;
+              }}
             />
           }
         />
         <Line
           activeDot={{ r: 5 }}
-          connectNulls={true}
           dataKey="value"
           dot={false}
-          isAnimationActive={true}
+          isAnimationActive={false}
           stroke="var(--color-value)"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -150,18 +179,22 @@ function getChartData(
   range: ChartRange,
 ) {
   const today = new Date();
-  const start = getRangeStart(today, range);
-  const valueMap = new Map(entries.map((entry) => [entry.date, entry.value]));
+  const visibleStartDate = formatCalendarDate(getRangeStart(today, range));
+  const visibleEndDate = formatCalendarDate(today);
+  const visibleStart = parseCalendarDate(visibleStartDate);
+  const visibleEnd = parseCalendarDate(visibleEndDate);
 
-  return eachDayOfInterval({ start, end: today }).map((day) => {
-    const date = formatCalendarDate(day);
-
-    return {
-      date,
-      unitSymbol,
-      value: valueMap.get(date) ?? null,
-    };
-  });
+  return {
+    data: entries.map(
+      (entry): ChartDatum => ({
+        date: entry.date,
+        timestamp: parseCalendarDate(entry.date).getTime(),
+        unitSymbol,
+        value: entry.value,
+      }),
+    ),
+    xDomain: [visibleStart.getTime(), visibleEnd.getTime()] as const,
+  };
 }
 
 function getRangeStart(date: Date, range: ChartRange) {
@@ -175,4 +208,3 @@ function getRangeStart(date: Date, range: ChartRange) {
 
   return subMonths(date, 1);
 }
-
