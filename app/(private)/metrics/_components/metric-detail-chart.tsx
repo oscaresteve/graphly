@@ -1,6 +1,6 @@
 "use client";
 
-import { subMonths, subWeeks, subYears } from "date-fns";
+import { subDays, subMonths, subYears } from "date-fns";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
@@ -28,6 +28,7 @@ type MetricDetailChartProps = {
   entries: MetricEntryView[];
   unitSymbol: string;
   unitName: string;
+  today: CalendarDateString;
 };
 
 const chartRanges = [
@@ -49,6 +50,7 @@ export function MetricDetailChart({
   entries,
   unitSymbol,
   unitName,
+  today,
 }: MetricDetailChartProps) {
   const [range, setRange] = useState<ChartRange>("last-month");
 
@@ -82,6 +84,7 @@ export function MetricDetailChart({
         range={range}
         unitName={unitName}
         unitSymbol={unitSymbol}
+        today={today}
       />
     </div>
   );
@@ -92,12 +95,13 @@ function MetricRangeChart({
   range,
   unitSymbol,
   unitName,
+  today,
 }: MetricDetailChartProps & {
   range: ChartRange;
 }) {
-  const { data, xDomain } = useMemo(
-    () => getChartData(entries, unitSymbol, range),
-    [entries, unitSymbol, range],
+  const { data, xDomain, xTicks } = useMemo(
+    () => getChartData(entries, unitSymbol, range, today),
+    [entries, unitSymbol, range, today],
   );
 
   return (
@@ -118,11 +122,11 @@ function MetricRangeChart({
           dataKey="timestamp"
           domain={xDomain}
           scale="time"
-          tickCount={6}
+          ticks={xTicks}
           tickFormatter={(value) =>
             formatShortCalendarDate(formatCalendarDate(new Date(value)))
           }
-          tickLine={false}
+          tickLine={true}
           tickMargin={12}
           type="number"
         />
@@ -177,29 +181,37 @@ function getChartData(
   entries: MetricDetailChartProps["entries"],
   unitSymbol: string,
   range: ChartRange,
+  todayDateString: CalendarDateString,
 ) {
-  const today = new Date();
+  const today = parseCalendarDate(todayDateString);
+
   const visibleStartDate = formatCalendarDate(getRangeStart(today, range));
-  const visibleEndDate = formatCalendarDate(today);
+  const visibleEndDate = todayDateString;
   const visibleStart = parseCalendarDate(visibleStartDate);
   const visibleEnd = parseCalendarDate(visibleEndDate);
 
+  const data = entries.map(
+    (entry): ChartDatum => ({
+      date: entry.date,
+      timestamp: parseCalendarDate(entry.date).getTime(),
+      unitSymbol,
+      value: entry.value,
+    }),
+  );
+
+  const xDomain = [visibleStart.getTime(), visibleEnd.getTime()] as const;
+  const xTicks = getXticks(visibleStartDate, visibleEndDate, range);
+
   return {
-    data: entries.map(
-      (entry): ChartDatum => ({
-        date: entry.date,
-        timestamp: parseCalendarDate(entry.date).getTime(),
-        unitSymbol,
-        value: entry.value,
-      }),
-    ),
-    xDomain: [visibleStart.getTime(), visibleEnd.getTime()] as const,
+    data,
+    xDomain,
+    xTicks,
   };
 }
 
 function getRangeStart(date: Date, range: ChartRange) {
   if (range === "last-week") {
-    return subWeeks(date, 1);
+    return subDays(date, 6);
   }
 
   if (range === "last-year") {
@@ -207,4 +219,30 @@ function getRangeStart(date: Date, range: ChartRange) {
   }
 
   return subMonths(date, 1);
+}
+
+function getXticks(
+  fechaInicio: CalendarDateString,
+  fechaFin: CalendarDateString,
+  range: ChartRange,
+) {
+  const xTicks: number[] = [];
+
+  const actual = parseCalendarDate(fechaInicio);
+  const fin = parseCalendarDate(fechaFin);
+
+  const stepDays = range === "last-week" ? 1 : range === "last-month" ? 7 : 30;
+
+  while (actual <= fin) {
+    xTicks.push(actual.getTime());
+    actual.setDate(actual.getDate() + stepDays);
+  }
+
+  const finTimestamp = fin.getTime();
+
+  if (!xTicks.includes(finTimestamp)) {
+    xTicks.push(finTimestamp);
+  }
+
+  return xTicks;
 }

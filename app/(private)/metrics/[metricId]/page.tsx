@@ -24,8 +24,10 @@ export default async function MetricPage({ params }: MetricPageProps) {
     notFound();
   }
 
+  const today = getTodayCalendarDate();
+
   const entryDates = metric.entries.map((entry) => entry.date);
-  const hasTodayEntry = entryDates.includes(getTodayCalendarDate());
+  const hasTodayEntry = entryDates.includes(today);
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
@@ -77,6 +79,7 @@ export default async function MetricPage({ params }: MetricPageProps) {
         entries={metric.entries}
         unitSymbol={metric.unit.symbol}
         unitName={metric.unit.name}
+        today={today}
       />
     </div>
   );
