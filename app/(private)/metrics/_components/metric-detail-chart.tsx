@@ -192,7 +192,11 @@ function getChartData(
 ) {
   const today = parseCalendarDate(todayDateString);
 
-  const visibleStartDate = getVisibleStartDate(entries, today, range);
+  const firstEntryDate = entries[0]?.date;
+  const visibleStartDate =
+    range === "all-time" && firstEntryDate && firstEntryDate < todayDateString
+      ? firstEntryDate
+      : formatCalendarDate(getRangeStart(today, range));
   const visibleEndDate = todayDateString;
   const visibleStart = parseCalendarDate(visibleStartDate);
   const visibleEnd = parseCalendarDate(visibleEndDate);
@@ -216,36 +220,8 @@ function getChartData(
   };
 }
 
-function getVisibleStartDate(
-  entries: MetricDetailChartProps["entries"],
-  today: Date,
-  range: ChartRange,
-) {
-  if (range !== "all-time") {
-    return formatCalendarDate(getRangeStart(today, range));
-  }
-
-  const earliestEntryDate = getEarliestEntryDate(entries);
-
-  if (!earliestEntryDate || earliestEntryDate >= formatCalendarDate(today)) {
-    return formatCalendarDate(subDays(today, 6));
-  }
-
-  return earliestEntryDate;
-}
-
-function getEarliestEntryDate(entries: MetricDetailChartProps["entries"]) {
-  return entries.reduce<CalendarDateString | null>((earliestDate, entry) => {
-    if (!earliestDate || entry.date < earliestDate) {
-      return entry.date;
-    }
-
-    return earliestDate;
-  }, null);
-}
-
 function getRangeStart(date: Date, range: ChartRange) {
-  if (range === "last-week") {
+  if (range === "all-time" || range === "last-week") {
     return subDays(date, 6);
   }
 
