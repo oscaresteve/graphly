@@ -32,6 +32,7 @@ type MetricDetailChartProps = {
 };
 
 const chartRanges = [
+  { value: "all-time", label: "All time" },
   { value: "last-year", label: "Last year" },
   { value: "last-month", label: "Last month" },
   { value: "last-week", label: "Last week" },
@@ -124,18 +125,19 @@ function MetricRangeChart({
           scale="time"
           ticks={xTicks}
           tickFormatter={(value) =>
-            formatShortCalendarDate(formatCalendarDate(new Date(value)))
+            value === parseCalendarDate(today).getTime()
+              ? "Today"
+              : formatShortCalendarDate(formatCalendarDate(new Date(value)))
           }
           tickLine={true}
-          tickMargin={12}
+          tickMargin={6}
           type="number"
         />
         <YAxis
           axisLine={false}
           tickFormatter={formatCompactMetricValue}
           tickLine={false}
-          tickMargin={8}
-          width={40}
+          tickMargin={6}
         />
         <ChartTooltip
           content={
@@ -162,7 +164,12 @@ function MetricRangeChart({
           }
         />
         <Line
-          activeDot={{ r: 5 }}
+          activeDot={{
+            r: 4,
+            strokeWidth: 2,
+            stroke: "var(--color-value)",
+            fill: "var(--color-background)",
+          }}
           dataKey="value"
           dot={false}
           isAnimationActive={false}
@@ -185,7 +192,7 @@ function getChartData(
 ) {
   const today = parseCalendarDate(todayDateString);
 
-  const visibleStartDate = formatCalendarDate(getRangeStart(today, range));
+  const visibleStartDate = getVisibleStartDate(entries, today, range);
   const visibleEndDate = todayDateString;
   const visibleStart = parseCalendarDate(visibleStartDate);
   const visibleEnd = parseCalendarDate(visibleEndDate);
@@ -207,6 +214,34 @@ function getChartData(
     xDomain,
     xTicks,
   };
+}
+
+function getVisibleStartDate(
+  entries: MetricDetailChartProps["entries"],
+  today: Date,
+  range: ChartRange,
+) {
+  if (range !== "all-time") {
+    return formatCalendarDate(getRangeStart(today, range));
+  }
+
+  const earliestEntryDate = getEarliestEntryDate(entries);
+
+  if (!earliestEntryDate || earliestEntryDate >= formatCalendarDate(today)) {
+    return formatCalendarDate(subDays(today, 6));
+  }
+
+  return earliestEntryDate;
+}
+
+function getEarliestEntryDate(entries: MetricDetailChartProps["entries"]) {
+  return entries.reduce<CalendarDateString | null>((earliestDate, entry) => {
+    if (!earliestDate || entry.date < earliestDate) {
+      return entry.date;
+    }
+
+    return earliestDate;
+  }, null);
 }
 
 function getRangeStart(date: Date, range: ChartRange) {
@@ -231,7 +266,7 @@ function getXticks(
   const actual = parseCalendarDate(fechaInicio);
   const fin = parseCalendarDate(fechaFin);
 
-  const stepDays = range === "last-week" ? 1 : range === "last-month" ? 7 : 30;
+  const stepDays = getTickStepDays(range, actual, fin);
 
   while (actual <= fin) {
     xTicks.push(actual.getTime());
@@ -245,4 +280,25 @@ function getXticks(
   }
 
   return xTicks;
+}
+
+function getTickStepDays(range: ChartRange, start: Date, end: Date) {
+  if (range === "last-week") {
+    return 1;
+  }
+
+  if (range === "last-month") {
+    return 7;
+  }
+
+  if (range === "last-year") {
+    return 30;
+  }
+
+  const dayCount = Math.max(
+    1,
+    Math.ceil((end.getTime() - start.getTime()) / 86_400_000),
+  );
+
+  return Math.max(1, Math.ceil(dayCount / 30));
 }
