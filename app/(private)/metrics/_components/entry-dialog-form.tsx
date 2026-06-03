@@ -116,7 +116,6 @@ export function EntryDialogForm({
     ? formatCalendarDate(selectedDate)
     : todayDate;
   const disabledDates = [
-    today,
     { after: today },
     ...entryDates.map((entryDate) => parseCalendarDate(entryDate)),
   ];
@@ -254,12 +253,8 @@ function getDefaultPastDate(
   const entryDateSet = new Set(entryDates);
   const date = new Date(today);
 
-  for (let index = 0; index < 366; index += 1) {
+  while (entryDateSet.has(formatCalendarDate(date))) {
     date.setDate(date.getDate() - 1);
-
-    if (!entryDateSet.has(formatCalendarDate(date))) {
-      return new Date(date);
-    }
   }
 
   return date;
