@@ -1,7 +1,7 @@
 import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
 import { getTodayCalendarDate } from "@/lib/date";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Plus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -42,7 +42,7 @@ export default async function MetricPage({ params }: MetricPageProps) {
         }
         right={
           <>
-            {!hasTodayEntry && (
+            {!hasTodayEntry ? (
               <EntryDialogForm
                 metricId={metric.id}
                 metricName={metric.name}
@@ -55,11 +55,26 @@ export default async function MetricPage({ params }: MetricPageProps) {
                 }
                 unit={metric.unit}
               />
+            ) : (
+              <EntryDialogForm
+                entryDates={entryDates}
+                metricId={metric.id}
+                metricName={metric.name}
+                mode="custom-date"
+                trigger={
+                  <Button type="button" variant="secondary">
+                    <CalendarIcon data-icon="inline-start" />
+                    Log another date
+                  </Button>
+                }
+                unit={metric.unit}
+              />
             )}
             <MetricActionsDropdown
               entryDates={entryDates}
               metricId={metric.id}
               metricName={metric.name}
+              showLogDateItem={!hasTodayEntry}
               unit={metric.unit}
             />
           </>

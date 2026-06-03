@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CalendarIcon, Edit, Ellipsis, Pin, Trash } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,12 +17,12 @@ import { type UnitType } from "@/lib/metrics/types";
 
 import { deleteMetricAction } from "../_lib/actions";
 import { EntryDialogForm } from "./entry-dialog-form";
-import Link from "next/link";
 
 type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
   metricId: string;
   metricName: string;
+  showLogDateItem?: boolean;
   unit: {
     name: string;
     type: UnitType;
@@ -32,9 +33,10 @@ export function MetricActionsDropdown({
   entryDates,
   metricId,
   metricName,
+  showLogDateItem = true,
   unit,
 }: MetricActionsDropdownProps) {
-  const [entryDialogOpen, setEntryDialogOpen] = useState(false);
+  const [dateDialogOpen, setDateDialogOpen] = useState(false);
 
   return (
     <>
@@ -51,10 +53,12 @@ export function MetricActionsDropdown({
               Edit
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setEntryDialogOpen(true)}>
-            <CalendarIcon />
-            Log past entry
-          </DropdownMenuItem>
+          {showLogDateItem ? (
+            <DropdownMenuItem onSelect={() => setDateDialogOpen(true)}>
+              <CalendarIcon />
+              Log another date
+            </DropdownMenuItem>
+          ) : null}
           <form action={deleteMetricAction}>
             <input type="hidden" name="metricId" value={metricId} />
             <DropdownMenuItem asChild variant="destructive">
@@ -75,9 +79,9 @@ export function MetricActionsDropdown({
         entryDates={entryDates}
         metricId={metricId}
         metricName={metricName}
-        mode="past"
-        open={entryDialogOpen}
-        onOpenChange={setEntryDialogOpen}
+        mode="custom-date"
+        open={dateDialogOpen}
+        onOpenChange={setDateDialogOpen}
         unit={unit}
       />
     </>
