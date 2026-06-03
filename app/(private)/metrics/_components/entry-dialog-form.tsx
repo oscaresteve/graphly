@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, useRef, useState, type ReactNode } from "react";
+import {
+  useActionState,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { CalendarIcon, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -71,14 +77,17 @@ export function EntryDialogForm({
 }: EntryDialogFormProps) {
   const todayDate = getTodayCalendarDate();
   const today = parseCalendarDate(todayDate);
+  const defaultPastDate = useMemo(
+    () => getDefaultPastDate(entryDates, parseCalendarDate(todayDate)),
+    [entryDates, todayDate],
+  );
   const [internalOpen, setInternalOpen] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(
-    getDefaultPastDate(entryDates, today),
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isPastEntry = mode === "past";
   const dialogOpen = open ?? internalOpen;
+  const selectedPastDate = selectedDate ?? defaultPastDate;
 
   function setDialogOpen(nextOpen: boolean) {
     if (onOpenChange) {
@@ -99,7 +108,7 @@ export function EntryDialogForm({
       if (nextState.success) {
         setDialogOpen(false);
         setDatePickerOpen(false);
-        setSelectedDate(getDefaultPastDate(entryDates, today));
+        setSelectedDate(null);
         formRef.current?.reset();
       }
 
@@ -113,7 +122,7 @@ export function EntryDialogForm({
   const valueErrors = getFieldErrors(state, "value");
   const hasValueErrors = hasErrors(valueErrors);
   const selectedCalendarDate = isPastEntry
-    ? formatCalendarDate(selectedDate)
+    ? formatCalendarDate(selectedPastDate)
     : todayDate;
   const disabledDates = [
     { after: today },
@@ -125,6 +134,7 @@ export function EntryDialogForm({
 
     if (!nextOpen) {
       setDatePickerOpen(false);
+      setSelectedDate(null);
     }
   }
 
@@ -164,13 +174,13 @@ export function EntryDialogForm({
                       className="justify-start"
                     >
                       <CalendarIcon data-icon="inline-start" />
-                      {formatPickerDate(selectedDate)}
+                      {formatPickerDate(selectedPastDate)}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={selectedDate}
+                      selected={selectedPastDate}
                       disabled={disabledDates}
                       onSelect={(date) => {
                         if (date) {
