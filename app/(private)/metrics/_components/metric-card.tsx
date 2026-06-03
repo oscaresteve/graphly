@@ -9,9 +9,11 @@ import {
 import { type MetricEntryView, type MetricUnitView } from "@/lib/metrics/types";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { Line, LineChart } from "recharts";
+import { Line, LineChart, XAxis } from "recharts";
 
 import { Separator } from "@/components/ui/separator";
+import { CalendarDateString, parseCalendarDate } from "@/lib/date";
+import { useMemo } from "react";
 
 type MetricCardProps = {
   id: string;
@@ -20,8 +22,19 @@ type MetricCardProps = {
   unit: Pick<MetricUnitView, "name" | "symbol" | "type">;
 };
 
+type ChartDatum = {
+  date: CalendarDateString;
+  timestamp: number;
+  unitSymbol: string;
+  value: number;
+};
+
 export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
   const lastEntry = entries[entries.length - 1];
+
+  const { data, xDomain } = useMemo(() => {
+    return getChartData(entries, unit.symbol);
+  }, [entries, unit.symbol]);
 
   return (
     <div className="flex overflow-hidden rounded-lg border">
@@ -70,9 +83,16 @@ export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
           }}
         >
           <LineChart
-            data={entries}
+            data={data}
             margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
           >
+            <XAxis
+              dataKey="timestamp"
+              scale="time"
+              type="number"
+              hide
+              domain={xDomain}
+            />
             <Line
               dataKey="value"
               dot={false}
@@ -88,4 +108,17 @@ export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
       </div>
     </div>
   );
+}
+
+function getChartData(entries: MetricEntryView[], unitSymbol: string) {
+  const data = entries.map(
+    (entry): ChartDatum => ({
+      date: entry.date,
+      timestamp: parseCalendarDate(entry.date).getTime(),
+      unitSymbol,
+      value: entry.value,
+    }),
+  );
+  const xDomain = [data[0]?.timestamp, data[data.length - 1]?.timestamp];
+  return { data, xDomain };
 }
