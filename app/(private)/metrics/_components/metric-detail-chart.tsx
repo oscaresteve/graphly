@@ -1,15 +1,25 @@
 "use client";
 
-import { subDays, subMonths, subYears } from "date-fns";
 import { useMemo, useState } from "react";
+import { type DateRange } from "react-day-picker";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import { AppSubbar } from "@/components/app-subbar";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   type CalendarDateString,
@@ -23,6 +33,16 @@ import {
   formatShortCalendarDate,
 } from "@/lib/metrics/format";
 import { type MetricEntryView } from "@/lib/metrics/types";
+
+import {
+  type ChartDateRange,
+  type ChartRange,
+  formatCustomRangeLabel,
+  getChartDomain,
+  getChartTicks,
+  isValidCustomRange,
+  resolveChartDateRange,
+} from "./metric-detail-chart.utils";
 
 type MetricDetailChartProps = {
   entries: MetricEntryView[];
@@ -38,7 +58,7 @@ const chartRanges = [
   { value: "last-week", label: "Last week" },
 ] as const;
 
-type ChartRange = (typeof chartRanges)[number]["value"];
+type PresetChartRange = (typeof chartRanges)[number]["value"];
 
 type ChartDatum = {
   date: CalendarDateString;
@@ -54,33 +74,114 @@ export function MetricDetailChart({
   today,
 }: MetricDetailChartProps) {
   const [range, setRange] = useState<ChartRange>("last-month");
+  const [customRange, setCustomRange] = useState<ChartDateRange | null>(null);
+  const [draftRange, setDraftRange] = useState<DateRange | undefined>();
+  const [customRangeOpen, setCustomRangeOpen] = useState(false);
+  const currentDateRange = resolveChartDateRange({
+    customRange,
+    firstEntryDate: entries[0]?.date,
+    range,
+    todayDate: today,
+  });
+  const draftChartRange = toChartDateRange(draftRange);
+  const canApplyCustomRange = isValidCustomRange(draftChartRange, today);
+
+  function handleCustomRangeOpenChange(open: boolean) {
+    setCustomRangeOpen(open);
+
+    if (open) {
+      setDraftRange(toPickerDateRange(customRange ?? currentDateRange));
+      return;
+    }
+
+    setDraftRange(customRange ? toPickerDateRange(customRange) : undefined);
+  }
+
+  function applyCustomRange() {
+    if (!draftChartRange || !canApplyCustomRange) {
+      return;
+    }
+
+    setCustomRange(draftChartRange);
+    setRange("custom");
+    setCustomRangeOpen(false);
+  }
 
   return (
     <div className="flex flex-col gap-3">
       <AppSubbar
         right={
-          <ToggleGroup
-            aria-label="Chart range"
-            onValueChange={(value) => {
-              if (value) {
-                setRange(value as ChartRange);
-              }
-            }}
-            size="sm"
-            variant="outline"
-            type="single"
-            value={range}
+          <Popover
+            open={customRangeOpen}
+            onOpenChange={handleCustomRangeOpenChange}
           >
-            {chartRanges.map((chartRange) => (
-              <ToggleGroupItem key={chartRange.value} value={chartRange.value}>
-                {chartRange.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+            <ToggleGroup
+              aria-label="Chart range"
+              onValueChange={(value) => {
+                if (value && value !== "custom") {
+                  setRange(value as PresetChartRange);
+                  handleCustomRangeOpenChange(false);
+                }
+              }}
+              size="sm"
+              variant="outline"
+              type="single"
+              value={range}
+            >
+              {chartRanges.map((chartRange) => (
+                <ToggleGroupItem
+                  key={chartRange.value}
+                  value={chartRange.value}
+                >
+                  {chartRange.label}
+                </ToggleGroupItem>
+              ))}
+              <PopoverTrigger asChild>
+                <ToggleGroupItem value="custom">
+                  {range === "custom" && customRange
+                    ? formatCustomRangeLabel(customRange, today)
+                    : "Custom"}
+                </ToggleGroupItem>
+              </PopoverTrigger>
+            </ToggleGroup>
+            <PopoverContent align="end" className="w-auto p-2.5">
+              <PopoverHeader>
+                <PopoverTitle>Custom range</PopoverTitle>
+                <PopoverDescription>
+                  Choose the dates to display in the chart.
+                </PopoverDescription>
+              </PopoverHeader>
+              <Calendar
+                mode="range"
+                numberOfMonths={2}
+                defaultMonth={draftRange?.from}
+                disabled={{ after: parseCalendarDate(today) }}
+                selected={draftRange}
+                onSelect={setDraftRange}
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => handleCustomRangeOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  disabled={!canApplyCustomRange}
+                  onClick={applyCustomRange}
+                >
+                  Apply
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         }
       />
 
       <MetricRangeChart
+        customRange={customRange}
         entries={entries}
         range={range}
         unitName={unitName}
@@ -92,17 +193,19 @@ export function MetricDetailChart({
 }
 
 function MetricRangeChart({
+  customRange,
   entries,
   range,
   unitSymbol,
   unitName,
   today,
 }: MetricDetailChartProps & {
+  customRange: ChartDateRange | null;
   range: ChartRange;
 }) {
-  const { data, xDomain, xTicks } = useMemo(
-    () => getChartData(entries, unitSymbol, range, today),
-    [entries, unitSymbol, range, today],
+  const { data, visibleEntryCount, xDomain, xTicks } = useMemo(
+    () => getChartData(entries, unitSymbol, range, customRange, today),
+    [entries, unitSymbol, range, customRange, today],
   );
 
   return (
@@ -171,7 +274,16 @@ function MetricRangeChart({
             fill: "var(--color-background)",
           }}
           dataKey="value"
-          dot={false}
+          dot={
+            visibleEntryCount === 1
+              ? {
+                  r: 3,
+                  strokeWidth: 2,
+                  stroke: "var(--color-value)",
+                  fill: "var(--color-background)",
+                }
+              : false
+          }
           isAnimationActive={false}
           stroke="var(--color-value)"
           strokeLinecap="round"
@@ -188,18 +300,15 @@ function getChartData(
   entries: MetricDetailChartProps["entries"],
   unitSymbol: string,
   range: ChartRange,
+  customRange: ChartDateRange | null,
   todayDateString: CalendarDateString,
 ) {
-  const today = parseCalendarDate(todayDateString);
-
-  const firstEntryDate = entries[0]?.date;
-  const visibleStartDate =
-    range === "all-time" && firstEntryDate && firstEntryDate < todayDateString
-      ? firstEntryDate
-      : formatCalendarDate(getRangeStart(today, range));
-  const visibleEndDate = todayDateString;
-  const visibleStart = parseCalendarDate(visibleStartDate);
-  const visibleEnd = parseCalendarDate(visibleEndDate);
+  const dateRange = resolveChartDateRange({
+    customRange,
+    firstEntryDate: entries[0]?.date,
+    range,
+    todayDate: todayDateString,
+  });
 
   const data = entries.map(
     (entry): ChartDatum => ({
@@ -210,71 +319,33 @@ function getChartData(
     }),
   );
 
-  const xDomain = [visibleStart.getTime(), visibleEnd.getTime()] as const;
-  const xTicks = getXticks(visibleStartDate, visibleEndDate, range);
+  const visibleEntryCount = entries.filter(
+    (entry) =>
+      entry.date >= dateRange.startDate && entry.date <= dateRange.endDate,
+  ).length;
 
   return {
     data,
-    xDomain,
-    xTicks,
+    visibleEntryCount,
+    xDomain: getChartDomain(dateRange),
+    xTicks: getChartTicks(dateRange, range),
   };
 }
 
-function getRangeStart(date: Date, range: ChartRange) {
-  if (range === "all-time" || range === "last-week") {
-    return subDays(date, 6);
+function toChartDateRange(range: DateRange | undefined): ChartDateRange | null {
+  if (!range?.from) {
+    return null;
   }
 
-  if (range === "last-year") {
-    return subYears(date, 1);
-  }
-
-  return subMonths(date, 1);
+  return {
+    startDate: formatCalendarDate(range.from),
+    endDate: formatCalendarDate(range.to ?? range.from),
+  };
 }
 
-function getXticks(
-  fechaInicio: CalendarDateString,
-  fechaFin: CalendarDateString,
-  range: ChartRange,
-) {
-  const xTicks: number[] = [];
-
-  const actual = parseCalendarDate(fechaInicio);
-  const fin = parseCalendarDate(fechaFin);
-
-  const stepDays = getTickStepDays(range, actual, fin);
-
-  while (actual <= fin) {
-    xTicks.push(actual.getTime());
-    actual.setDate(actual.getDate() + stepDays);
-  }
-
-  const finTimestamp = fin.getTime();
-
-  if (!xTicks.includes(finTimestamp)) {
-    xTicks.push(finTimestamp);
-  }
-
-  return xTicks;
-}
-
-function getTickStepDays(range: ChartRange, start: Date, end: Date) {
-  if (range === "last-week") {
-    return 1;
-  }
-
-  if (range === "last-month") {
-    return 7;
-  }
-
-  if (range === "last-year") {
-    return 30;
-  }
-
-  const dayCount = Math.max(
-    1,
-    Math.ceil((end.getTime() - start.getTime()) / 86_400_000),
-  );
-
-  return Math.max(1, Math.ceil(dayCount / 30));
+function toPickerDateRange(range: ChartDateRange): DateRange {
+  return {
+    from: parseCalendarDate(range.startDate),
+    to: parseCalendarDate(range.endDate),
+  };
 }
