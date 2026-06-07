@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 import {
   formatMetricValue,
@@ -44,7 +45,7 @@ export function MetricCard({
   }, [entries, unit.symbol]);
 
   return (
-    <div className="flex overflow-hidden rounded-lg border">
+    <Card className="flex-row gap-0 py-0">
       <div className="flex w-3/5 flex-col justify-between p-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-foreground truncate font-medium">{title}</h2>
@@ -113,7 +114,7 @@ export function MetricCard({
           </LineChart>
         </ChartContainer>
       </div>
-    </div>
+    </Card>
   );
 }
 
