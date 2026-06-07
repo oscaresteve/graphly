@@ -47,6 +47,7 @@ export default async function MetricPage({ params }: MetricPageProps) {
                 metricId={metric.id}
                 metricName={metric.name}
                 mode="today"
+                today={today}
                 trigger={
                   <Button type="button" disabled={hasTodayEntry}>
                     <Plus data-icon="inline-start" />
@@ -60,11 +61,12 @@ export default async function MetricPage({ params }: MetricPageProps) {
                 entryDates={entryDates}
                 metricId={metric.id}
                 metricName={metric.name}
-                mode="custom-date"
+                mode="past"
+                today={today}
                 trigger={
                   <Button type="button" variant="secondary">
                     <CalendarIcon data-icon="inline-start" />
-                    Log another date
+                    Log past entry
                   </Button>
                 }
                 unit={metric.unit}
@@ -74,7 +76,8 @@ export default async function MetricPage({ params }: MetricPageProps) {
               entryDates={entryDates}
               metricId={metric.id}
               metricName={metric.name}
-              showLogDateItem={!hasTodayEntry}
+              showLogPastEntryItem={!hasTodayEntry}
+              today={today}
               unit={metric.unit}
             />
           </>

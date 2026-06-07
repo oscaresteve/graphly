@@ -35,7 +35,6 @@ import {
 } from "@/components/ui/popover";
 import {
   formatCalendarDate,
-  getTodayCalendarDate,
   parseCalendarDate,
   type CalendarDateString,
 } from "@/lib/date";
@@ -55,9 +54,10 @@ type EntryDialogFormProps = {
   entryDates?: CalendarDateString[];
   metricId: string;
   metricName: string;
-  mode: "custom-date" | "today";
+  mode: "past" | "today";
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
+  today: CalendarDateString;
   trigger?: ReactNode;
   unit: {
     name: string;
@@ -72,22 +72,23 @@ export function EntryDialogForm({
   mode,
   onOpenChange,
   open,
+  today: todayDate,
   trigger,
   unit,
 }: EntryDialogFormProps) {
-  const todayDate = getTodayCalendarDate();
   const today = parseCalendarDate(todayDate);
-  const defaultCustomDate = useMemo(
-    () => getDefaultCustomDate(entryDates, parseCalendarDate(todayDate)),
+  const defaultPastDate = useMemo(
+    () => getDefaultPastDate(entryDates, parseCalendarDate(todayDate)),
     [entryDates, todayDate],
   );
   const [internalOpen, setInternalOpen] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [showActionState, setShowActionState] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const isCustomDateEntry = mode === "custom-date";
+  const isPastEntry = mode === "past";
   const dialogOpen = open ?? internalOpen;
-  const selectedCustomDate = selectedDate ?? defaultCustomDate;
+  const selectedPastDate = selectedDate ?? defaultPastDate;
 
   function setDialogOpen(nextOpen: boolean) {
     if (onOpenChange) {
@@ -109,22 +110,29 @@ export function EntryDialogForm({
         setDialogOpen(false);
         setDatePickerOpen(false);
         setSelectedDate(null);
+        setShowActionState(false);
         formRef.current?.reset();
+      } else {
+        setShowActionState(true);
       }
 
       return nextState;
     },
     initialCreateEntryActionState,
   );
+  const displayState = showActionState
+    ? state
+    : initialCreateEntryActionState;
   const inputConfig = getInputConfig(unit.type);
-  const dateErrors = getFieldErrors(state, "date");
+  const dateErrors = getFieldErrors(displayState, "date");
   const hasDateErrors = hasErrors(dateErrors);
-  const valueErrors = getFieldErrors(state, "value");
+  const valueErrors = getFieldErrors(displayState, "value");
   const hasValueErrors = hasErrors(valueErrors);
-  const selectedCalendarDate = isCustomDateEntry
-    ? formatCalendarDate(selectedCustomDate)
+  const selectedCalendarDate = isPastEntry
+    ? formatCalendarDate(selectedPastDate)
     : todayDate;
   const disabledDates = [
+    today,
     { after: today },
     ...entryDates.map((entryDate) => parseCalendarDate(entryDate)),
   ];
@@ -135,6 +143,7 @@ export function EntryDialogForm({
     if (!nextOpen) {
       setDatePickerOpen(false);
       setSelectedDate(null);
+      setShowActionState(false);
     }
   }
 
@@ -145,8 +154,8 @@ export function EntryDialogForm({
         <DialogHeader>
           <DialogTitle>{metricName}</DialogTitle>
           <DialogDescription>
-            {isCustomDateEntry
-              ? "Create a new entry for an available date."
+            {isPastEntry
+              ? "Create a new entry for a previous date."
               : "Create a new entry for today."}
           </DialogDescription>
         </DialogHeader>
@@ -156,11 +165,11 @@ export function EntryDialogForm({
           <input type="hidden" name="date" value={selectedCalendarDate} />
 
           <FieldGroup>
-            {state.formError ? (
-              <FieldError>{state.formError}</FieldError>
+            {displayState.formError ? (
+              <FieldError>{displayState.formError}</FieldError>
             ) : null}
 
-            {isCustomDateEntry ? (
+            {isPastEntry ? (
               <Field data-invalid={hasDateErrors}>
                 <FieldLabel className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
                   Date
@@ -174,13 +183,13 @@ export function EntryDialogForm({
                       className="justify-start"
                     >
                       <CalendarIcon data-icon="inline-start" />
-                      {formatPickerDate(selectedCustomDate)}
+                      {formatPickerDate(selectedPastDate)}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent align="start" className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={selectedCustomDate}
+                      selected={selectedPastDate}
                       disabled={disabledDates}
                       onSelect={(date) => {
                         if (date) {
@@ -194,7 +203,7 @@ export function EntryDialogForm({
                 {hasDateErrors ? (
                   <FieldError errors={dateErrors} />
                 ) : (
-                  <FieldDescription>Choose an available date.</FieldDescription>
+                  <FieldDescription>Choose a previous date.</FieldDescription>
                 )}
               </Field>
             ) : null}
@@ -256,12 +265,14 @@ function formatPickerDate(value: Date) {
   }).format(value);
 }
 
-function getDefaultCustomDate(
+function getDefaultPastDate(
   entryDates: CalendarDateString[],
   today: Date,
 ): Date {
   const entryDateSet = new Set(entryDates);
   const date = new Date(today);
+
+  date.setDate(date.getDate() - 1);
 
   while (entryDateSet.has(formatCalendarDate(date))) {
     date.setDate(date.getDate() - 1);

@@ -9,6 +9,7 @@ import { isUniqueConstraintError } from "@/lib/db/errors";
 import {
   createMetricForUser,
   deleteMetricForUser,
+  findMetricForUser,
   updateMetricForUser,
 } from "@/lib/db/metrics.repository";
 import { getTodayCalendarDate } from "@/lib/date";
@@ -92,6 +93,29 @@ export async function createEntryAction(
     return {
       success: false,
       fieldErrors: validation.fieldErrors,
+      formError: null,
+    };
+  }
+
+  const metric = await findMetricForUser(validation.data.metricId, userId);
+
+  if (!metric) {
+    return {
+      success: false,
+      fieldErrors: {},
+      formError: "Metric not found",
+    };
+  }
+
+  if (
+    metric.unit.type === "integer" &&
+    !Number.isInteger(validation.data.value)
+  ) {
+    return {
+      success: false,
+      fieldErrors: {
+        value: ["Value must be a whole number"],
+      },
       formError: null,
     };
   }

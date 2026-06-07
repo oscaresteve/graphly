@@ -22,7 +22,8 @@ type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
   metricId: string;
   metricName: string;
-  showLogDateItem?: boolean;
+  showLogPastEntryItem?: boolean;
+  today: CalendarDateString;
   unit: {
     name: string;
     type: UnitType;
@@ -33,7 +34,8 @@ export function MetricActionsDropdown({
   entryDates,
   metricId,
   metricName,
-  showLogDateItem = true,
+  showLogPastEntryItem = true,
+  today,
   unit,
 }: MetricActionsDropdownProps) {
   const [dateDialogOpen, setDateDialogOpen] = useState(false);
@@ -53,10 +55,10 @@ export function MetricActionsDropdown({
               Edit
             </Link>
           </DropdownMenuItem>
-          {showLogDateItem ? (
+          {showLogPastEntryItem ? (
             <DropdownMenuItem onSelect={() => setDateDialogOpen(true)}>
               <CalendarIcon />
-              Log another date
+              Log past entry
             </DropdownMenuItem>
           ) : null}
           <form action={deleteMetricAction}>
@@ -79,9 +81,10 @@ export function MetricActionsDropdown({
         entryDates={entryDates}
         metricId={metricId}
         metricName={metricName}
-        mode="custom-date"
+        mode="past"
         open={dateDialogOpen}
         onOpenChange={setDateDialogOpen}
+        today={today}
         unit={unit}
       />
     </>
