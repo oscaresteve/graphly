@@ -1,7 +1,6 @@
 import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
-import { getTodayCalendarDate } from "@/lib/date";
-import { ArrowLeft, CalendarIcon, Plus } from "lucide-react";
+import { ArrowLeft, CalendarIcon, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -18,16 +17,14 @@ type MetricPageProps = {
 
 export default async function MetricPage({ params }: MetricPageProps) {
   const { metricId } = await params;
-  const { metric } = await loadMetricPageData(metricId);
+  const { metric, today } = await loadMetricPageData(metricId);
 
   if (!metric) {
     notFound();
   }
 
-  const today = getTodayCalendarDate();
-
   const entryDates = metric.entries.map((entry) => entry.date);
-  const hasTodayEntry = entryDates.includes(today);
+  const todayEntry = metric.entries.find((entry) => entry.date === today);
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-4">
@@ -42,14 +39,14 @@ export default async function MetricPage({ params }: MetricPageProps) {
         }
         right={
           <>
-            {!hasTodayEntry ? (
+            {!todayEntry ? (
               <EntryDialogForm
+                intent={{ type: "create-today" }}
                 metricId={metric.id}
                 metricName={metric.name}
-                mode="today"
                 today={today}
                 trigger={
-                  <Button type="button" disabled={hasTodayEntry}>
+                  <Button type="button">
                     <Plus data-icon="inline-start" />
                     Log today
                   </Button>
@@ -58,28 +55,34 @@ export default async function MetricPage({ params }: MetricPageProps) {
               />
             ) : (
               <EntryDialogForm
-                entryDates={entryDates}
+                intent={{ type: "edit-today", entry: todayEntry }}
                 metricId={metric.id}
                 metricName={metric.name}
-                mode="past"
                 today={today}
                 trigger={
-                  <Button type="button" variant="secondary">
-                    <CalendarIcon data-icon="inline-start" />
-                    Log past entry
+                  <Button type="button">
+                    <Pencil data-icon="inline-start" />
+                    Edit today
                   </Button>
                 }
                 unit={metric.unit}
               />
             )}
-            <MetricActionsDropdown
+            <EntryDialogForm
               entryDates={entryDates}
+              intent={{ type: "create-past" }}
               metricId={metric.id}
               metricName={metric.name}
-              showLogPastEntryItem={!hasTodayEntry}
               today={today}
+              trigger={
+                <Button type="button" variant="secondary">
+                  <CalendarIcon data-icon="inline-start" />
+                  Log past entry
+                </Button>
+              }
               unit={metric.unit}
             />
+            <MetricActionsDropdown metricId={metric.id} />
           </>
         }
       />

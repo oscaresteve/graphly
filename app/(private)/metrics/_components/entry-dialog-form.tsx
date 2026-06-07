@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Plus, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -38,23 +38,39 @@ import {
   parseCalendarDate,
   type CalendarDateString,
 } from "@/lib/date";
-import { type UnitType } from "@/lib/metrics/types";
+import { type MetricEntryView, type UnitType } from "@/lib/metrics/types";
 
-import { createEntryAction } from "../_lib/actions";
+import { createEntryAction, updateEntryAction } from "../_lib/actions";
 import {
   createInitialActionState,
   type ActionState,
 } from "../_lib/action-state";
-import { type CreateEntryActionState } from "../_lib/entry.validation";
+import {
+  type CreateEntryActionState,
+  type UpdateEntryActionState,
+} from "../_lib/entry.validation";
 
-const initialCreateEntryActionState =
-  createInitialActionState<"metricId" | "date" | "value">();
+type EntryActionField = "date" | "entryId" | "metricId" | "value";
+
+const initialEntryActionState = createInitialActionState<EntryActionField>();
+
+type EntryDialogIntent =
+  | {
+      type: "create-past";
+    }
+  | {
+      type: "create-today";
+    }
+  | {
+      type: "edit-today";
+      entry: Pick<MetricEntryView, "id" | "value">;
+    };
 
 type EntryDialogFormProps = {
   entryDates?: CalendarDateString[];
+  intent: EntryDialogIntent;
   metricId: string;
   metricName: string;
-  mode: "past" | "today";
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   today: CalendarDateString;
@@ -67,9 +83,9 @@ type EntryDialogFormProps = {
 
 export function EntryDialogForm({
   entryDates = [],
+  intent,
   metricId,
   metricName,
-  mode,
   onOpenChange,
   open,
   today: todayDate,
@@ -86,7 +102,8 @@ export function EntryDialogForm({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showActionState, setShowActionState] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const isPastEntry = mode === "past";
+  const isPastEntry = intent.type === "create-past";
+  const isEditEntry = intent.type === "edit-today";
   const dialogOpen = open ?? internalOpen;
   const selectedPastDate = selectedDate ?? defaultPastDate;
 
@@ -99,12 +116,23 @@ export function EntryDialogForm({
     setInternalOpen(nextOpen);
   }
 
-  const [state, formAction, isPending] = useActionState(
+  const [state, formAction, isPending] = useActionState<
+    ActionState<EntryActionField>,
+    FormData
+  >(
     async (
-      previousState: CreateEntryActionState,
+      previousState: ActionState<EntryActionField>,
       formData: FormData,
-    ): Promise<CreateEntryActionState> => {
-      const nextState = await createEntryAction(previousState, formData);
+    ): Promise<ActionState<EntryActionField>> => {
+      const nextState = isEditEntry
+        ? await updateEntryAction(
+            previousState as UpdateEntryActionState,
+            formData,
+          )
+        : await createEntryAction(
+            previousState as CreateEntryActionState,
+            formData,
+          );
 
       if (nextState.success) {
         setDialogOpen(false);
@@ -118,11 +146,9 @@ export function EntryDialogForm({
 
       return nextState;
     },
-    initialCreateEntryActionState,
+    initialEntryActionState,
   );
-  const displayState = showActionState
-    ? state
-    : initialCreateEntryActionState;
+  const displayState = showActionState ? state : initialEntryActionState;
   const inputConfig = getInputConfig(unit.type);
   const dateErrors = getFieldErrors(displayState, "date");
   const hasDateErrors = hasErrors(dateErrors);
@@ -156,13 +182,21 @@ export function EntryDialogForm({
           <DialogDescription>
             {isPastEntry
               ? "Create a new entry for a previous date."
-              : "Create a new entry for today."}
+              : isEditEntry
+                ? "Update today's entry."
+                : "Create a new entry for today."}
           </DialogDescription>
         </DialogHeader>
 
         <form ref={formRef} action={formAction} className="flex flex-col gap-4">
-          <input type="hidden" name="metricId" value={metricId} />
-          <input type="hidden" name="date" value={selectedCalendarDate} />
+          {isEditEntry ? (
+            <input type="hidden" name="entryId" value={intent.entry.id} />
+          ) : (
+            <>
+              <input type="hidden" name="metricId" value={metricId} />
+              <input type="hidden" name="date" value={selectedCalendarDate} />
+            </>
+          )}
 
           <FieldGroup>
             {displayState.formError ? (
@@ -210,19 +244,20 @@ export function EntryDialogForm({
 
             <Field data-invalid={hasValueErrors}>
               <FieldLabel
-                htmlFor={`entry-value-${metricId}`}
+                htmlFor={`entry-value-${metricId}-${intent.type}`}
                 className="text-muted-foreground text-xs font-medium tracking-normal uppercase"
               >
                 {unit.name}
               </FieldLabel>
               <Input
-                id={`entry-value-${metricId}`}
+                id={`entry-value-${metricId}-${intent.type}`}
                 name="value"
                 type="number"
                 inputMode={inputConfig.inputMode}
                 min={0}
                 max={inputConfig.max}
                 step={inputConfig.step}
+                defaultValue={isEditEntry ? intent.entry.value : undefined}
                 placeholder={inputConfig.placeholder}
                 aria-invalid={hasValueErrors}
               />
@@ -236,8 +271,16 @@ export function EntryDialogForm({
 
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
-              <Plus data-icon="inline-start" />
-              {isPending ? "Saving..." : "Save entry"}
+              {isEditEntry ? (
+                <Save data-icon="inline-start" />
+              ) : (
+                <Plus data-icon="inline-start" />
+              )}
+              {isPending
+                ? "Saving..."
+                : isEditEntry
+                  ? "Save changes"
+                  : "Save entry"}
             </Button>
           </DialogFooter>
         </form>

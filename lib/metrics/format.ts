@@ -1,6 +1,5 @@
 import {
   formatCalendarDate,
-  getTodayCalendarDate,
   parseCalendarDate,
   type CalendarDateString,
 } from "@/lib/date";
@@ -18,11 +17,13 @@ export function formatCompactMetricValue(value: number) {
   }).format(value);
 }
 
-export function formatRelativeCalendarDate(value: CalendarDateString) {
-  const todayDate = getTodayCalendarDate();
-  const yesterdayDate = formatCalendarDate(
-    new Date(new Date().setDate(new Date().getDate() - 1)),
-  );
+export function formatRelativeCalendarDate(
+  value: CalendarDateString,
+  todayDate: CalendarDateString,
+) {
+  const yesterday = parseCalendarDate(todayDate);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayDate = formatCalendarDate(yesterday);
 
   if (value === todayDate) {
     return "Today";

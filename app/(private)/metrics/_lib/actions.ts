@@ -4,7 +4,11 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createEntryForMetricForUser } from "@/lib/db/entries.repository";
+import {
+  createEntryForMetricForUser,
+  findEntryForUser,
+  updateEntryForMetricForUser,
+} from "@/lib/db/entries.repository";
 import { isUniqueConstraintError } from "@/lib/db/errors";
 import {
   createMetricForUser,
@@ -12,11 +16,14 @@ import {
   findMetricForUser,
   updateMetricForUser,
 } from "@/lib/db/metrics.repository";
+import { getUserTimeZone } from "@/lib/db/user-preferences.repository";
 import { getTodayCalendarDate } from "@/lib/date";
 
 import {
   type CreateEntryActionState,
+  type UpdateEntryActionState,
   validateCreateEntryFormData,
+  validateUpdateEntryFormData,
 } from "./entry.validation";
 import {
   type CreateMetricActionState,
@@ -87,7 +94,9 @@ export async function createEntryAction(
   formData: FormData,
 ): Promise<CreateEntryActionState> {
   const { userId } = await auth.protect();
-  const validation = validateCreateEntryFormData(formData);
+  const timeZone = await getUserTimeZone(userId);
+  const today = getTodayCalendarDate(timeZone);
+  const validation = validateCreateEntryFormData(formData, today);
 
   if (!validation.success) {
     return {
@@ -143,7 +152,7 @@ export async function createEntryAction(
         success: false,
         fieldErrors: {},
         formError:
-          validation.data.date === getTodayCalendarDate()
+          validation.data.date === today
             ? "There is already an entry for today"
             : "There is already an entry for this date",
       };
@@ -152,6 +161,7 @@ export async function createEntryAction(
     throw error;
   }
 
+  revalidatePath("/");
   revalidatePath("/metrics");
   revalidatePath(`/metrics/${validation.data.metricId}`);
 
@@ -162,3 +172,65 @@ export async function createEntryAction(
   };
 }
 
+export async function updateEntryAction(
+  _previousState: UpdateEntryActionState,
+  formData: FormData,
+): Promise<UpdateEntryActionState> {
+  const { userId } = await auth.protect();
+  const validation = validateUpdateEntryFormData(formData);
+
+  if (!validation.success) {
+    return {
+      success: false,
+      fieldErrors: validation.fieldErrors,
+      formError: null,
+    };
+  }
+
+  const entry = await findEntryForUser(validation.data.entryId, userId);
+
+  if (!entry) {
+    return {
+      success: false,
+      fieldErrors: {},
+      formError: "Entry not found",
+    };
+  }
+
+  if (
+    entry.unitType === "integer" &&
+    !Number.isInteger(validation.data.value)
+  ) {
+    return {
+      success: false,
+      fieldErrors: {
+        value: ["Value must be a whole number"],
+      },
+      formError: null,
+    };
+  }
+
+  const updatedEntry = await updateEntryForMetricForUser(
+    validation.data.entryId,
+    userId,
+    validation.data.value,
+  );
+
+  if (!updatedEntry) {
+    return {
+      success: false,
+      fieldErrors: {},
+      formError: "Entry not found",
+    };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/metrics");
+  revalidatePath(`/metrics/${entry.metricId}`);
+
+  return {
+    success: true,
+    fieldErrors: {},
+    formError: null,
+  };
+}

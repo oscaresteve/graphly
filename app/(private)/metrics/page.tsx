@@ -15,7 +15,7 @@ import { loadMetricsPageData } from "./loader";
 import { MetricCard } from "./_components/metric-card";
 
 export default async function MetricsPage() {
-  const { metrics } = await loadMetricsPageData();
+  const { metrics, today } = await loadMetricsPageData();
 
   if (metrics.length === 0) {
     return (
@@ -52,6 +52,7 @@ export default async function MetricsPage() {
             entries={metric.entries}
             key={metric.id}
             title={metric.name}
+            today={today}
             unit={metric.unit}
           />
         ))}

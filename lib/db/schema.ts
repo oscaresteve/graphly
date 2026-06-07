@@ -43,6 +43,17 @@ export const metrics = pgTable("metrics", {
     .notNull(),
 });
 
+export const userPreferences = pgTable("user_preferences", {
+  userId: text("user_id").primaryKey(),
+  timeZone: text("time_zone").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const entries = pgTable(
   "entries",
   {

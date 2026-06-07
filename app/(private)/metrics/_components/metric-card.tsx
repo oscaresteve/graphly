@@ -19,6 +19,7 @@ type MetricCardProps = {
   id: string;
   entries: MetricEntryView[];
   title: string;
+  today: CalendarDateString;
   unit: Pick<MetricUnitView, "name" | "symbol" | "type">;
 };
 
@@ -29,7 +30,13 @@ type ChartDatum = {
   value: number;
 };
 
-export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
+export function MetricCard({
+  id,
+  entries,
+  title,
+  today,
+  unit,
+}: MetricCardProps) {
   const lastEntry = entries[entries.length - 1];
 
   const { data, xDomain } = useMemo(() => {
@@ -45,7 +52,7 @@ export function MetricCard({ id, entries, title, unit }: MetricCardProps) {
         <div className="flex items-center justify-between gap-2">
           <p className="text-muted-foreground truncate text-sm">
             {lastEntry
-              ? formatRelativeCalendarDate(lastEntry.date)
+              ? formatRelativeCalendarDate(lastEntry.date, today)
               : "No data available"}
           </p>
           <p className="text-foreground text-xl font-medium">
