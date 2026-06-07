@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { metrics, units } from "@/lib/db/schema";
+import { entries, metrics, units } from "@/lib/db/schema";
 
 type MetricRecord = typeof metrics.$inferSelect;
 type UnitRecord = typeof units.$inferSelect;
@@ -117,4 +117,44 @@ export async function deleteMetricForUser(
     .returning();
 
   return metric ?? null;
+}
+
+export type MetricWithTodayEntryRecord = MetricWithUnitRecord & {
+  todayEntry: {
+    id: string;
+    date: string;
+    value: string;
+  } | null;
+};
+
+export async function listMetricsWithTodayEntryForUser(
+  userId: string,
+  today: string,
+): Promise<MetricWithTodayEntryRecord[]> {
+  return db
+    .select({
+      id: metrics.id,
+      name: metrics.name,
+      description: metrics.description,
+      createdAt: metrics.createdAt,
+      unit: {
+        id: units.id,
+        name: units.name,
+        symbol: units.symbol,
+        type: units.type,
+      },
+      todayEntry: {
+        id: entries.id,
+        date: entries.date,
+        value: entries.value,
+      },
+    })
+    .from(metrics)
+    .innerJoin(units, eq(metrics.unitId, units.id))
+    .leftJoin(
+      entries,
+      and(eq(entries.metricId, metrics.id), eq(entries.date, today)),
+    )
+    .where(eq(metrics.userId, userId))
+    .orderBy(desc(metrics.createdAt));
 }

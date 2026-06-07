@@ -25,4 +25,12 @@ export type MetricView = {
   entries: MetricEntryView[];
 };
 
+export type DailyMetricView = {
+  id: string;
+  name: string;
+  description: string | null;
+  unit: MetricUnitView;
+  todayEntry: MetricEntryView | null;
+};
+
 export type UnitOption = Pick<MetricUnitView, "id" | "name" | "symbol">;

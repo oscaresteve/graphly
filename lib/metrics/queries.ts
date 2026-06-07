@@ -6,6 +6,7 @@ import {
 } from "@/lib/db/entries.repository";
 import {
   findMetricForUser,
+  listMetricsWithTodayEntryForUser,
   listMetricsForUser,
   type MetricWithUnitRecord,
 } from "@/lib/db/metrics.repository";
@@ -14,6 +15,7 @@ import { toCalendarDateString } from "@/lib/date";
 import {
   type MetricEntryView,
   type MetricView,
+  type DailyMetricView,
   type UnitOption,
 } from "@/lib/metrics/types";
 
@@ -55,6 +57,27 @@ export async function listUnitOptions(): Promise<UnitOption[]> {
     id,
     name,
     symbol,
+  }));
+}
+
+export async function listDailyMetricViewsForUser(
+  userId: string,
+  today: string,
+): Promise<DailyMetricView[]> {
+  const metrics = await listMetricsWithTodayEntryForUser(userId, today);
+
+  return metrics.map((metric) => ({
+    id: metric.id,
+    name: metric.name,
+    description: metric.description,
+    unit: metric.unit,
+    todayEntry: metric.todayEntry
+      ? {
+          id: metric.todayEntry.id,
+          date: toCalendarDateString(metric.todayEntry.date),
+          value: Number(metric.todayEntry.value),
+        }
+      : null,
   }));
 }
 
