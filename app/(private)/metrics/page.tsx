@@ -8,7 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { LineChart, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 import { loadMetricsPageData } from "./loader";
@@ -19,27 +19,22 @@ export default async function MetricsPage() {
 
   if (metrics.length === 0) {
     return (
-      <>
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <LineChart />
-            </EmptyMedia>
-            <EmptyTitle>{"You don't have any metrics yet"}</EmptyTitle>
-            <EmptyDescription>
-              Create your first metric to start tracking daily data.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <Button asChild>
-              <Link href="/metrics/new">
-                <Plus data-icon="inline-start" />
-                New Metric
-              </Link>
-            </Button>
-          </EmptyContent>
-        </Empty>
-      </>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Plus />
+          </EmptyMedia>
+          <EmptyTitle>Create your first metric</EmptyTitle>
+          <EmptyDescription>
+            Add a metric to start building your daily tracking routine.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button asChild>
+            <Link href="/metrics/new">New Metric</Link>
+          </Button>
+        </EmptyContent>
+      </Empty>
     );
   }
 
