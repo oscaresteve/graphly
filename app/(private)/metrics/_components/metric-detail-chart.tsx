@@ -158,6 +158,7 @@ export function MetricDetailChart({
                 disabled={{ after: parseCalendarDate(today) }}
                 selected={draftRange}
                 onSelect={setDraftRange}
+                showOutsideDays={false}
               />
               <div className="flex justify-end gap-2">
                 <Button
