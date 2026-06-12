@@ -4,9 +4,9 @@ import { ArrowLeft, CalendarIcon, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { EntryDialogForm } from "../_components/entry-dialog-form";
-import { MetricActionsDropdown } from "../_components/metric-actions-dropdown";
-import { MetricDetailChart } from "../_components/metric-detail-chart";
+import { EntryDialogForm } from "../../_components/entry-dialog-form";
+import { MetricActionsDropdown } from "../../_components/metric-actions-dropdown";
+import { MetricDetailChart } from "../../_components/metric-detail-chart";
 import { loadMetricPageData } from "./loader";
 
 type MetricPageProps = {
@@ -31,7 +31,7 @@ export default async function MetricPage({ params }: MetricPageProps) {
       <AppSubbar
         left={
           <Button asChild variant="ghost" size="sm">
-            <Link href="/metrics">
+            <Link href="/">
               <ArrowLeft data-icon="inline-start" />
               Back
             </Link>

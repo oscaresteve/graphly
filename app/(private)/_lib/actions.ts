@@ -50,8 +50,8 @@ export async function createMetricAction(
 
   await createMetricForUser(userId, validation.data);
 
-  revalidatePath("/metrics");
-  redirect("/metrics");
+  revalidatePath("/");
+  redirect("/");
 }
 
 export async function updateMetricAction(
@@ -85,8 +85,8 @@ export async function deleteMetricAction(formData: FormData) {
 
   await deleteMetricForUser(validation.data.metricId, userId);
 
-  revalidatePath("/metrics");
-  redirect("/metrics");
+  revalidatePath("/");
+  redirect("/");
 }
 
 export async function createEntryAction(

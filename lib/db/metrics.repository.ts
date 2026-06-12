@@ -1,7 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { entries, metrics, units } from "@/lib/db/schema";
+import { metrics, units } from "@/lib/db/schema";
 
 type MetricRecord = typeof metrics.$inferSelect;
 type UnitRecord = typeof units.$inferSelect;

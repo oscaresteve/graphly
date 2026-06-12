@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, LineChart, Settings } from "lucide-react";
+import { LayoutDashboard, Settings } from "lucide-react";
 
 export type AppNavigationItem = {
   title: string;
@@ -12,11 +12,6 @@ export const appNavigation: AppNavigationItem[] = [
     title: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
-  },
-  {
-    title: "Metrics",
-    href: "/metrics",
-    icon: LineChart,
   },
   {
     title: "Settings",

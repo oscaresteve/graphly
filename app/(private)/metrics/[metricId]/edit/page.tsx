@@ -1,4 +1,4 @@
-import { MetricForm } from "../../_components/metric-form";
+import { MetricForm } from "../../../_components/metric-form";
 import { loadEditMetricPageData } from "./loader";
 
 type EditMetricPageProps = {
