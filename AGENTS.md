@@ -1,3 +1,7 @@
+## Package manager
+
+Always use `pnpm` for installing dependencies and running package scripts. Do not use `npm`, `yarn`, or other package managers.
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
