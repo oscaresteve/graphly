@@ -8,13 +8,14 @@ import {
   formatRelativeCalendarDate,
 } from "@/lib/metrics/format";
 import { type MetricEntryView, type MetricUnitView } from "@/lib/metrics/types";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { Line, LineChart, XAxis } from "recharts";
 
 import { Separator } from "@/components/ui/separator";
 import { CalendarDateString, parseCalendarDate } from "@/lib/date";
 import { useMemo } from "react";
+import { EntryDialogForm } from "./entry-dialog-form";
 
 type MetricCardProps = {
   id: string;
@@ -39,6 +40,7 @@ export function MetricCard({
   unit,
 }: MetricCardProps) {
   const lastEntry = entries[entries.length - 1];
+  const todayEntry = entries.find((entry) => entry.date === today);
 
   const { data, xDomain } = useMemo(() => {
     return getChartData(entries, unit.symbol);
@@ -46,7 +48,7 @@ export function MetricCard({
 
   return (
     <Card className="flex-row gap-0 py-0">
-      <div className="flex w-3/5 flex-col justify-between p-4">
+      <div className="flex w-2/5 flex-col justify-between p-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-foreground truncate font-medium">{title}</h2>
         </div>
@@ -63,21 +65,48 @@ export function MetricCard({
         </div>
       </div>
       <Separator orientation="vertical" />
-      <div className="flex w-2/5 flex-col gap-2 py-2">
-        <div className="flex justify-between gap-2 px-2">
+      <div className="flex w-3/5 flex-col gap-2 py-2">
+        <div className="flex items-center justify-between gap-2 px-2">
           <p className="text-muted-foreground truncate text-[0.625rem] font-medium tracking-normal uppercase">
             {unit.name}
           </p>
-          <Button
-            asChild
-            variant="ghost"
-            size="icon-sm"
-            aria-label="View details"
-          >
-            <Link href={`/metrics/${id}`}>
-              <ChevronRight />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-1">
+            {todayEntry ? (
+              <EntryDialogForm
+                intent={{ type: "edit-today", entry: todayEntry }}
+                metricId={id}
+                metricName={title}
+                today={today}
+                trigger={
+                  <Button type="button" variant="secondary" size="sm">
+                    <Pencil data-icon="inline-start" />
+                    Edit today
+                  </Button>
+                }
+                unit={unit}
+              />
+            ) : (
+              <EntryDialogForm
+                intent={{ type: "create-today" }}
+                metricId={id}
+                metricName={title}
+                today={today}
+                trigger={
+                  <Button type="button" size="sm">
+                    <Plus data-icon="inline-start" />
+                    Log today
+                  </Button>
+                }
+                unit={unit}
+              />
+            )}
+            <Button asChild variant="ghost" size="sm" aria-label="View details">
+              <Link href={`/metrics/${id}`}>
+                Details
+                <ArrowRight data-icon="inline-end" />
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <ChartContainer
