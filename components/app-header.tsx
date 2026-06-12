@@ -2,13 +2,17 @@
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { getActiveNavigationItem } from "@/config/app-navigation";
+import { MetricNavigationItem } from "@/lib/metrics/types";
+import { AppNavigationItem } from "@/config/app-navigation";
+import { appNavigationItems } from "@/config/app-navigation";
 import { usePathname } from "next/navigation";
 
-export function AppHeader() {
+type AppHeaderProps = {
+  metricNavigationItems: MetricNavigationItem[];
+};
+
+export function AppHeader({ metricNavigationItems }: AppHeaderProps) {
   const pathname = usePathname();
-  const activeItem = getActiveNavigationItem(pathname);
-  const title = activeItem?.title ?? "Graphly";
 
   return (
     <header className="relative flex h-12 items-center border-b p-2">
@@ -18,8 +22,34 @@ export function AppHeader() {
       </div>
 
       <h1 className="absolute left-1/2 -translate-x-1/2 text-center text-lg">
-        {title}
+        {getHeaderTitle({
+          pathname,
+          metricNavigationItems,
+          appNavigationItems,
+        })}
       </h1>
     </header>
   );
+}
+
+function getHeaderTitle({
+  pathname,
+  metricNavigationItems,
+  appNavigationItems,
+}: {
+  pathname: string;
+  metricNavigationItems: MetricNavigationItem[];
+  appNavigationItems: AppNavigationItem[];
+}): string {
+  const allNavigationItems = [...appNavigationItems, ...metricNavigationItems];
+
+  const activeItem = allNavigationItems.find((item) => {
+    if (item.href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === item.href || pathname.startsWith(`${item.href}/`);
+  });
+
+  return activeItem?.title || "Graphly";
 }

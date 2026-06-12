@@ -16,7 +16,7 @@ export default async function AppLayout({
       <TimeZoneInitializer initialized={timeZone !== null} />
       <AppSidebar metricNavigationItems={metricNavigationItems} />
       <SidebarInset>
-        <AppHeader />
+        <AppHeader metricNavigationItems={metricNavigationItems} />
         <main className="w-full px-4 py-4">{children}</main>
       </SidebarInset>
     </SidebarProvider>

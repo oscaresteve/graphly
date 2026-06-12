@@ -8,7 +8,7 @@ import {
 import { getTodayCalendarDate, type CalendarDateString } from "@/lib/date";
 import { listMetricViewsForUser } from "@/lib/metrics/queries";
 import { MetricNavigationItem, type MetricView } from "@/lib/metrics/types";
-import { listMetricNavigationItemsForUser } from "@/lib/db/metrics.repository";
+import { listMetricNamesForUser } from "@/lib/db/metrics.repository";
 
 export async function loadLayoutData(): Promise<{
   metricNavigationItems: MetricNavigationItem[];
@@ -16,9 +16,15 @@ export async function loadLayoutData(): Promise<{
 }> {
   const { userId } = await auth.protect();
   const timeZone = await findUserTimeZone(userId);
-  
+
+  const metricNames = await listMetricNamesForUser(userId);
+  const metricNavigationItems = metricNames.map((metric) => ({
+    href: "/metrics/" + metric.id,
+    title: metric.name,
+  }));
+
   return {
-    metricNavigationItems: await listMetricNavigationItemsForUser(userId),
+    metricNavigationItems,
     timeZone,
   };
 }

@@ -2,7 +2,6 @@ import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { metrics, units } from "@/lib/db/schema";
-import { type MetricNavigationItem } from "../metrics/types";
 
 type MetricRecord = typeof metrics.$inferSelect;
 type UnitRecord = typeof units.$inferSelect;
@@ -13,6 +12,8 @@ export type MetricWithUnitRecord = Pick<
 > & {
   unit: Pick<UnitRecord, "id" | "name" | "symbol" | "type">;
 };
+
+type MetricNameRecord = Pick<MetricRecord, "id" | "name">;
 
 type CreateMetricValues = {
   name: string;
@@ -48,9 +49,9 @@ export async function listMetricsForUser(
     .orderBy(desc(metrics.createdAt));
 }
 
-export async function listMetricNavigationItemsForUser(
+export async function listMetricNamesForUser(
   userId: string,
-): Promise<MetricNavigationItem[]> {
+): Promise<MetricNameRecord[]> {
   try {
     return db
       .select({

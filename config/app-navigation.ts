@@ -7,7 +7,7 @@ export type AppNavigationItem = {
   icon: LucideIcon;
 };
 
-export const appNavigation: AppNavigationItem[] = [
+export const appNavigationItems: AppNavigationItem[] = [
   {
     title: "Dashboard",
     href: "/",
@@ -19,13 +19,3 @@ export const appNavigation: AppNavigationItem[] = [
     icon: Settings,
   },
 ];
-
-export function getActiveNavigationItem(pathname: string) {
-  return appNavigation.find((item) => {
-    if (item.href === "/") {
-      return pathname === "/";
-    }
-
-    return pathname === item.href || pathname.startsWith(`${item.href}/`);
-  });
-}

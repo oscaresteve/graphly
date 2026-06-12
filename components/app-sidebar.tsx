@@ -13,10 +13,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import {
-  appNavigation,
-  getActiveNavigationItem,
-} from "@/config/app-navigation";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { LogOut } from "lucide-react";
 import Link from "next/link";
@@ -24,6 +20,7 @@ import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { MetricNavigationItem } from "@/lib/metrics/types";
+import { appNavigationItems } from "@/config/app-navigation";
 
 type AppSidebarProps = {
   metricNavigationItems: MetricNavigationItem[];
@@ -31,7 +28,6 @@ type AppSidebarProps = {
 
 export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
   const pathname = usePathname();
-  const activeItem = getActiveNavigationItem(pathname);
   const { user } = useUser();
   const { openUserProfile, signOut } = useClerk();
   const displayName = user?.fullName || user?.username || "User";
@@ -57,14 +53,14 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {appNavigation.map((item) => {
+              {appNavigationItems.map((item) => {
                 const Icon = item.icon;
 
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
-                      isActive={activeItem?.href === item.href}
+                      isActive={pathname === item.href}
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
@@ -84,14 +80,14 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {metricNavigationItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
+                <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname=== `/metrics/${item.id}`}
-                    tooltip={item.name}
+                    isActive={pathname === item.href}
+                    tooltip={item.title}
                   >
-                    <Link href={`/metrics/${item.id}`}>
-                      <span>{item.name}</span>
+                    <Link href={item.href}>
+                      <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
