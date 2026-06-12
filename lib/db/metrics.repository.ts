@@ -2,6 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { metrics, units } from "@/lib/db/schema";
+import { type MetricNavigationItem } from "../metrics/types";
 
 type MetricRecord = typeof metrics.$inferSelect;
 type UnitRecord = typeof units.$inferSelect;
@@ -47,29 +48,49 @@ export async function listMetricsForUser(
     .orderBy(desc(metrics.createdAt));
 }
 
+export async function listMetricNavigationItemsForUser(
+  userId: string,
+): Promise<MetricNavigationItem[]> {
+  try {
+    return db
+      .select({
+        id: metrics.id,
+        name: metrics.name,
+      })
+      .from(metrics)
+      .where(eq(metrics.userId, userId));
+  } catch {
+    return [];
+  }
+}
+
 export async function findMetricForUser(
   metricId: string,
   userId: string,
 ): Promise<MetricWithUnitRecord | null> {
-  const [metric] = await db
-    .select({
-      id: metrics.id,
-      name: metrics.name,
-      description: metrics.description,
-      createdAt: metrics.createdAt,
-      unit: {
-        id: units.id,
-        name: units.name,
-        symbol: units.symbol,
-        type: units.type,
-      },
-    })
-    .from(metrics)
-    .innerJoin(units, eq(metrics.unitId, units.id))
-    .where(and(eq(metrics.id, metricId), eq(metrics.userId, userId)))
-    .limit(1);
+  try {
+    const [metric] = await db
+      .select({
+        id: metrics.id,
+        name: metrics.name,
+        description: metrics.description,
+        createdAt: metrics.createdAt,
+        unit: {
+          id: units.id,
+          name: units.name,
+          symbol: units.symbol,
+          type: units.type,
+        },
+      })
+      .from(metrics)
+      .innerJoin(units, eq(metrics.unitId, units.id))
+      .where(and(eq(metrics.id, metricId), eq(metrics.userId, userId)))
+      .limit(1);
 
-  return metric ?? null;
+    return metric ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function createMetricForUser(

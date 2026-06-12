@@ -23,8 +23,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { MetricNavigationItem } from "@/lib/metrics/types";
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  metricNavigationItems: MetricNavigationItem[];
+};
+
+export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
   const pathname = usePathname();
   const activeItem = getActiveNavigationItem(pathname);
   const { user } = useUser();
@@ -50,7 +55,6 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {appNavigation.map((item) => {
@@ -71,6 +75,27 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Metrics</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1">
+              {metricNavigationItems.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname=== `/metrics/${item.id}`}
+                    tooltip={item.name}
+                  >
+                    <Link href={`/metrics/${item.id}`}>
+                      <span>{item.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

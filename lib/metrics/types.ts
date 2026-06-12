@@ -25,4 +25,9 @@ export type MetricView = {
   entries: MetricEntryView[];
 };
 
+export type MetricNavigationItem = {
+  id: string;
+  name: string;
+};
+
 export type UnitOption = Pick<MetricUnitView, "id" | "name" | "symbol">;

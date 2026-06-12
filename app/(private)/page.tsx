@@ -11,11 +11,11 @@ import {
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { loadMetricsPageData } from "./loader";
+import { loadDashboardPageData } from "./loader";
 import { MetricCard } from "./_components/metric-card";
 
 export default async function Dashboard() {
-  const { metrics, today } = await loadMetricsPageData();
+  const { metrics, today } = await loadDashboardPageData();
 
   if (metrics.length === 0) {
     return (
