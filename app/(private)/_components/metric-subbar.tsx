@@ -31,7 +31,21 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
       }
       right={
         <>
-          {!todayEntry ? (
+          {todayEntry ? (
+            <EntryDialogForm
+              intent={{ type: "edit-today", entry: todayEntry }}
+              metricId={metric.id}
+              metricName={metric.name}
+              today={today}
+              trigger={
+                <Button type="button" variant="secondary">
+                  <Pencil data-icon="inline-start" />
+                  Edit today
+                </Button>
+              }
+              unit={metric.unit}
+            />
+          ) : (
             <EntryDialogForm
               intent={{ type: "create-today" }}
               metricId={metric.id}
@@ -41,20 +55,6 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
                 <Button type="button">
                   <Plus data-icon="inline-start" />
                   Log today
-                </Button>
-              }
-              unit={metric.unit}
-            />
-          ) : (
-            <EntryDialogForm
-              intent={{ type: "edit-today", entry: todayEntry }}
-              metricId={metric.id}
-              metricName={metric.name}
-              today={today}
-              trigger={
-                <Button type="button">
-                  <Pencil data-icon="inline-start" />
-                  Edit today
                 </Button>
               }
               unit={metric.unit}
