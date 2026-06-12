@@ -3,8 +3,10 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { MetricNavigationItem } from "@/lib/metrics/types";
-import { AppNavigationItem } from "@/config/app-navigation";
-import { appNavigationItems } from "@/config/app-navigation";
+import {
+  appNavigationItems,
+  getActiveNavigationItem,
+} from "@/config/app-navigation";
 import { usePathname } from "next/navigation";
 
 type AppHeaderProps = {
@@ -25,7 +27,6 @@ export function AppHeader({ metricNavigationItems }: AppHeaderProps) {
         {getHeaderTitle({
           pathname,
           metricNavigationItems,
-          appNavigationItems,
         })}
       </h1>
     </header>
@@ -35,20 +36,15 @@ export function AppHeader({ metricNavigationItems }: AppHeaderProps) {
 function getHeaderTitle({
   pathname,
   metricNavigationItems,
-  appNavigationItems,
 }: {
   pathname: string;
   metricNavigationItems: MetricNavigationItem[];
-  appNavigationItems: AppNavigationItem[];
 }): string {
   const allNavigationItems = [...appNavigationItems, ...metricNavigationItems];
 
-  const activeItem = allNavigationItems.find((item) => {
-    if (item.href === "/") {
-      return pathname === "/";
-    }
-
-    return pathname === item.href || pathname.startsWith(`${item.href}/`);
+  const activeItem = getActiveNavigationItem({
+    pathname,
+    items: allNavigationItems,
   });
 
   return activeItem?.title || "Graphly";

@@ -20,7 +20,10 @@ import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { MetricNavigationItem } from "@/lib/metrics/types";
-import { appNavigationItems } from "@/config/app-navigation";
+import {
+  appNavigationItems,
+  isNavigationItemActive,
+} from "@/config/app-navigation";
 
 type AppSidebarProps = {
   metricNavigationItems: MetricNavigationItem[];
@@ -60,7 +63,10 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.href}
+                      isActive={isNavigationItemActive({
+                        pathname,
+                        href: item.href,
+                      })}
                       tooltip={item.title}
                     >
                       <Link href={item.href}>
@@ -83,7 +89,10 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.href}
+                    isActive={isNavigationItemActive({
+                      pathname,
+                      href: item.href,
+                    })}
                     tooltip={item.title}
                   >
                     <Link href={item.href}>
