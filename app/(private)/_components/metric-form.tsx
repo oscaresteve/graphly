@@ -61,7 +61,7 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
 
   const [state, formAction, isPending] = useActionState(action, initialState);
   const cancelHref =
-    isUpdateMode && metric ? `/metrics/${metric.id}` : "/metrics";
+    isUpdateMode && metric ? `/metrics/${metric.id}` : "/";
   const submitLabel = isUpdateMode ? "Save changes" : "Create Metric";
   const pendingLabel = isUpdateMode ? "Saving..." : "Creating...";
   const nameErrors = getFieldErrors(state, "name");
