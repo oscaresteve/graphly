@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { type DateRange } from "react-day-picker";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { Focus, Maximize2 } from "lucide-react";
 
 import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   Popover,
   PopoverContent,
@@ -20,6 +22,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   type CalendarDateString,
@@ -37,9 +40,10 @@ import { type MetricEntryView } from "@/lib/metrics/types";
 import {
   type ChartDateRange,
   type ChartRange,
+  type ChartScale,
   formatCustomRangeLabel,
-  getChartDomain,
-  getChartTicks,
+  getChartYDomain,
+  getMetricChartData,
   isValidCustomRange,
   resolveChartDateRange,
 } from "./metric-detail-chart.utils";
@@ -51,21 +55,20 @@ type MetricDetailChartProps = {
   today: CalendarDateString;
 };
 
-const chartRanges = [
+const rangeOptions = [
   { value: "all-time", label: "All time" },
   { value: "last-year", label: "Last year" },
   { value: "last-month", label: "Last month" },
   { value: "last-week", label: "Last week" },
 ] as const;
 
-type PresetChartRange = (typeof chartRanges)[number]["value"];
+const scaleOptions = [
+  { value: "auto", label: "Auto", icon: Maximize2 },
+  { value: "focus", label: "Focus", icon: Focus },
+] as const;
 
-type ChartDatum = {
-  date: CalendarDateString;
-  timestamp: number;
-  unitSymbol: string;
-  value: number;
-};
+type RangeOptionValue = (typeof rangeOptions)[number]["value"];
+type ScaleOptionValue = (typeof scaleOptions)[number]["value"];
 
 export function MetricDetailChart({
   entries,
@@ -75,52 +78,52 @@ export function MetricDetailChart({
 }: MetricDetailChartProps) {
   const [range, setRange] = useState<ChartRange>("last-month");
   const [customRange, setCustomRange] = useState<ChartDateRange | null>(null);
-  const [draftRange, setDraftRange] = useState<DateRange | undefined>();
-  const [customRangeOpen, setCustomRangeOpen] = useState(false);
+  const [pickerRange, setPickerRange] = useState<DateRange | undefined>();
+  const [isRangePickerOpen, setIsRangePickerOpen] = useState(false);
   const currentDateRange = resolveChartDateRange({
     customRange,
     firstEntryDate: entries[0]?.date,
     range,
     todayDate: today,
   });
-  const draftChartRange = toChartDateRange(draftRange);
-  const canApplyCustomRange = isValidCustomRange(draftChartRange, today);
+  const pendingCustomRange = toChartDateRange(pickerRange);
+  const canApplyCustomRange = isValidCustomRange(pendingCustomRange, today);
 
-  function handleCustomRangeOpenChange(open: boolean) {
-    setCustomRangeOpen(open);
+  function handleRangePickerOpenChange(open: boolean) {
+    setIsRangePickerOpen(open);
 
     if (open) {
-      setDraftRange(toPickerDateRange(customRange ?? currentDateRange));
+      setPickerRange(toPickerDateRange(customRange ?? currentDateRange));
       return;
     }
 
-    setDraftRange(customRange ? toPickerDateRange(customRange) : undefined);
+    setPickerRange(customRange ? toPickerDateRange(customRange) : undefined);
   }
 
   function applyCustomRange() {
-    if (!draftChartRange || !canApplyCustomRange) {
+    if (!pendingCustomRange || !canApplyCustomRange) {
       return;
     }
 
-    setCustomRange(draftChartRange);
+    setCustomRange(pendingCustomRange);
     setRange("custom");
-    setCustomRangeOpen(false);
+    setIsRangePickerOpen(false);
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <AppSubbar
         right={
           <Popover
-            open={customRangeOpen}
-            onOpenChange={handleCustomRangeOpenChange}
+            open={isRangePickerOpen}
+            onOpenChange={handleRangePickerOpenChange}
           >
             <ToggleGroup
               aria-label="Chart range"
               onValueChange={(value) => {
                 if (value && value !== "custom") {
-                  setRange(value as PresetChartRange);
-                  handleCustomRangeOpenChange(false);
+                  setRange(value as RangeOptionValue);
+                  handleRangePickerOpenChange(false);
                 }
               }}
               size="sm"
@@ -128,12 +131,9 @@ export function MetricDetailChart({
               type="single"
               value={range}
             >
-              {chartRanges.map((chartRange) => (
-                <ToggleGroupItem
-                  key={chartRange.value}
-                  value={chartRange.value}
-                >
-                  {chartRange.label}
+              {rangeOptions.map((option) => (
+                <ToggleGroupItem key={option.value} value={option.value}>
+                  {option.label}
                 </ToggleGroupItem>
               ))}
               <PopoverTrigger asChild>
@@ -144,7 +144,7 @@ export function MetricDetailChart({
                 </ToggleGroupItem>
               </PopoverTrigger>
             </ToggleGroup>
-            <PopoverContent align="end" className="w-auto p-2.5">
+            <PopoverContent align="end" className="w-auto">
               <PopoverHeader>
                 <PopoverTitle>Custom range</PopoverTitle>
                 <PopoverDescription>
@@ -154,17 +154,17 @@ export function MetricDetailChart({
               <Calendar
                 mode="range"
                 numberOfMonths={2}
-                defaultMonth={draftRange?.from}
+                defaultMonth={pickerRange?.from}
                 disabled={{ after: parseCalendarDate(today) }}
-                selected={draftRange}
-                onSelect={setDraftRange}
+                selected={pickerRange}
+                onSelect={setPickerRange}
                 showOutsideDays={false}
               />
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => handleCustomRangeOpenChange(false)}
+                  onClick={() => handleRangePickerOpenChange(false)}
                 >
                   Cancel
                 </Button>
@@ -181,7 +181,7 @@ export function MetricDetailChart({
         }
       />
 
-      <MetricRangeChart
+      <MetricChart
         customRange={customRange}
         entries={entries}
         range={range}
@@ -193,7 +193,7 @@ export function MetricDetailChart({
   );
 }
 
-function MetricRangeChart({
+function MetricChart({
   customRange,
   entries,
   range,
@@ -204,133 +204,182 @@ function MetricRangeChart({
   customRange: ChartDateRange | null;
   range: ChartRange;
 }) {
-  const { data, visibleEntryCount, xDomain, xTicks } = useMemo(
-    () => getChartData(entries, unitSymbol, range, customRange, today),
+  const { data, visibleChartData, xDomain, xTicks } = useMemo(
+    () => getMetricChartData(entries, unitSymbol, range, customRange, today),
     [entries, unitSymbol, range, customRange, today],
   );
+  const focusYDomainLimits = getChartYDomain(data);
+  const [focusYDomain, setFocusYDomain] = useState<[number, number] | null>(
+    null,
+  );
+  const [scale, setScale] = useState<ChartScale>("auto");
+  const focusYDomainValue =
+    focusYDomain &&
+    focusYDomainLimits &&
+    focusYDomain[0] >= focusYDomainLimits[0] &&
+    focusYDomain[1] <= focusYDomainLimits[1]
+      ? focusYDomain
+      : focusYDomainLimits;
+
+  const yDomain =
+    scale === "focus" && focusYDomainValue
+      ? focusYDomainValue
+      : (["auto", "auto"] as const);
 
   return (
-    <ChartContainer
-      className="aspect-auto h-80 w-full"
-      config={{
-        value: {
-          label: unitName,
-          color: "var(--chart-1)",
-        },
-      }}
-    >
-      <LineChart accessibilityLayer data={data}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis
-          allowDataOverflow
-          axisLine={false}
-          dataKey="timestamp"
-          domain={xDomain}
-          scale="time"
-          ticks={xTicks}
-          tickFormatter={(value) =>
-            value === parseCalendarDate(today).getTime()
-              ? "Today"
-              : formatShortCalendarDate(formatCalendarDate(new Date(value)))
-          }
-          tickLine={true}
-          tickMargin={6}
-          type="number"
-        />
-        <YAxis
-          axisLine={false}
-          tickFormatter={formatCompactMetricValue}
-          tickLine={false}
-          tickMargin={6}
-        />
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              indicator="line"
-              labelFormatter={(_value, payload) => {
-                const date = payload[0]?.payload?.date;
+    <div className="flex gap-3">
+      <ChartContainer
+        className="aspect-auto h-80 w-full"
+        config={{
+          value: {
+            label: unitName,
+            color: "var(--chart-1)",
+          },
+        }}
+      >
+        <LineChart accessibilityLayer data={data}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            allowDataOverflow
+            axisLine={false}
+            dataKey="timestamp"
+            domain={xDomain}
+            scale="time"
+            ticks={xTicks}
+            tickFormatter={(value) =>
+              value === parseCalendarDate(today).getTime()
+                ? "Today"
+                : formatShortCalendarDate(formatCalendarDate(new Date(value)))
+            }
+            tickLine={true}
+            tickMargin={6}
+            type="number"
+          />
+          <YAxis
+            axisLine={false}
+            domain={yDomain}
+            allowDataOverflow={scale === "focus"}
+            tickFormatter={formatCompactMetricValue}
+            tickLine={false}
+            tickMargin={6}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                indicator="line"
+                labelFormatter={(_value, payload) => {
+                  const date = payload[0]?.payload?.date;
 
-                if (typeof date === "string") {
-                  return formatLongCalendarDate(toCalendarDateString(date));
-                }
+                  if (typeof date === "string") {
+                    return formatLongCalendarDate(toCalendarDateString(date));
+                  }
 
-                const timestamp = payload[0]?.payload?.timestamp;
+                  const timestamp = payload[0]?.payload?.timestamp;
 
-                if (typeof timestamp === "number") {
-                  return formatLongCalendarDate(
-                    formatCalendarDate(new Date(timestamp)),
-                  );
-                }
+                  if (typeof timestamp === "number") {
+                    return formatLongCalendarDate(
+                      formatCalendarDate(new Date(timestamp)),
+                    );
+                  }
 
-                return null;
-              }}
-            />
-          }
-        />
-        <Line
-          activeDot={{
-            r: 4,
-            strokeWidth: 2,
-            stroke: "var(--color-value)",
-            fill: "var(--color-background)",
-          }}
-          dataKey="value"
-          dot={
-            visibleEntryCount === 1
-              ? {
-                  r: 3,
-                  strokeWidth: 2,
-                  stroke: "var(--color-value)",
-                  fill: "var(--color-background)",
-                }
-              : false
-          }
-          isAnimationActive={false}
-          stroke="var(--color-value)"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={3}
-          type="monotone"
-        />
-      </LineChart>
-    </ChartContainer>
+                  return null;
+                }}
+              />
+            }
+          />
+          <Line
+            activeDot={{
+              r: 4,
+              strokeWidth: 2,
+              stroke: "var(--color-value)",
+              fill: "var(--color-background)",
+            }}
+            dataKey="value"
+            dot={
+              visibleChartData.length === 1
+                ? {
+                    r: 3,
+                    strokeWidth: 2,
+                    stroke: "var(--color-value)",
+                    fill: "var(--color-background)",
+                  }
+                : false
+            }
+            isAnimationActive={false}
+            stroke="var(--color-value)"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            type="monotone"
+          />
+        </LineChart>
+      </ChartContainer>
+
+      <ChartScaleControls
+        domain={focusYDomainLimits}
+        focusedDomain={focusYDomainValue}
+        onFocusedDomainChange={setFocusYDomain}
+        onScaleChange={setScale}
+        scale={scale}
+      />
+    </div>
   );
 }
 
-function getChartData(
-  entries: MetricDetailChartProps["entries"],
-  unitSymbol: string,
-  range: ChartRange,
-  customRange: ChartDateRange | null,
-  todayDateString: CalendarDateString,
-) {
-  const dateRange = resolveChartDateRange({
-    customRange,
-    firstEntryDate: entries[0]?.date,
-    range,
-    todayDate: todayDateString,
-  });
+function ChartScaleControls({
+  domain,
+  focusedDomain,
+  onFocusedDomainChange,
+  onScaleChange,
+  scale,
+}: {
+  domain: [number, number] | null;
+  focusedDomain: [number, number] | null;
+  onFocusedDomainChange: (domain: [number, number]) => void;
+  onScaleChange: (scale: ChartScale) => void;
+  scale: ChartScale;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-3 py-2">
+      <ToggleGroup
+        aria-label="Chart scale"
+        onValueChange={(value) => {
+          if (value) {
+            onScaleChange(value as ScaleOptionValue);
+          }
+        }}
+        orientation="vertical"
+        size="sm"
+        type="single"
+        value={scale}
+        variant="outline"
+      >
+        {scaleOptions.map(({ icon: Icon, label, value }) => (
+          <ToggleGroupItem aria-label={label} key={value} value={value}>
+            <Icon />
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
-  const data = entries.map(
-    (entry): ChartDatum => ({
-      date: entry.date,
-      timestamp: parseCalendarDate(entry.date).getTime(),
-      unitSymbol,
-      value: entry.value,
-    }),
+      <Collapsible open={scale === "focus"}>
+        <CollapsibleContent className="h-48">
+          {domain ? (
+            <Slider
+              aria-label="Y-axis focus range"
+              max={domain[1]}
+              min={domain[0]}
+              onValueChange={(value) =>
+                onFocusedDomainChange(value as [number, number])
+              }
+              orientation="vertical"
+              step={0.001}
+              value={focusedDomain ?? domain}
+            />
+          ) : null}
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
   );
-
-  const visibleEntryCount = entries.filter(
-    (entry) =>
-      entry.date >= dateRange.startDate && entry.date <= dateRange.endDate,
-  ).length;
-
-  return {
-    data,
-    visibleEntryCount,
-    xDomain: getChartDomain(dateRange),
-    xTicks: getChartTicks(dateRange, range),
-  };
 }
 
 function toChartDateRange(range: DateRange | undefined): ChartDateRange | null {

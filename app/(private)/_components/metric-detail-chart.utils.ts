@@ -5,6 +5,7 @@ import {
   parseCalendarDate,
   type CalendarDateString,
 } from "@/lib/date";
+import { type MetricEntryView } from "@/lib/metrics/types";
 
 export type ChartRange =
   | "all-time"
@@ -13,12 +14,57 @@ export type ChartRange =
   | "last-week"
   | "custom";
 
+export type ChartScale = "auto" | "focus";
+
 export type ChartDateRange = {
   startDate: CalendarDateString;
   endDate: CalendarDateString;
 };
 
+export type ChartDatum = {
+  date: CalendarDateString;
+  timestamp: number;
+  unitSymbol: string;
+  value: number;
+};
+
 const halfDayMilliseconds = 43_200_000;
+
+export function getMetricChartData(
+  entries: MetricEntryView[],
+  unitSymbol: string,
+  range: ChartRange,
+  customRange: ChartDateRange | null,
+  todayDate: CalendarDateString,
+) {
+  const dateRange = resolveChartDateRange({
+    customRange,
+    firstEntryDate: entries[0]?.date,
+    range,
+    todayDate,
+  });
+
+  const data = entries.map(
+    (entry): ChartDatum => ({
+      date: entry.date,
+      timestamp: parseCalendarDate(entry.date).getTime(),
+      unitSymbol,
+      value: entry.value,
+    }),
+  );
+  const xDomain = getChartDomain(dateRange);
+  const xTicks = getChartTicks(dateRange, range);
+  const visibleChartData = data.filter(
+    (point) => point.timestamp >= xDomain[0] && point.timestamp <= xDomain[1],
+  );
+
+  return {
+    data,
+    visibleChartData,
+    xDomain,
+    xTicks,
+  };
+}
 
 export function resolveChartDateRange({
   customRange,
@@ -42,6 +88,19 @@ export function resolveChartDateRange({
       : formatCalendarDate(getPresetRangeStart(today, range));
 
   return { startDate, endDate: todayDate };
+}
+
+export function getChartYDomain(data: ChartDatum[]): [number, number] | null {
+  const values = data.map((datum) => datum.value).filter(Number.isFinite);
+
+  if (!values.length) {
+    return null;
+  }
+
+  return values.reduce<[number, number]>(
+    ([min, max], value) => [Math.min(min, value), Math.max(max, value)],
+    [values[0], values[0]],
+  );
 }
 
 export function isValidCustomRange(
@@ -108,7 +167,7 @@ export function formatCustomRangeLabel(
 }
 
 function getPresetRangeStart(date: Date, range: ChartRange) {
-  if (range === "all-time" || range === "last-week") {
+  if (range === "last-week") {
     return subDays(date, 6);
   }
 
@@ -116,7 +175,11 @@ function getPresetRangeStart(date: Date, range: ChartRange) {
     return subYears(date, 1);
   }
 
-  return subMonths(date, 1);
+  if (range === "last-month") {
+    return subMonths(date, 1);
+  }
+
+  return date;
 }
 
 function getTickStepDays(range: ChartRange, start: Date, end: Date) {
