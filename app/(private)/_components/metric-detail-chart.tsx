@@ -16,11 +16,11 @@ import {
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverDescription,
   PopoverHeader,
   PopoverTitle,
-  PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -136,13 +136,18 @@ export function MetricDetailChart({
                   {option.label}
                 </ToggleGroupItem>
               ))}
-              <PopoverTrigger asChild>
-                <ToggleGroupItem value="custom">
+              <PopoverAnchor asChild>
+                <ToggleGroupItem
+                  value="custom"
+                  onClick={() =>
+                    handleRangePickerOpenChange(!isRangePickerOpen)
+                  }
+                >
                   {range === "custom" && customRange
                     ? formatCustomRangeLabel(customRange, today)
                     : "Custom"}
                 </ToggleGroupItem>
-              </PopoverTrigger>
+              </PopoverAnchor>
             </ToggleGroup>
             <PopoverContent align="end" className="w-auto">
               <PopoverHeader>
