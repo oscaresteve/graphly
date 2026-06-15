@@ -111,7 +111,7 @@ export function MetricDetailChart({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-1 flex-col gap-4">
       <AppSubbar
         right={
           <Popover
@@ -227,9 +227,9 @@ function MetricChart({
       : (["auto", "auto"] as const);
 
   return (
-    <div className="flex gap-3">
+    <div className="flex min-w-0 flex-1 gap-4">
       <ChartContainer
-        className="aspect-auto h-80 w-full"
+        className="aspect-auto h-full min-w-0 flex-1"
         config={{
           value: {
             label: unitName,
@@ -252,16 +252,17 @@ function MetricChart({
                 : formatShortCalendarDate(formatCalendarDate(new Date(value)))
             }
             tickLine={true}
-            tickMargin={6}
+            tickMargin={10}
             type="number"
           />
           <YAxis
             axisLine={false}
             domain={yDomain}
-            allowDataOverflow={scale === "focus"}
+            allowDataOverflow
             tickFormatter={formatCompactMetricValue}
             tickLine={false}
-            tickMargin={6}
+            tickMargin={10}
+            width={50}
           />
           <ChartTooltip
             content={
@@ -340,7 +341,7 @@ function ChartScaleControls({
   scale: ChartScale;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 py-2">
+    <div className="flex shrink-0 flex-col items-center gap-3 py-2">
       <ToggleGroup
         aria-label="Chart scale"
         onValueChange={(value) => {
@@ -355,14 +356,19 @@ function ChartScaleControls({
         variant="outline"
       >
         {scaleOptions.map(({ icon: Icon, label, value }) => (
-          <ToggleGroupItem aria-label={label} key={value} value={value}>
+          <ToggleGroupItem
+            aria-label={label}
+            key={value}
+            value={value}
+            disabled={value === "focus" && !domain}
+          >
             <Icon />
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
 
       <Collapsible open={scale === "focus"}>
-        <CollapsibleContent className="h-48">
+        <CollapsibleContent>
           {domain ? (
             <Slider
               aria-label="Y-axis focus range"

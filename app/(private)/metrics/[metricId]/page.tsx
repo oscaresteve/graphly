@@ -19,7 +19,7 @@ export default async function MetricPage({ params }: MetricPageProps) {
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-4">
+    <div className="h-full w-full flex flex-col gap-4">
       <MetricSubbar metric={metric} today={today} />
 
       <div className="flex flex-col">

@@ -17,7 +17,7 @@ export default async function AppLayout({
       <AppSidebar metricNavigationItems={metricNavigationItems} />
       <SidebarInset>
         <AppHeader metricNavigationItems={metricNavigationItems} />
-        <main className="w-full px-4 py-4">{children}</main>
+        <main className="flex-1 px-4 py-4">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

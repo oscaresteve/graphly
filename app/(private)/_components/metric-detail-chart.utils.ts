@@ -1,4 +1,4 @@
-import { format, subDays, subMonths, subYears } from "date-fns";
+import { format, subMonths, subWeeks, subYears } from "date-fns";
 
 import {
   formatCalendarDate,
@@ -168,7 +168,7 @@ export function formatCustomRangeLabel(
 
 function getPresetRangeStart(date: Date, range: ChartRange) {
   if (range === "last-week") {
-    return subDays(date, 6);
+    return subWeeks(date, 1);
   }
 
   if (range === "last-year") {
