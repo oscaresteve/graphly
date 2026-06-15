@@ -183,6 +183,11 @@ function getPresetRangeStart(date: Date, range: ChartRange) {
 }
 
 function getTickStepDays(range: ChartRange, start: Date, end: Date) {
+  const dayCount = Math.max(
+    1,
+    Math.ceil((end.getTime() - start.getTime()) / 86_400_000),
+  );
+
   if (range === "last-week") {
     return 1;
   }
@@ -195,12 +200,15 @@ function getTickStepDays(range: ChartRange, start: Date, end: Date) {
     return 30;
   }
 
-  const dayCount = Math.max(
-    1,
-    Math.ceil((end.getTime() - start.getTime()) / 86_400_000),
-  );
+  if (range === "all-time" || range === "custom") {
+    if (dayCount >= 1460) return 180;
+    if (dayCount >= 730) return 90;
+    if (dayCount >= 365) return 45;
+    if (dayCount >= 90) return 14;
+    if (dayCount >= 30) return 7;
+    if (dayCount >= 7) return 1;
+    return 1;
+  }
 
-  return range === "custom"
-    ? Math.max(1, Math.ceil(dayCount / 6))
-    : Math.max(1, Math.ceil(dayCount / 30));
+  return 1;
 }
