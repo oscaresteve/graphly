@@ -16,7 +16,13 @@ type MetricSubbarProps = {
 };
 
 export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
+  const id = metric.id;
+  const name = metric.name;
+  const unit = metric.unit;
+  const pastEntries = metric.entries.filter((entry) => entry.date !== today);
+
   const entryDates = metric.entries.map((entry) => entry.date);
+  const pastEntryDates = pastEntries.map((entry) => entry.date);
   const todayEntry = metric.entries.find((entry) => entry.date === today);
 
   return (
@@ -34,8 +40,9 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
           {todayEntry ? (
             <EntryDialogForm
               intent={{ type: "edit-today", entry: todayEntry }}
-              metricId={metric.id}
-              metricName={metric.name}
+              metricId={id}
+              metricName={name}
+              unit={unit}
               today={today}
               trigger={
                 <Button type="button" variant="secondary">
@@ -43,13 +50,13 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
                   Edit today
                 </Button>
               }
-              unit={metric.unit}
             />
           ) : (
             <EntryDialogForm
               intent={{ type: "create-today" }}
-              metricId={metric.id}
-              metricName={metric.name}
+              metricId={id}
+              metricName={name}
+              unit={unit}
               today={today}
               trigger={
                 <Button type="button">
@@ -57,14 +64,14 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
                   Log today
                 </Button>
               }
-              unit={metric.unit}
             />
           )}
           <EntryDialogForm
             entryDates={entryDates}
             intent={{ type: "create-past" }}
-            metricId={metric.id}
-            metricName={metric.name}
+            metricId={id}
+            metricName={name}
+            unit={unit}
             today={today}
             trigger={
               <Button type="button" variant="secondary">
@@ -72,8 +79,23 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
                 Log past entry
               </Button>
             }
-            unit={metric.unit}
           />
+          {pastEntries.length ? (
+            <EntryDialogForm
+              entryDates={pastEntryDates}
+              intent={{ type: "edit-past", entries: pastEntries }}
+              metricId={id}
+              metricName={name}
+              unit={unit}
+              today={today}
+              trigger={
+                <Button type="button" variant="secondary">
+                  <Pencil data-icon="inline-start" />
+                  Edit past
+                </Button>
+              }
+            />
+          ) : null}
           <MetricActionsDropdown metricId={metric.id} />
         </>
       }

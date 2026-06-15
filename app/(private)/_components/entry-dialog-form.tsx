@@ -64,6 +64,10 @@ type EntryDialogIntent =
   | {
       type: "edit-today";
       entry: Pick<MetricEntryView, "id" | "value">;
+    }
+  | {
+      type: "edit-past";
+      entries: MetricEntryView[];
     };
 
 type EntryDialogFormProps = {
@@ -104,8 +108,13 @@ export function EntryDialogForm({
   const formRef = useRef<HTMLFormElement>(null);
   const isPastEntry = intent.type === "create-past";
   const isEditEntry = intent.type === "edit-today";
+  const isEditPastEntry = intent.type === "edit-past";
   const dialogOpen = open ?? internalOpen;
-  const selectedPastDate = selectedDate ?? defaultPastDate;
+  const selectedPastDate =
+    selectedDate ??
+    (isEditPastEntry && entryDates.length > 0
+      ? parseCalendarDate(entryDates[entryDates.length - 1])
+      : defaultPastDate);
 
   function setDialogOpen(nextOpen: boolean) {
     if (onOpenChange) {
@@ -124,15 +133,16 @@ export function EntryDialogForm({
       previousState: ActionState<EntryActionField>,
       formData: FormData,
     ): Promise<ActionState<EntryActionField>> => {
-      const nextState = isEditEntry
-        ? await updateEntryAction(
-            previousState as UpdateEntryActionState,
-            formData,
-          )
-        : await createEntryAction(
-            previousState as CreateEntryActionState,
-            formData,
-          );
+      const nextState =
+        isEditEntry || isEditPastEntry
+          ? await updateEntryAction(
+              previousState as UpdateEntryActionState,
+              formData,
+            )
+          : await createEntryAction(
+              previousState as CreateEntryActionState,
+              formData,
+            );
 
       if (nextState.success) {
         setDialogOpen(false);
@@ -154,14 +164,25 @@ export function EntryDialogForm({
   const hasDateErrors = hasErrors(dateErrors);
   const valueErrors = getFieldErrors(displayState, "value");
   const hasValueErrors = hasErrors(valueErrors);
-  const selectedCalendarDate = isPastEntry
-    ? formatCalendarDate(selectedPastDate)
-    : todayDate;
-  const disabledDates = [
-    today,
-    { after: today },
-    ...entryDates.map((entryDate) => parseCalendarDate(entryDate)),
-  ];
+  const selectedCalendarDate =
+    isPastEntry || isEditPastEntry
+      ? formatCalendarDate(selectedPastDate)
+      : todayDate;
+  const selectedPastEntry =
+    isEditPastEntry && intent.entries.length > 0
+      ? intent.entries.find((entry) => entry.date === selectedCalendarDate)
+      : undefined;
+  const disabledDates = isEditPastEntry
+    ? (date: Date) =>
+        !entryDates.some(
+          (entryDate) =>
+            parseCalendarDate(entryDate).toString() === date.toString(),
+        )
+    : [
+        today,
+        { after: today },
+        ...entryDates.map((entryDate) => parseCalendarDate(entryDate)),
+      ];
 
   function handleOpenChange(nextOpen: boolean) {
     setDialogOpen(nextOpen);
@@ -182,15 +203,23 @@ export function EntryDialogForm({
           <DialogDescription>
             {isPastEntry
               ? "Create a new entry for a previous date."
-              : isEditEntry
-                ? "Update today's entry."
-                : "Create a new entry for today."}
+              : isEditPastEntry
+                ? "Update a previous date's entry."
+                : isEditEntry
+                  ? "Update today's entry."
+                  : "Create a new entry for today."}
           </DialogDescription>
         </DialogHeader>
 
         <form ref={formRef} action={formAction} className="flex flex-col gap-4">
           {isEditEntry ? (
             <input type="hidden" name="entryId" value={intent.entry.id} />
+          ) : isEditPastEntry ? (
+            <input
+              type="hidden"
+              name="entryId"
+              value={selectedPastEntry?.id ?? ""}
+            />
           ) : (
             <>
               <input type="hidden" name="metricId" value={metricId} />
@@ -203,7 +232,7 @@ export function EntryDialogForm({
               <FieldError>{displayState.formError}</FieldError>
             ) : null}
 
-            {isPastEntry ? (
+            {isPastEntry || isEditPastEntry ? (
               <Field data-invalid={hasDateErrors}>
                 <FieldLabel className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
                   Date
@@ -250,6 +279,7 @@ export function EntryDialogForm({
                 {unit.name}
               </FieldLabel>
               <Input
+                key={isEditPastEntry ? selectedPastEntry?.id : intent.type}
                 id={`entry-value-${metricId}-${intent.type}`}
                 name="value"
                 type="number"
@@ -257,7 +287,13 @@ export function EntryDialogForm({
                 min={0}
                 max={inputConfig.max}
                 step={inputConfig.step}
-                defaultValue={isEditEntry ? intent.entry.value : undefined}
+                defaultValue={
+                  isEditEntry
+                    ? intent.entry.value
+                    : isEditPastEntry
+                      ? selectedPastEntry?.value
+                      : undefined
+                }
                 placeholder={inputConfig.placeholder}
                 aria-invalid={hasValueErrors}
               />
@@ -271,14 +307,14 @@ export function EntryDialogForm({
 
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
-              {isEditEntry ? (
+              {isEditEntry || isEditPastEntry ? (
                 <Save data-icon="inline-start" />
               ) : (
                 <Plus data-icon="inline-start" />
               )}
               {isPending
                 ? "Saving..."
-                : isEditEntry
+                : isEditEntry || isEditPastEntry
                   ? "Save changes"
                   : "Save entry"}
             </Button>
