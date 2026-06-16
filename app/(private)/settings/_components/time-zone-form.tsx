@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,19 +10,22 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import {
   type TimeZoneActionState,
   updateTimeZoneAction,
 } from "../_lib/actions";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import { InputGroupAddon } from "@/components/ui/input-group";
+import { GlobeIcon } from "lucide-react";
+import { TimeZoneOption } from "../_lib/types";
 
 const initialState: TimeZoneActionState = {
   success: false,
@@ -30,35 +33,54 @@ const initialState: TimeZoneActionState = {
 };
 
 type TimeZoneFormProps = {
-  timeZone: string;
-  timeZones: string[];
+  userTimeZone: TimeZoneOption;
+  timeZones: TimeZoneOption[];
 };
 
-export function TimeZoneForm({ timeZone, timeZones }: TimeZoneFormProps) {
+export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
   const [state, formAction, isPending] = useActionState(
     updateTimeZoneAction,
     initialState,
   );
+  const [selectedTimeZone, setSelectedTimeZone] =
+    useState<TimeZoneOption | null>(userTimeZone);
+
+  useEffect(() => {
+    setSelectedTimeZone(userTimeZone);
+  }, [userTimeZone]);
 
   return (
     <form action={formAction}>
       <FieldGroup>
         <Field data-invalid={state.error ? true : undefined}>
           <FieldLabel>Time zone</FieldLabel>
-          <Select name="timeZone" defaultValue={timeZone}>
-            <SelectTrigger className="w-full" aria-invalid={!!state.error}>
-              <SelectValue placeholder="Select a time zone" />
-            </SelectTrigger>
-            <SelectContent position="popper">
-              <SelectGroup>
-                {timeZones.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option.replaceAll("_", " ")}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Combobox
+            items={timeZones}
+            name="timeZone"
+            value={selectedTimeZone}
+            onValueChange={setSelectedTimeZone}
+            isItemEqualToValue={(item, value) => item.value === value.value}
+          >
+            <ComboboxInput
+              placeholder="Select a time zone"
+              showClear
+              aria-invalid={!!state.error}
+            >
+              <InputGroupAddon>
+                <GlobeIcon />
+              </InputGroupAddon>
+            </ComboboxInput>
+            <ComboboxContent>
+              <ComboboxEmpty>No time zones found.</ComboboxEmpty>
+              <ComboboxList>
+                {(tz) => (
+                  <ComboboxItem key={tz.value} value={tz}>
+                    {tz.label}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
           {state.error ? (
             <FieldError>{state.error}</FieldError>
           ) : (

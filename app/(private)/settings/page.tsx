@@ -10,7 +10,7 @@ import { TimeZoneForm } from "./_components/time-zone-form";
 import { loadSettingsPageData } from "./loader";
 
 export default async function SettingsPage() {
-  const { timeZone, timeZones } = await loadSettingsPageData();
+  const { userTimeZone, timeZones } = await loadSettingsPageData();
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
@@ -28,7 +28,7 @@ export default async function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TimeZoneForm timeZone={timeZone} timeZones={timeZones} />
+          <TimeZoneForm userTimeZone={userTimeZone} timeZones={timeZones} />
         </CardContent>
       </Card>
     </div>
