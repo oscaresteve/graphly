@@ -11,10 +11,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarGroupAction,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { LogOut } from "lucide-react";
+import { LogOut, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -83,6 +84,11 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
 
         <SidebarGroup>
           <SidebarGroupLabel>Metrics</SidebarGroupLabel>
+          <SidebarGroupAction asChild>
+            <Link href="/metrics/new">
+              <Plus />
+            </Link>
+          </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {metricNavigationItems.map((item) => (
