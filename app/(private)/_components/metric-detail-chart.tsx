@@ -232,9 +232,9 @@ function MetricChart({
       : (["auto", "auto"] as const);
 
   return (
-    <div className="flex min-w-0 flex-1 gap-4">
+    <div className="flex gap-4">
       <ChartContainer
-        className="aspect-auto h-full min-w-0 flex-1"
+        className="aspect-4/3 flex-1"
         config={{
           value: {
             label: unitName,
@@ -346,7 +346,7 @@ function ChartScaleControls({
   scale: ChartScale;
 }) {
   return (
-    <div className="flex shrink-0 flex-col items-center gap-3 py-2">
+    <div className="flex flex-col items-center gap-3 py-2">
       <ToggleGroup
         aria-label="Chart scale"
         onValueChange={(value) => {
