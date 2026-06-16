@@ -10,23 +10,20 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import { Textarea } from "@/components/ui/textarea";
 import { type MetricView, type UnitOption } from "@/lib/metrics/types";
 import { Plus, Save } from "lucide-react";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  createMetricAction,
-  updateMetricAction,
-} from "../_lib/actions";
+import { createMetricAction, updateMetricAction } from "../_lib/actions";
 import {
   createInitialActionState,
   type ActionState,
@@ -59,9 +56,16 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
     ? initialUpdateMetricActionState
     : initialCreateMetricActionState;
 
+  const metricUnitOption: UnitOption | null = metric ? metric.unit : null;
   const [state, formAction, isPending] = useActionState(action, initialState);
-  const cancelHref =
-    isUpdateMode && metric ? `/metrics/${metric.id}` : "/";
+  const [selectedUnitOption, setSelectedUnitOption] =
+    useState<UnitOption | null>(metricUnitOption);
+
+  useEffect(() => {
+    setSelectedUnitOption(metricUnitOption);
+  }, [metricUnitOption]);
+
+  const cancelHref = isUpdateMode && metric ? `/metrics/${metric.id}` : "/";
   const submitLabel = isUpdateMode ? "Save changes" : "Create Metric";
   const pendingLabel = isUpdateMode ? "Saving..." : "Creating...";
   const nameErrors = getFieldErrors(state, "name");
@@ -114,25 +118,36 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
           data-disabled={units.length === 0 ? true : undefined}
           data-invalid={hasUnitErrors}
         >
-          <FieldLabel>Unit</FieldLabel>
-          <Select
+          <FieldLabel htmlFor="unit">Unit</FieldLabel>
+
+          <Combobox
+            items={units}
             name="unitId"
-            defaultValue={metric?.unit.id}
-            disabled={units.length === 0}
+            value={selectedUnitOption}
+            onValueChange={setSelectedUnitOption}
+            itemToStringLabel={(unit) => `${unit.name} (${unit.symbol})`}
+            itemToStringValue={(unit) => unit.id}
+            isItemEqualToValue={(item, value) => item.id === value?.id}
           >
-            <SelectTrigger className="w-full" aria-invalid={hasUnitErrors}>
-              <SelectValue placeholder="Select a unit" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {units.map((unit) => (
-                  <SelectItem key={unit.id} value={unit.id}>
+            <ComboboxInput
+              id="unit"
+              placeholder="Select a unit"
+              showClear
+              aria-invalid={hasUnitErrors}
+            />
+
+            <ComboboxContent>
+              <ComboboxEmpty>No units found.</ComboboxEmpty>
+              <ComboboxList>
+                {(unit) => (
+                  <ComboboxItem key={unit.id} value={unit}>
                     {unit.name} ({unit.symbol})
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+
           {hasUnitErrors ? (
             <FieldError errors={unitErrors} />
           ) : (
