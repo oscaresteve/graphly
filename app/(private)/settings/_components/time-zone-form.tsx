@@ -53,7 +53,7 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
     <form action={formAction}>
       <FieldGroup>
         <Field data-invalid={state.error ? true : undefined}>
-          <FieldLabel>Time zone</FieldLabel>
+          <FieldLabel htmlFor="timeZone">Time zone</FieldLabel>
           <Combobox
             items={timeZones}
             name="timeZone"
@@ -64,6 +64,7 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
             isItemEqualToValue={(item, value) => item.value === value?.value}
           >
             <ComboboxInput
+              id="timeZone"
               placeholder="Select a time zone"
               showClear
               aria-invalid={!!state.error}
