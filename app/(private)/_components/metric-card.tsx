@@ -65,8 +65,8 @@ export function MetricCard({
         </div>
       </div>
       <Separator orientation="vertical" />
-      <div className="flex w-3/5 flex-col gap-2 py-2">
-        <div className="flex items-center justify-between gap-2 px-2">
+      <div className="flex w-3/5 flex-col gap-2 py-4">
+        <div className="flex justify-between gap-2 px-4">
           <p className="text-muted-foreground truncate text-[0.625rem] font-medium tracking-normal uppercase">
             {unit.name}
           </p>
