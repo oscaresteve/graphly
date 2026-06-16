@@ -59,7 +59,6 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
             name="timeZone"
             value={selectedTimeZone}
             onValueChange={setSelectedTimeZone}
-            isItemEqualToValue={(item, value) => item.value === value.value}
           >
             <ComboboxInput
               placeholder="Select a time zone"
