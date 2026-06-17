@@ -8,6 +8,8 @@ import {
 
 import { TimeZoneForm } from "./_components/time-zone-form";
 import { loadSettingsPageData } from "./loader";
+import { ColorSchemeToggle } from "@/components/color-scheme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function SettingsPage() {
   const { userTimeZone, timeZones } = await loadSettingsPageData();
@@ -29,6 +31,20 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <TimeZoneForm userTimeZone={userTimeZone} timeZones={timeZones} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Appearence</CardTitle>
+          <CardDescription>
+            Customize the app with predefined themes and dark mode.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <ColorSchemeToggle />
+          </div>
         </CardContent>
       </Card>
     </div>
