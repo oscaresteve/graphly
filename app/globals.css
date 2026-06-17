@@ -47,7 +47,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
+[data-theme="default"] {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -82,7 +82,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.dark {
+:where(.dark, .dark *)[data-theme="default"] {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -116,7 +116,7 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-[data-theme="claude"]:root {
+[data-theme="claude"] {
   --background: oklch(0.9818 0.0054 95.0986);
   --foreground: oklch(0.3438 0.0269 95.7226);
   --card: oklch(0.9665 0.0067 97.3521);
@@ -175,7 +175,7 @@
   --spacing: 0.25rem;
 }
 
-[data-theme="claude"].dark {
+:where(.dark, .dark *)[data-theme="claude"] {
   --background: oklch(0.2679 0.0036 106.6427);
   --foreground: oklch(0.9576 0.0027 106.4494);
   --card: oklch(0.2928 0.0018 106.5092);

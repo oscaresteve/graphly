@@ -41,9 +41,15 @@ export default async function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <ColorSchemeToggle />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              Color Scheme
+              <ColorSchemeToggle />
+            </div>
+            <div className="flex items-center justify-between">
+              Theme
+              <ThemeToggle />
+            </div>
           </div>
         </CardContent>
       </Card>
