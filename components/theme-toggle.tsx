@@ -11,8 +11,10 @@ import { useTheme } from "@/components/theme-provider";
 import { THEMES, type Theme } from "@/lib/themes";
 
 const LABEL: Record<Theme, string> = {
-  default: "Default",
+  graphite: "Graphite",
   claude: "Claude",
+  supabase: "Supabase",
+  vercel: "Vercel",
 };
 
 function ThemePreview({ theme }: { theme: Theme }) {
@@ -45,7 +47,7 @@ export function ThemeToggle() {
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="flex w-50 flex-col gap-1 p-1">
+      <DropdownMenuContent  align="end" className="flex w-50 flex-col gap-1 p-1">
         {THEMES.map((t) => (
           <DropdownMenuItem
             key={t}

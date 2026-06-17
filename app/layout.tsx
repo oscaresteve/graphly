@@ -25,7 +25,7 @@ export default async function RootLayout({
   const store = await cookies();
   const colorScheme = store.get("color-scheme")?.value;
   const rawTheme = store.get("theme")?.value;
-  const theme: Theme = isValidTheme(rawTheme) ? rawTheme : "default";
+  const theme: Theme = isValidTheme(rawTheme) ? rawTheme : "graphite";
 
   return (
     <html
