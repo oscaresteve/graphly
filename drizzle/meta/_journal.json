@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1776164889040,
+      "tag": "0000_natural_spot",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776410672907,
+      "tag": "0001_volatile_the_fallen",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780823237454,
+      "tag": "0002_nosy_killraven",
+      "breakpoints": true
+    }
+  ]
+}
