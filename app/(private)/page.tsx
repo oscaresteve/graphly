@@ -29,10 +29,9 @@ export default async function Dashboard() {
         ))}
       </div>
       <AppPrimaryAction>
-        <Button asChild className="h-11">
+        <Button asChild size="icon-lg">
           <Link href="/metrics/new" aria-label="New Metric">
             <Plus data-icon="inline-start" />
-            New Metric
           </Link>
         </Button>
       </AppPrimaryAction>
