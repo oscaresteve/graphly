@@ -10,6 +10,7 @@ import { TimeZoneForm } from "./_components/time-zone-form";
 import { loadSettingsPageData } from "./loader";
 import { ColorSchemeToggle } from "@/components/color-scheme-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export default async function SettingsPage() {
   const { userTimeZone, timeZones } = await loadSettingsPageData();
@@ -41,16 +42,17 @@ export default async function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              Color Scheme
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Color scheme</FieldLabel>
               <ColorSchemeToggle />
-            </div>
-            <div className="flex items-center justify-between">
-              Theme
+            </Field>
+            <Field>
+              <FieldLabel>Theme</FieldLabel>
               <ThemeToggle />
-            </div>
-          </div>
+            </Field>
+          </FieldGroup>
+          <FieldGroup></FieldGroup>
         </CardContent>
       </Card>
     </div>
