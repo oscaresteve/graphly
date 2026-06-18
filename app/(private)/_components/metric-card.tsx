@@ -71,8 +71,8 @@ export function MetricCard({
             </p>
           </div>
         ) : (
-          <div className="flex items-end justify-between gap-2">
-            <p className="text-muted-foreground truncate text-sm italic">
+          <div className="flex items-end justify-between gap-2 italic">
+            <p className="text-muted-foreground truncate text-sm">
               No data available.
             </p>
             <p className="text-muted-foreground text-xl font-medium">
