@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { LogOut, Plus } from "lucide-react";
+import { LineChart, LogOut, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -41,6 +41,7 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
   const imageUrl = user?.hasImage ? user.imageUrl : undefined;
   const initials = displayName.charAt(0).toUpperCase();
   const { setOpenMobile } = useSidebar();
+  const hasMetricNavigationItems = metricNavigationItems.length > 0;
 
   useEffect(() => {
     setOpenMobile(false);
@@ -98,22 +99,33 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {metricNavigationItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isNavigationItemActive({
-                      pathname,
-                      href: item.href,
-                    })}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.href}>
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+              {hasMetricNavigationItems ? (
+                metricNavigationItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isNavigationItemActive({
+                        pathname,
+                        href: item.href,
+                      })}
+                      tooltip={item.title}
+                    >
+                      <Link href={item.href}>
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))
+              ) : (
+                <SidebarMenuItem>
+                  <div className="flex flex-col items-center justify-center gap-1 p-2">
+                    <LineChart className="text-muted-foreground size-4" />
+                    <p className="text-muted-foreground text-xs italic">
+                      No metrics yet.
+                    </p>
+                  </div>
                 </SidebarMenuItem>
-              ))}
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
