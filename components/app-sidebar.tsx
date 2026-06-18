@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroupAction,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useClerk, useUser } from "@clerk/nextjs";
@@ -25,6 +26,7 @@ import {
   appNavigationItems,
   isNavigationItemActive,
 } from "@/config/app-navigation";
+import { useEffect } from "react";
 
 type AppSidebarProps = {
   metricNavigationItems: MetricNavigationItem[];
@@ -38,6 +40,11 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
   const email = user?.primaryEmailAddress?.emailAddress;
   const imageUrl = user?.hasImage ? user.imageUrl : undefined;
   const initials = displayName.charAt(0).toUpperCase();
+  const { setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
 
   return (
     <Sidebar variant="inset">
