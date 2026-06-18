@@ -58,17 +58,31 @@ export function MetricCard({
             {title}
           </h2>
         </div>
-        <div className="flex items-end justify-between gap-2">
-          <p className="text-muted-foreground truncate text-sm">
-            {lastEntry
-              ? formatRelativeCalendarDate(lastEntry.date, today)
-              : "No data available"}
-          </p>
-          <p className="text-foreground text-xl font-medium">
-            {lastEntry ? formatMetricValue(lastEntry.value) : "N/A"}{" "}
-            <span className="text-muted-foreground text-xs">{unit.symbol}</span>
-          </p>
-        </div>
+        {lastEntry ? (
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-muted-foreground truncate text-sm">
+              {formatRelativeCalendarDate(lastEntry.date, today)}
+            </p>
+            <p className="text-foreground text-xl font-medium">
+              {formatMetricValue(lastEntry.value)}{" "}
+              <span className="text-muted-foreground text-xs">
+                {unit.symbol}
+              </span>
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-muted-foreground truncate text-sm italic">
+              No data available.
+            </p>
+            <p className="text-muted-foreground text-xl font-medium">
+              N/A{" "}
+              <span className="text-muted-foreground text-xs">
+                {unit.symbol}
+              </span>
+            </p>
+          </div>
+        )}
       </div>
       <Separator orientation={isMobile ? "horizontal" : "vertical"} />
       <div className="flex h-30 flex-col gap-1 py-4 md:w-3/5">
@@ -126,7 +140,6 @@ export function MetricCard({
                 type="number"
                 hide
                 domain={xDomain}
-                
               />
               <Line
                 dataKey="value"
@@ -143,7 +156,9 @@ export function MetricCard({
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-1">
             <LineChartIcon className="text-muted-foreground size-4" />
-            <p className="text-muted-foreground text-xs">Not enough data.</p>
+            <p className="text-muted-foreground text-xs italic">
+              Not enough data.
+            </p>
           </div>
         )}
       </div>
