@@ -63,7 +63,7 @@ export function MetricCard({
             <p className="text-muted-foreground truncate text-sm">
               {formatRelativeCalendarDate(lastEntry.date, today)}
             </p>
-            <p className="text-foreground text-xl font-medium">
+            <p className="text-foreground text-xl font-medium min-w-max">
               {formatMetricValue(lastEntry.value)}{" "}
               <span className="text-muted-foreground text-xs">
                 {unit.symbol}
@@ -75,7 +75,7 @@ export function MetricCard({
             <p className="text-muted-foreground truncate text-sm">
               No data available.
             </p>
-            <p className="text-muted-foreground text-xl font-medium">
+            <p className="text-muted-foreground text-xl font-medium min-w-max">
               N/A{" "}
               <span className="text-muted-foreground text-xs">
                 {unit.symbol}
