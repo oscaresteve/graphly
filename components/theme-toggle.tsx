@@ -9,6 +9,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/components/theme-provider";
 import { THEMES, type Theme } from "@/lib/themes";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { FieldDescription } from "./ui/field";
 
 const LABEL: Record<Theme, string> = {
   graphite: "Graphite",
@@ -34,35 +43,48 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="group h-11 w-full justify-between gap-2 px-3 font-normal sm:w-56"
-        >
-          <span className="flex items-center gap-2">
-            <ThemePreview theme={theme} />
-            {LABEL[theme]}
-          </span>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-(--radix-dropdown-menu-trigger-width flex flex-col gap-1 p-1.5"
-      >
-        {THEMES.map((t) => (
-          <DropdownMenuItem
-            key={t}
-            onClick={() => setTheme(t)}
-            className="min-h-11 cursor-pointer gap-2 rounded-md py-2"
+    <Card>
+      <CardHeader>
+        <CardTitle>Theme</CardTitle>
+        <CardDescription>
+          Pick a color palette for the app, independent of light or dark mode.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="group h-11 w-full justify-between gap-2 px-3 font-normal sm:w-56"
+            >
+              <span className="flex items-center gap-2">
+                <ThemePreview theme={theme} />
+                {LABEL[theme]}
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-(--radix-dropdown-menu-trigger-width flex flex-col gap-1 p-1.5"
           >
-            <ThemePreview theme={t} />
-            <span className="flex-1">{LABEL[t]}</span>
-            {theme === t && <Check className="h-4 w-4 shrink-0" />}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            {THEMES.map((t) => (
+              <DropdownMenuItem
+                key={t}
+                onClick={() => setTheme(t)}
+                className="min-h-11 cursor-pointer gap-2 rounded-md py-2"
+              >
+                <ThemePreview theme={t} />
+                <span className="flex-1">{LABEL[t]}</span>
+                {theme === t && <Check className="h-4 w-4 shrink-0" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardContent>
+      <CardFooter>
+        <FieldDescription>Changes are applied immediately.</FieldDescription>
+      </CardFooter>
+    </Card>
   );
 }
