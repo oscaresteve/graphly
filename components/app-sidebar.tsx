@@ -65,27 +65,29 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {appNavigationItems.map((item) => {
-                const Icon = item.icon;
+              {appNavigationItems
+                .filter((item) => item.visibleInSidebar)
+                .map((item) => {
+                  const Icon = item.icon;
 
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isNavigationItemActive({
-                        pathname,
-                        href: item.href,
-                      })}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.href}>
-                        <Icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isNavigationItemActive({
+                          pathname,
+                          href: item.href,
+                        })}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.href}>
+                          <Icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
