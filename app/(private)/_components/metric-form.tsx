@@ -93,7 +93,13 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
             placeholder="Weight, revenue, sleep"
             aria-invalid={hasNameErrors}
           />
-          <FieldError errors={nameErrors} />
+          {hasNameErrors ? (
+            <FieldError errors={nameErrors} />
+          ) : (
+            <FieldDescription>
+              Use between 3 and 100 characters.
+            </FieldDescription>
+          )}
         </Field>
 
         <Field data-invalid={hasDescriptionErrors}>
