@@ -14,10 +14,10 @@ export function AppSubbar({ left, right }: AppSubbarProps) {
   return (
     <div className="w-full flex items-center gap-4">
       {leftItems.length ? (
-        <div className="w-max items-center gap-1">{leftItems}</div>
+        <div className="flex w-max items-center gap-1">{leftItems}</div>
       ) : null}
       {rightItems.length ? (
-        <div className="w-max ml-auto items-center gap-1">{rightItems}</div>
+        <div className="flex w-max ml-auto items-center gap-1">{rightItems}</div>
       ) : null}
     </div>
   );
