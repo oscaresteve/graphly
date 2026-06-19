@@ -12,7 +12,7 @@ export function AppSubbar({ left, right }: AppSubbarProps) {
   const rightItems = Children.toArray(right);
 
   return (
-    <div className="flex items-center gap-4 overflow-hidden">
+    <div className="flex items-center gap-4">
       {leftItems.length ? (
         <div className="flex items-center gap-1">{leftItems}</div>
       ) : null}
