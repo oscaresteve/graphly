@@ -43,12 +43,7 @@ export function MetricActionsDropdown({
           <Ellipsis />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        avoidCollisions={true}
-        collisionPadding={12}
-        className="w-max"
-      >
+      <DropdownMenuContent align="end" className="w-max">
         <EntryDialogForm
           entryDates={entryDates}
           intent={{ type: "create-past" }}
