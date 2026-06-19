@@ -197,7 +197,7 @@ export function EntryDialogForm({
   return (
     <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-      <DialogContent>
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{metricName}</DialogTitle>
           <DialogDescription>
