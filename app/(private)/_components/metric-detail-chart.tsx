@@ -5,7 +5,6 @@ import { type DateRange } from "react-day-picker";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Focus, Maximize2 } from "lucide-react";
 
-import { AppSubbar } from "@/components/app-subbar";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -111,80 +110,77 @@ export function MetricDetailChart({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      <AppSubbar
-        right={
-          <Popover
-            open={isRangePickerOpen}
-            onOpenChange={handleRangePickerOpenChange}
+    <div className="flex flex-1 flex-col gap-2">
+      <div className="no-scrollbar w-full overflow-x-auto">
+        <Popover
+          open={isRangePickerOpen}
+          onOpenChange={handleRangePickerOpenChange}
+        >
+          <ToggleGroup
+            aria-label="Chart range"
+            className="ml-auto min-w-max flex-nowrap"
+            onValueChange={(value) => {
+              if (value && value !== "custom") {
+                setRange(value as RangeOptionValue);
+                handleRangePickerOpenChange(false);
+              }
+            }}
+            size="sm"
+            variant="outline"
+            type="single"
+            value={range}
           >
-            <ToggleGroup
-              aria-label="Chart range"
-              onValueChange={(value) => {
-                if (value && value !== "custom") {
-                  setRange(value as RangeOptionValue);
-                  handleRangePickerOpenChange(false);
-                }
-              }}
-              size="sm"
-              variant="outline"
-              type="single"
-              value={range}
-            >
-              {rangeOptions.map((option) => (
-                <ToggleGroupItem key={option.value} value={option.value}>
-                  {option.label}
-                </ToggleGroupItem>
-              ))}
-              <PopoverAnchor asChild>
-                <ToggleGroupItem
-                  value="custom"
-                  onClick={() =>
-                    handleRangePickerOpenChange(!isRangePickerOpen)
-                  }
-                >
-                  {range === "custom" && customRange
-                    ? formatCustomRangeLabel(customRange, today)
-                    : "Custom"}
-                </ToggleGroupItem>
-              </PopoverAnchor>
-            </ToggleGroup>
-            <PopoverContent align="end" className="w-auto">
-              <PopoverHeader>
-                <PopoverTitle>Custom range</PopoverTitle>
-                <PopoverDescription>
-                  Choose the dates to display in the chart.
-                </PopoverDescription>
-              </PopoverHeader>
-              <Calendar
-                mode="range"
-                numberOfMonths={2}
-                defaultMonth={pickerRange?.from}
-                disabled={{ after: parseCalendarDate(today) }}
-                selected={pickerRange}
-                onSelect={setPickerRange}
-                showOutsideDays={false}
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => handleRangePickerOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  disabled={!canApplyCustomRange}
-                  onClick={applyCustomRange}
-                >
-                  Apply
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        }
-      />
+            {rangeOptions.map((option) => (
+              <ToggleGroupItem key={option.value} value={option.value}>
+                {option.label}
+              </ToggleGroupItem>
+            ))}
+            <PopoverAnchor asChild>
+              <ToggleGroupItem
+                value="custom"
+                onClick={() => handleRangePickerOpenChange(!isRangePickerOpen)}
+              >
+                {range === "custom" && customRange
+                  ? formatCustomRangeLabel(customRange, today)
+                  : "Custom"}
+              </ToggleGroupItem>
+            </PopoverAnchor>
+          </ToggleGroup>
+          <PopoverContent align="end" className="w-auto">
+            <PopoverHeader>
+              <PopoverTitle>Custom range</PopoverTitle>
+              <PopoverDescription>
+                Choose the dates to display in the chart.
+              </PopoverDescription>
+            </PopoverHeader>
+            <Calendar
+              mode="range"
+              numberOfMonths={2}
+              defaultMonth={pickerRange?.from}
+              disabled={{ after: parseCalendarDate(today) }}
+              selected={pickerRange}
+              onSelect={setPickerRange}
+              showOutsideDays={false}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => handleRangePickerOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={!canApplyCustomRange}
+                onClick={applyCustomRange}
+              >
+                Apply
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
       <MetricChart
         customRange={customRange}
@@ -232,9 +228,9 @@ function MetricChart({
       : (["auto", "auto"] as const);
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-2">
       <ChartContainer
-        className="aspect-4/3 flex-1"
+        className="aspect-auto h-120 flex-1"
         config={{
           value: {
             label: unitName,
@@ -267,7 +263,7 @@ function MetricChart({
             tickFormatter={formatCompactMetricValue}
             tickLine={false}
             tickMargin={10}
-            width={50}
+            width={55}
           />
           <ChartTooltip
             content={
@@ -372,8 +368,8 @@ function ChartScaleControls({
         ))}
       </ToggleGroup>
 
-      <Collapsible open={scale === "focus"}>
-        <CollapsibleContent>
+      <Collapsible open={scale === "focus"} className="h-full">
+        <CollapsibleContent className="h-full">
           {domain ? (
             <Slider
               aria-label="Y-axis focus range"
