@@ -45,8 +45,9 @@ export function MetricActionsDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="min-w-max"
-        collisionPadding={24}
+        avoidCollisions={true}
+        collisionPadding={12}
+        className="max-w-[calc(100vw-24px)] min-w-max"
       >
         <EntryDialogForm
           entryDates={entryDates}
