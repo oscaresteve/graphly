@@ -15,7 +15,7 @@ import { Line, LineChart, XAxis } from "recharts";
 import { Separator } from "@/components/ui/separator";
 import { CalendarDateString, parseCalendarDate } from "@/lib/date";
 import { useMemo } from "react";
-import { EntryDialogForm } from "./entry-dialog-form";
+import { EntryFormModal } from "./entry-form-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 type MetricCardProps = {
@@ -23,7 +23,7 @@ type MetricCardProps = {
   entries: MetricEntryView[];
   title: string;
   today: CalendarDateString;
-  unit: Pick<MetricUnitView, "name" | "symbol" | "type">;
+  unit: MetricUnitView;
 };
 
 type ChartDatum = {
@@ -92,7 +92,7 @@ export function MetricCard({
           </p>
           <div className="flex items-center gap-1">
             {!todayEntry && (
-              <EntryDialogForm
+              <EntryFormModal
                 intent={{ type: "create-today" }}
                 metricId={id}
                 metricName={title}

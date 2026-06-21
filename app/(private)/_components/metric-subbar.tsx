@@ -3,7 +3,7 @@
 import { AppSubbar } from "@/components/app-subbar";
 import { Plus, Pencil, ChevronLeft } from "lucide-react";
 
-import { EntryDialogForm } from "./entry-dialog-form";
+import { EntryFormModal } from "./entry-form-modal";
 import { MetricActionsDropdown } from "./metric-actions-dropdown";
 import { Button } from "@/components/ui/button";
 import { CalendarDateString } from "@/lib/date";
@@ -37,7 +37,7 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
       right={
         <>
           {todayEntry ? (
-            <EntryDialogForm
+            <EntryFormModal
               intent={{ type: "edit-today", entry: todayEntry }}
               metricId={metricId}
               metricName={metricName}
@@ -51,7 +51,7 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
               }
             />
           ) : (
-            <EntryDialogForm
+            <EntryFormModal
               intent={{ type: "create-today" }}
               metricId={metricId}
               metricName={metricName}

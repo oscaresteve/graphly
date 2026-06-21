@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { deleteMetricAction } from "../_lib/actions";
-import { EntryDialogForm } from "./entry-dialog-form";
+import { EntryFormModal } from "./entry-form-modal";
 import { MetricEntryView, MetricUnitView } from "@/lib/metrics/types";
 import { CalendarDateString } from "@/lib/date";
 
@@ -44,7 +44,7 @@ export function MetricActionsDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-max">
-        <EntryDialogForm
+        <EntryFormModal
           entryDates={entryDates}
           intent={{ type: "create-past" }}
           metricId={metricId}
@@ -59,7 +59,7 @@ export function MetricActionsDropdown({
           }
         />
         {pastEntries.length ? (
-          <EntryDialogForm
+          <EntryFormModal
             entryDates={pastEntryDates}
             intent={{ type: "edit-past", entries: pastEntries }}
             metricId={metricId}
