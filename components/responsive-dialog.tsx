@@ -32,11 +32,6 @@ type ResponsiveDialogProps = {
   trigger?: ReactNode;
 };
 
-/**
- * Dialog en desktop, Drawer en mobile. El contenido central es scrolleable
- * y el footer queda fijo y siempre visible, así contenido largo (como un
- * calendario) nunca empuja los botones de acción fuera de la pantalla.
- */
 export function ResponsiveDialog({
   children,
   description,
@@ -52,17 +47,15 @@ export function ResponsiveDialog({
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         {trigger ? <DrawerTrigger asChild>{trigger}</DrawerTrigger> : null}
-        <DrawerContent className="flex max-h-[85dvh] flex-col">
-          <DrawerHeader className="shrink-0 text-left">
+        <DrawerContent>
+          <DrawerHeader>
             <DrawerTitle>{title}</DrawerTitle>
             {description ? (
               <DrawerDescription>{description}</DrawerDescription>
             ) : null}
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto px-4">{children}</div>
-          {footer ? (
-            <DrawerFooter className="shrink-0">{footer}</DrawerFooter>
-          ) : null}
+          <div className="no-scrollbar overflow-y-auto px-4">{children}</div>
+          {footer ? <DrawerFooter>{footer}</DrawerFooter> : null}
         </DrawerContent>
       </Drawer>
     );
@@ -71,20 +64,15 @@ export function ResponsiveDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-      <DialogContent
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        className="flex max-h-[85vh] flex-col gap-4"
-      >
-        <DialogHeader className="shrink-0">
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
+        <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description ? (
             <DialogDescription>{description}</DialogDescription>
           ) : null}
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto">{children}</div>
-        {footer ? (
-          <DialogFooter className="shrink-0">{footer}</DialogFooter>
-        ) : null}
+        {children}
+        {footer ? <DialogFooter>{footer}</DialogFooter> : null}
       </DialogContent>
     </Dialog>
   );

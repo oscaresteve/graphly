@@ -2,6 +2,7 @@
 
 import {
   useActionState,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -39,6 +40,7 @@ import {
   type MetricUnitView,
   type UnitType,
 } from "@/lib/metrics/types";
+import type { Matcher } from "react-day-picker";
 
 import { createEntryAction, updateEntryAction } from "../_lib/actions";
 import {
@@ -94,10 +96,14 @@ export function EntryFormModal({
   unit,
 }: EntryFormModalProps) {
   const formId = useId();
+  const calendarButtonId = useId();
   const today = parseCalendarDate(todayDate);
+
   const isEdit = intent.type === "edit-today" || intent.type === "edit-past";
   const isTodayMode =
     intent.type === "create-today" || intent.type === "edit-today";
+  const isPastMode =
+    intent.type === "create-past" || intent.type === "edit-past";
 
   const editableDates =
     intent.type === "edit-past"
@@ -124,7 +130,6 @@ export function EntryFormModal({
       onOpenChange(nextOpen);
       return;
     }
-
     setInternalOpen(nextOpen);
   }
 
@@ -145,7 +150,7 @@ export function EntryFormModal({
 
   const canSubmit = !isEdit || Boolean(editingEntry);
 
-  const disabledDates =
+  const disabledDates: Matcher | Matcher[] =
     intent.type === "edit-past"
       ? (date: Date) =>
           !editableDates.some(
@@ -153,7 +158,6 @@ export function EntryFormModal({
               parseCalendarDate(entryDate).toString() === date.toString(),
           )
       : [
-          today,
           { after: today },
           ...entryDates.map((entryDate) => parseCalendarDate(entryDate)),
         ];
@@ -181,7 +185,6 @@ export function EntryFormModal({
         setSelectedDate(null);
         setCalendarOpen(false);
         setShowActionState(false);
-        formRef.current?.reset();
       } else {
         setShowActionState(true);
       }
@@ -190,6 +193,13 @@ export function EntryFormModal({
     },
     initialEntryActionState,
   );
+
+  useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
+    }
+  }, [state]);
+
   const displayState = showActionState ? state : initialEntryActionState;
   const inputConfig = getInputConfig(unit.type);
   const dateErrors = getFieldErrors(displayState, "date");
@@ -240,12 +250,7 @@ export function EntryFormModal({
       title={metricName}
       trigger={trigger}
     >
-      <form
-        id={formId}
-        ref={formRef}
-        action={formAction}
-        className="flex flex-col gap-4 py-1"
-      >
+      <form id={formId} ref={formRef} action={formAction}>
         {isEdit ? (
           <input type="hidden" name="entryId" value={editingEntry?.id ?? ""} />
         ) : (
@@ -261,7 +266,10 @@ export function EntryFormModal({
           ) : null}
 
           <Field data-invalid={hasDateErrors}>
-            <FieldLabel className="text-muted-foreground text-xs font-medium tracking-normal uppercase">
+            <FieldLabel
+              htmlFor={isTodayMode ? `date-input-${formId}` : calendarButtonId}
+              className="text-muted-foreground text-xs font-medium tracking-normal uppercase"
+            >
               Date
             </FieldLabel>
 
@@ -272,6 +280,7 @@ export function EntryFormModal({
                   aria-hidden="true"
                 />
                 <Input
+                  id={`date-input-${formId}`}
                   type="text"
                   value={formatPickerDate(today)}
                   disabled
@@ -285,58 +294,68 @@ export function EntryFormModal({
                 />
               </div>
             ) : (
-              <div className="border-input overflow-hidden rounded-md border">
-                <button
-                  type="button"
-                  onClick={() => setCalendarOpen((isOpen) => !isOpen)}
-                  disabled={noEditableEntries}
-                  aria-expanded={calendarOpen}
-                  className={cn(
-                    "bg-muted/30 hover:bg-muted/50 flex h-9 w-full items-center gap-2 px-3 text-sm transition-colors disabled:pointer-events-none disabled:opacity-60",
-                    calendarOpen && "border-b",
-                  )}
-                >
-                  <CalendarIcon className="text-muted-foreground size-4 shrink-0" />
-                  <span className="font-medium">
-                    {formatPickerDate(selectedDateObj)}
-                  </span>
-                  <span className="ml-auto flex items-center gap-2">
-                    {intent.type === "edit-past" && editingEntry ? (
-                      <span className="text-muted-foreground truncate text-xs">
-                        {editingEntry.value} {unit.symbol}
-                      </span>
-                    ) : null}
-                    <ChevronDown
-                      className={cn(
-                        "text-muted-foreground size-4 shrink-0 transition-transform",
-                        calendarOpen && "rotate-180",
-                      )}
+              <>
+                <div className="border-input dark:bg-input/30 rounded-lg border bg-transparent">
+                  <button
+                    id={calendarButtonId}
+                    type="button"
+                    onClick={() => setCalendarOpen((isOpen) => !isOpen)}
+                    disabled={noEditableEntries}
+                    aria-expanded={calendarOpen}
+                    aria-haspopup="dialog"
+                    aria-label={`Fecha seleccionada: ${formatPickerDate(selectedDateObj)}. Pulsa para ${calendarOpen ? "cerrar" : "abrir"} el calendario`}
+                    className={cn(
+                      "flex h-8 w-full min-w-0 items-center gap-2 px-3 text-base transition-colors outline-none md:text-sm",
+                      calendarOpen && "border-input border-b",
+                    )}
+                  >
+                    <CalendarIcon
+                      className="text-muted-foreground size-4 shrink-0"
                       aria-hidden="true"
                     />
-                  </span>
-                </button>
+                    <span className="flex-1 text-left">
+                      {formatPickerDate(selectedDateObj)}
+                    </span>
+                    <span className="flex items-center gap-2">
+                      {isPastMode && editingEntry ? (
+                        <span className="text-muted-foreground truncate text-xs">
+                          {editingEntry.value} {unit.symbol}
+                        </span>
+                      ) : null}
+                      <ChevronDown
+                        className={cn(
+                          "text-muted-foreground size-4 shrink-0 transition-transform",
+                          calendarOpen && "rotate-180",
+                        )}
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </button>
 
-                {noEditableEntries ? (
-                  <p className="text-muted-foreground px-3 py-6 text-center text-sm">
-                    No previous entries to edit yet.
-                  </p>
-                ) : calendarOpen ? (
-                  <Calendar
-                    mode="single"
-                    selected={selectedDateObj}
-                    defaultMonth={selectedDateObj}
-                    disabled={disabledDates}
-                    captionLayout="dropdown"
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setCalendarOpen(false);
-                      }
-                    }}
-                    className="w-full bg-transparent"
-                  />
-                ) : null}
-              </div>
+                  {noEditableEntries ? (
+                    <p className="text-muted-foreground px-3 py-6 text-center text-sm">
+                      No previous entries to edit yet.
+                    </p>
+                  ) : calendarOpen ? (
+                    <div>
+                      <Calendar
+                        mode="single"
+                        selected={selectedDateObj}
+                        defaultMonth={selectedDateObj}
+                        disabled={disabledDates}
+                        captionLayout="dropdown"
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedDate(date);
+                            setCalendarOpen(false);
+                          }
+                        }}
+                        className="w-full bg-transparent"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </>
             )}
 
             {hasDateErrors ? (
@@ -357,7 +376,7 @@ export function EntryFormModal({
             </FieldLabel>
             <div className="relative">
               <Input
-                key={editingEntry?.id ?? intent.type}
+                key={editingEntry?.id ?? selectedCalendarDate}
                 id={`entry-value-${metricId}-${intent.type}`}
                 name="value"
                 type="number"
