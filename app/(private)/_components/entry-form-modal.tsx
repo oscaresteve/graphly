@@ -119,7 +119,7 @@ export function EntryFormModal({
 
   const [internalOpen, setInternalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(true);
   const [showActionState, setShowActionState] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
