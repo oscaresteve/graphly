@@ -57,20 +57,10 @@ type EntryActionField = "date" | "entryId" | "metricId" | "value";
 const initialEntryActionState = createInitialActionState<EntryActionField>();
 
 type EntryDialogIntent =
-  | {
-      type: "create-past";
-    }
-  | {
-      type: "create-today";
-    }
-  | {
-      type: "edit-today";
-      entry: Pick<MetricEntryView, "id" | "value">;
-    }
-  | {
-      type: "edit-past";
-      entries: MetricEntryView[];
-    };
+  | { type: "create-past" }
+  | { type: "create-today" }
+  | { type: "edit-today"; entry: Pick<MetricEntryView, "id" | "value"> }
+  | { type: "edit-past"; entries: MetricEntryView[] };
 
 type EntryFormModalProps = {
   entryDates?: CalendarDateString[];
@@ -119,7 +109,7 @@ export function EntryFormModal({
 
   const [internalOpen, setInternalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [calendarOpen, setCalendarOpen] = useState(true);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [showActionState, setShowActionState] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -209,7 +199,6 @@ export function EntryFormModal({
 
   function handleOpenChange(nextOpen: boolean) {
     setDialogOpen(nextOpen);
-
     if (!nextOpen) {
       setSelectedDate(null);
       setCalendarOpen(false);
@@ -250,7 +239,12 @@ export function EntryFormModal({
       title={metricName}
       trigger={trigger}
     >
-      <form id={formId} ref={formRef} action={formAction}>
+      <form
+        id={formId}
+        ref={formRef}
+        action={formAction}
+        className="flex flex-col gap-4 py-1"
+      >
         {isEdit ? (
           <input type="hidden" name="entryId" value={editingEntry?.id ?? ""} />
         ) : (
@@ -294,68 +288,67 @@ export function EntryFormModal({
                 />
               </div>
             ) : (
-              <>
-                <div className="border-input dark:bg-input/30 rounded-lg border bg-transparent">
-                  <button
-                    id={calendarButtonId}
-                    type="button"
-                    onClick={() => setCalendarOpen((isOpen) => !isOpen)}
-                    disabled={noEditableEntries}
-                    aria-expanded={calendarOpen}
-                    aria-haspopup="dialog"
-                    aria-label={`Fecha seleccionada: ${formatPickerDate(selectedDateObj)}. Pulsa para ${calendarOpen ? "cerrar" : "abrir"} el calendario`}
-                    className={cn(
-                      "flex h-8 w-full min-w-0 items-center gap-2 px-3 text-base transition-colors outline-none md:text-sm",
-                      calendarOpen && "border-input border-b",
-                    )}
-                  >
-                    <CalendarIcon
-                      className="text-muted-foreground size-4 shrink-0"
+              <div className="border-input dark:bg-input/30 rounded-lg border bg-transparent">
+                <button
+                  id={calendarButtonId}
+                  type="button"
+                  onClick={() => setCalendarOpen((isOpen) => !isOpen)}
+                  disabled={noEditableEntries}
+                  aria-expanded={calendarOpen}
+                  aria-haspopup="dialog"
+                  aria-label={`Fecha seleccionada: ${formatPickerDate(selectedDateObj)}. Pulsa para ${calendarOpen ? "cerrar" : "abrir"} el calendario`}
+                  className={cn(
+                    "flex h-8 w-full min-w-0 items-center gap-2 rounded-t-lg px-3 text-base transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                    !calendarOpen && "rounded-b-lg",
+                    calendarOpen && "border-input border-b",
+                  )}
+                >
+                  <CalendarIcon
+                    className="text-muted-foreground size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span className="flex-1 text-left">
+                    {formatPickerDate(selectedDateObj)}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    {isPastMode && editingEntry ? (
+                      <span className="text-muted-foreground truncate text-xs">
+                        {editingEntry.value} {unit.symbol}
+                      </span>
+                    ) : null}
+                    <ChevronDown
+                      className={cn(
+                        "text-muted-foreground size-4 shrink-0 transition-transform",
+                        calendarOpen && "rotate-180",
+                      )}
                       aria-hidden="true"
                     />
-                    <span className="flex-1 text-left">
-                      {formatPickerDate(selectedDateObj)}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      {isPastMode && editingEntry ? (
-                        <span className="text-muted-foreground truncate text-xs">
-                          {editingEntry.value} {unit.symbol}
-                        </span>
-                      ) : null}
-                      <ChevronDown
-                        className={cn(
-                          "text-muted-foreground size-4 shrink-0 transition-transform",
-                          calendarOpen && "rotate-180",
-                        )}
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </button>
+                  </span>
+                </button>
 
-                  {noEditableEntries ? (
-                    <p className="text-muted-foreground px-3 py-6 text-center text-sm">
-                      No previous entries to edit yet.
-                    </p>
-                  ) : calendarOpen ? (
-                    <div>
-                      <Calendar
-                        mode="single"
-                        selected={selectedDateObj}
-                        defaultMonth={selectedDateObj}
-                        disabled={disabledDates}
-                        captionLayout="dropdown"
-                        onSelect={(date) => {
-                          if (date) {
-                            setSelectedDate(date);
-                            setCalendarOpen(false);
-                          }
-                        }}
-                        className="w-full bg-transparent"
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </>
+                {noEditableEntries ? (
+                  <p className="text-muted-foreground rounded-b-lg px-3 py-6 text-center text-sm">
+                    No previous entries to edit yet.
+                  </p>
+                ) : calendarOpen ? (
+                  <div className="rounded-b-lg pb-3">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDateObj}
+                      defaultMonth={selectedDateObj}
+                      disabled={disabledDates}
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date);
+                          setCalendarOpen(false);
+                        }
+                      }}
+                      className="w-full bg-transparent"
+                    />
+                  </div>
+                ) : null}
+              </div>
             )}
 
             {hasDateErrors ? (
@@ -473,7 +466,7 @@ function getInputConfig(type: UnitType): {
   placeholder: string;
   inputMode: "decimal" | "numeric";
   max: number;
-  step: string;
+  step: number | string;
 } {
   if (type === "integer") {
     return {
