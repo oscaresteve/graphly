@@ -46,6 +46,7 @@ import {
   isValidCustomRange,
   resolveChartDateRange,
 } from "./metric-detail-chart.utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type MetricDetailChartProps = {
   entries: MetricEntryView[];
@@ -87,6 +88,8 @@ export function MetricDetailChart({
   });
   const pendingCustomRange = toChartDateRange(pickerRange);
   const canApplyCustomRange = isValidCustomRange(pendingCustomRange, today);
+
+  const isMobile = useIsMobile();
 
   function handleRangePickerOpenChange(open: boolean) {
     setIsRangePickerOpen(open);
@@ -155,12 +158,13 @@ export function MetricDetailChart({
             </PopoverHeader>
             <Calendar
               mode="range"
-              numberOfMonths={2}
+              numberOfMonths={isMobile ? 1 : 2}
               defaultMonth={pickerRange?.from}
               disabled={{ after: parseCalendarDate(today) }}
               selected={pickerRange}
               onSelect={setPickerRange}
               showOutsideDays={false}
+              className="w-full"
             />
             <div className="flex justify-end gap-2">
               <Button
