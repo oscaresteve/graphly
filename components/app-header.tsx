@@ -23,7 +23,7 @@ export function AppHeader({ metricNavigationItems }: AppHeaderProps) {
         <Separator orientation="vertical" className="my-auto h-4" />
       </div>
 
-      <h1 className="absolute left-1/2 -translate-x-1/2 text-center text-lg">
+      <h1 className="absolute left-1/2 -translate-x-1/2 text-center text-lg truncate max-w-1/2">
         {getHeaderTitle({
           pathname,
           metricNavigationItems,
