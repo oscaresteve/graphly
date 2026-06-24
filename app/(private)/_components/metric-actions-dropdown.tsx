@@ -16,6 +16,7 @@ import { deleteMetricAction } from "../_lib/actions";
 import { EntryFormModal } from "./entry-form-modal";
 import { MetricEntryView, MetricUnitView } from "@/lib/metrics/types";
 import { CalendarDateString } from "@/lib/date";
+import { AppAlertDialog } from "@/components/app-alert-dialog";
 
 type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
@@ -81,10 +82,19 @@ export function MetricActionsDropdown({
             Edit
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          variant="destructive"
-          onSelect={(e) => {
-            e.preventDefault();
+        <AppAlertDialog
+          trigger={
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(e) => e.preventDefault()}
+            >
+              <Trash />
+              Delete
+            </DropdownMenuItem>
+          }
+          title="Delete metric?"
+          description="This will permanently delete this metric."
+          handleAction={() => {
             const form = document.createElement("form");
             form.method = "post";
             const input = document.createElement("input");
@@ -96,10 +106,7 @@ export function MetricActionsDropdown({
             deleteMetricAction(new FormData(form));
             document.body.removeChild(form);
           }}
-        >
-          <Trash />
-          Delete
-        </DropdownMenuItem>
+        />
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <Pin />
