@@ -34,6 +34,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 
 const initialState: TimeZoneActionState = {
   success: false,
@@ -56,6 +57,12 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
   useEffect(() => {
     setSelectedTimeZone(userTimeZone);
   }, [userTimeZone]);
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success("Time zone saved");
+    }
+  }, [state]);
 
   return (
     <form action={formAction}>
@@ -110,7 +117,9 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
           ) : state.success ? (
             <FieldDescription>Time zone saved.</FieldDescription>
           ) : (
-            <FieldDescription>Search by city or country to find your time zone.</FieldDescription>
+            <FieldDescription>
+              Search by city or country to find your time zone.
+            </FieldDescription>
           )}
           <Button type="submit" disabled={isPending}>
             {isPending ? "Saving..." : "Save"}
