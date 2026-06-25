@@ -2,6 +2,7 @@ export type ActionState<TField extends string> = {
   success: boolean;
   fieldErrors: Partial<Record<TField, string[]>>;
   formError: string | null;
+  redirectTo?: string,
 };
 
 export function createInitialActionState<

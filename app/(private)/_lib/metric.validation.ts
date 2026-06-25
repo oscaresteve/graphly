@@ -111,6 +111,14 @@ const deleteMetricSchema = z.object({
   metricId: z.uuid("Metric is invalid"),
 });
 
+export type DeleteMetricActionState = ActionState<never>;
+
+export const initialDeleteMetricActionState: DeleteMetricActionState = {
+  success: false,
+  fieldErrors: {},
+  formError: null,
+};
+
 type DeleteMetricValidationResult =
   | {
       success: true;

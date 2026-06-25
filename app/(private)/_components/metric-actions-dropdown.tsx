@@ -17,6 +17,10 @@ import { EntryFormModal } from "./entry-form-modal";
 import { MetricEntryView, MetricUnitView } from "@/lib/metrics/types";
 import { CalendarDateString } from "@/lib/date";
 import { AppAlertDialog } from "@/components/app-alert-dialog";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useActionState, useEffect, useTransition } from "react";
+import { initialDeleteMetricActionState } from "../_lib/metric.validation";
 
 type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
@@ -37,6 +41,31 @@ export function MetricActionsDropdown({
   pastEntries,
   pastEntryDates,
 }: MetricActionsDropdownProps) {
+  const router = useRouter();
+
+  const [state, formAction] = useActionState(
+    deleteMetricAction,
+    initialDeleteMetricActionState,
+  );
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success("Metric deleted");
+      if (state.redirectTo) {
+        router.push(state.redirectTo);
+      }
+    }
+  }, [state, router]);
+
+  function deleteMetric() {
+    const formData = new FormData();
+    formData.append("metricId", metricId);
+    startTransition(() => {
+      formAction(formData);
+    });
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -94,18 +123,8 @@ export function MetricActionsDropdown({
           }
           title="Delete metric?"
           description="This will permanently delete this metric."
-          handleAction={() => {
-            const form = document.createElement("form");
-            form.method = "post";
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "metricId";
-            input.value = metricId;
-            form.appendChild(input);
-            document.body.appendChild(form);
-            deleteMetricAction(new FormData(form));
-            document.body.removeChild(form);
-          }}
+          handleAction={deleteMetric}
+          isPending={isPending}
         />
         <DropdownMenuSeparator />
         <DropdownMenuItem>

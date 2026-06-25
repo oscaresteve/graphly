@@ -19,6 +19,7 @@ type AppAlertDialogProps = {
   title: ReactNode;
   description: ReactNode;
   handleAction: () => void;
+  isPending: boolean;
 };
 
 export function AppAlertDialog({
@@ -26,6 +27,7 @@ export function AppAlertDialog({
   title,
   description,
   handleAction,
+  isPending,
 }: AppAlertDialogProps) {
   return (
     <AlertDialog>
@@ -41,8 +43,14 @@ export function AppAlertDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={handleAction}>
+          <AlertDialogCancel variant="outline" disabled={isPending}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={handleAction}
+            disabled={isPending}
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
