@@ -51,6 +51,7 @@ import {
   type CreateEntryActionState,
   type UpdateEntryActionState,
 } from "../_lib/entry.validation";
+import { toast } from "sonner";
 
 type EntryActionField = "date" | "entryId" | "metricId" | "value";
 
@@ -186,9 +187,10 @@ export function EntryFormModal({
 
   useEffect(() => {
     if (state.success) {
+      toast.success(isEdit ? "Entry updated" : "Entry created");
       formRef.current?.reset();
     }
-  }, [state]);
+  }, [state, isEdit]);
 
   const displayState = showActionState ? state : initialEntryActionState;
   const inputConfig = getInputConfig(unit.type);
