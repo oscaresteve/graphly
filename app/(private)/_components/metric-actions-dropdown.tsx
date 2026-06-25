@@ -19,8 +19,7 @@ import { CalendarDateString } from "@/lib/date";
 import { AppAlertDialog } from "@/components/app-alert-dialog";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useActionState, useEffect, useTransition } from "react";
-import { initialDeleteMetricActionState } from "../_lib/metric.validation";
+import { useTransition } from "react";
 
 type MetricActionsDropdownProps = {
   entryDates: CalendarDateString[];
@@ -43,26 +42,17 @@ export function MetricActionsDropdown({
 }: MetricActionsDropdownProps) {
   const router = useRouter();
 
-  const [state, formAction] = useActionState(
-    deleteMetricAction,
-    initialDeleteMetricActionState,
-  );
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (state.success) {
-      toast.success("Metric deleted");
-      if (state.redirectTo) {
-        router.push(state.redirectTo);
-      }
-    }
-  }, [state, router]);
-
   function deleteMetric() {
-    const formData = new FormData();
-    formData.append("metricId", metricId);
-    startTransition(() => {
-      formAction(formData);
+    startTransition(async () => {
+      const state = await deleteMetricAction(metricId);
+      if (state.success) {
+        toast.success("Metric deleted");
+        router.push("/");
+      } else {
+        toast.error(state.formError ?? "Failed to delete metric");
+      }
     });
   }
 

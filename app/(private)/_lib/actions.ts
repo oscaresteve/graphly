@@ -29,7 +29,6 @@ import {
   type UpdateMetricActionState,
   type DeleteMetricActionState,
   validateCreateMetricFormData,
-  validateDeleteMetricFormData,
   validateUpdateMetricFormData,
 } from "./metric.validation";
 
@@ -88,29 +87,12 @@ export async function updateMetricAction(
 }
 
 export async function deleteMetricAction(
-  _previousState: DeleteMetricActionState,
-  formData: FormData,
+  metricId: string,
 ): Promise<DeleteMetricActionState> {
   const { userId } = await auth.protect();
-  const validation = validateDeleteMetricFormData(formData);
-
-  if (!validation.success) {
-    return {
-      success: false,
-      fieldErrors: {},
-      formError: "Invalid metric",
-    };
-  }
-
-  await deleteMetricForUser(validation.data.metricId, userId);
+  await deleteMetricForUser(metricId, userId);
   revalidatePath("/");
-
-  return {
-    success: true,
-    fieldErrors: {},
-    formError: null,
-    redirectTo: "/",
-  };
+  return { success: true, fieldErrors: {}, formError: null, redirectTo: "/" };
 }
 
 export async function createEntryAction(
