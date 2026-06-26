@@ -27,6 +27,7 @@ import {
   isNavigationItemActive,
 } from "@/config/app-navigation";
 import { useEffect } from "react";
+import { AppAlertDialog } from "./app-alert-dialog";
 
 type AppSidebarProps = {
   metricNavigationItems: MetricNavigationItem[];
@@ -160,15 +161,25 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                 ) : null}
               </div>
             </SidebarMenuButton>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="cursor-pointer"
-              onClick={() => void signOut({ redirectUrl: "/auth/sign-in" })}
-            >
-              <LogOut />
-            </Button>
+            <AppAlertDialog
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="cursor-pointer"
+                >
+                  <LogOut />
+                </Button>
+              }
+              title={"Log out?"}
+              description={"You will need to sign in again"}
+              handleAction={() =>
+                void signOut({ redirectUrl: "/auth/sign-in" })
+              }
+              actionLabel="Log out"
+              Icon={LogOut}
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

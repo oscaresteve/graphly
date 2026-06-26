@@ -1,4 +1,4 @@
-import { Trash2Icon } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 import {
   AlertDialog,
@@ -19,7 +19,10 @@ type AppAlertDialogProps = {
   title: ReactNode;
   description: ReactNode;
   handleAction: () => void;
-  isPending: boolean;
+  isPending?: boolean;
+  actionLabel: string;
+  Icon?: LucideIcon;
+  destructive?: boolean;
 };
 
 export function AppAlertDialog({
@@ -28,6 +31,9 @@ export function AppAlertDialog({
   description,
   handleAction,
   isPending,
+  actionLabel,
+  Icon,
+  destructive,
 }: AppAlertDialogProps) {
   return (
     <AlertDialog>
@@ -36,9 +42,17 @@ export function AppAlertDialog({
       ) : null}
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-            <Trash2Icon />
-          </AlertDialogMedia>
+          {Icon ? (
+            <AlertDialogMedia
+              className={
+                destructive
+                  ? "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive"
+                  : ""
+              }
+            >
+              <Icon />
+            </AlertDialogMedia>
+          ) : null}
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
@@ -47,11 +61,11 @@ export function AppAlertDialog({
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
+            variant={destructive ? "destructive" : "default"}
             onClick={handleAction}
             disabled={isPending}
           >
-            Delete
+            {actionLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
