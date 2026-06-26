@@ -268,6 +268,7 @@ function MetricChart({
             tickLine={false}
             tickMargin={10}
             width={55}
+            tickCount={10}
           />
           <ChartTooltip
             content={
