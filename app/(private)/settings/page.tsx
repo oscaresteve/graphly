@@ -1,11 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 import { TimeZoneForm } from "./_components/time-zone-form";
 import { loadSettingsPageData } from "./loader";
 import { ColorSchemeToggle } from "@/components/color-scheme-toggle";
@@ -16,43 +8,9 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="text-muted-foreground text-sm">
-          Configure how Graphly handles your daily data.
-        </p>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily tracking</CardTitle>
-          <CardDescription>
-            Your time zone defines when a new tracking day begins.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TimeZoneForm userTimeZone={userTimeZone} timeZones={timeZones} />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearence</CardTitle>
-          <CardDescription>
-            Customize the app with predefined themes and dark mode.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              Color Scheme
-              <ColorSchemeToggle />
-            </div>
-            <div className="flex items-center justify-between">
-              Theme
-              <ThemeToggle />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <TimeZoneForm userTimeZone={userTimeZone} timeZones={timeZones} />
+      <ColorSchemeToggle />
+      <ThemeToggle />
     </div>
   );
 }

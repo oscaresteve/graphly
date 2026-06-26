@@ -26,6 +26,15 @@ import {
 import { InputGroupAddon } from "@/components/ui/input-group";
 import { GlobeIcon } from "lucide-react";
 import { TimeZoneOption } from "../_lib/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { toast } from "sonner";
 
 const initialState: TimeZoneActionState = {
   success: false,
@@ -49,60 +58,74 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
     setSelectedTimeZone(userTimeZone);
   }, [userTimeZone]);
 
+  useEffect(() => {
+    if (state.success) {
+      toast.success("Time zone saved");
+    }
+  }, [state]);
+
   return (
     <form action={formAction}>
-      <FieldGroup>
-        <Field data-invalid={state.error ? true : undefined}>
-          <FieldLabel htmlFor="timeZone">Time zone</FieldLabel>
-          <Combobox
-            items={timeZones}
-            name="timeZone"
-            value={selectedTimeZone}
-            onValueChange={setSelectedTimeZone}
-            itemToStringLabel={(tz) => tz.label}
-            itemToStringValue={(tz) => tz.value}
-            isItemEqualToValue={(item, value) => item.value === value?.value}
-          >
-            <ComboboxInput
-              id="timeZone"
-              placeholder="Select a time zone"
-              showClear
-              aria-invalid={!!state.error}
-            >
-              <InputGroupAddon>
-                <GlobeIcon />
-              </InputGroupAddon>
-            </ComboboxInput>
-            <ComboboxContent>
-              <ComboboxEmpty>No time zones found.</ComboboxEmpty>
-              <ComboboxList>
-                {(tz) => (
-                  <ComboboxItem key={tz.value} value={tz}>
-                    {tz.label}
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
+      <Card>
+        <CardHeader>
+          <CardTitle>Time zone</CardTitle>
+          <CardDescription>
+            Graphly uses this to determine today and prevent future entries.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <Field data-invalid={state.error ? true : undefined}>
+              <Combobox
+                items={timeZones}
+                name="timeZone"
+                value={selectedTimeZone}
+                onValueChange={setSelectedTimeZone}
+                itemToStringLabel={(tz) => tz.label}
+                itemToStringValue={(tz) => tz.value}
+                isItemEqualToValue={(item, value) =>
+                  item.value === value?.value
+                }
+              >
+                <ComboboxInput
+                  id="timeZone"
+                  placeholder="Select a time zone"
+                  showClear
+                  aria-invalid={!!state.error}
+                >
+                  <InputGroupAddon>
+                    <GlobeIcon />
+                  </InputGroupAddon>
+                </ComboboxInput>
+                <ComboboxContent>
+                  <ComboboxEmpty>No time zones found.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(tz) => (
+                      <ComboboxItem key={tz.value} value={tz}>
+                        {tz.label}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+        <CardFooter className="justify-between gap-4">
           {state.error ? (
             <FieldError>{state.error}</FieldError>
+          ) : state.success ? (
+            <FieldDescription>Time zone saved.</FieldDescription>
           ) : (
             <FieldDescription>
-              Graphly uses this to determine today and prevent future entries.
+              Search by city or country to find your time zone.
             </FieldDescription>
           )}
-        </Field>
-        <Field orientation="horizontal" className="justify-end">
-          {state.success ? (
-            <p className="text-muted-foreground mr-auto text-sm">
-              Time zone saved.
-            </p>
-          ) : null}
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Saving..." : "Save changes"}
+            {isPending ? "Saving..." : "Save"}
           </Button>
-        </Field>
-      </FieldGroup>
+        </CardFooter>
+      </Card>
     </form>
   );
 }

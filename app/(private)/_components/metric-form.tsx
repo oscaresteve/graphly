@@ -28,6 +28,8 @@ import {
   createInitialActionState,
   type ActionState,
 } from "../_lib/action-state";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type CreateMetricField = "name" | "description" | "unitId";
 type UpdateMetricField = "metricId" | CreateMetricField;
@@ -50,6 +52,7 @@ type MetricFormProps =
     };
 
 export function MetricForm({ units, metric, mode }: MetricFormProps) {
+  const router = useRouter();
   const isUpdateMode = mode === "update";
   const action = isUpdateMode ? updateMetricAction : createMetricAction;
   const initialState = isUpdateMode
@@ -64,6 +67,15 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
   useEffect(() => {
     setSelectedUnitOption(metricUnitOption);
   }, [metricUnitOption]);
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success(isUpdateMode ? "Metric updated" : "Metric created");
+      if (state.redirectTo) {
+        router.push(state.redirectTo);
+      }
+    }
+  }, [state, isUpdateMode, router]);
 
   const cancelHref = isUpdateMode && metric ? `/metrics/${metric.id}` : "/";
   const submitLabel = isUpdateMode ? "Save changes" : "Create Metric";
@@ -93,7 +105,13 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
             placeholder="Weight, revenue, sleep"
             aria-invalid={hasNameErrors}
           />
-          <FieldError errors={nameErrors} />
+          {hasNameErrors ? (
+            <FieldError errors={nameErrors} />
+          ) : (
+            <FieldDescription>
+              Use between 3 and 100 characters.
+            </FieldDescription>
+          )}
         </Field>
 
         <Field data-invalid={hasDescriptionErrors}>

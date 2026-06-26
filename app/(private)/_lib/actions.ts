@@ -2,7 +2,6 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import {
   createEntryForMetricForUser,
@@ -28,8 +27,8 @@ import {
 import {
   type CreateMetricActionState,
   type UpdateMetricActionState,
+  type DeleteMetricActionState,
   validateCreateMetricFormData,
-  validateDeleteMetricFormData,
   validateUpdateMetricFormData,
 } from "./metric.validation";
 
@@ -51,7 +50,13 @@ export async function createMetricAction(
   await createMetricForUser(userId, validation.data);
 
   revalidatePath("/");
-  redirect("/");
+
+  return {
+    success: true,
+    fieldErrors: {},
+    formError: null,
+    redirectTo: "/",
+  };
 }
 
 export async function updateMetricAction(
@@ -72,21 +77,22 @@ export async function updateMetricAction(
   await updateMetricForUser(validation.data.metricId, userId, validation.data);
 
   revalidatePath(`/metrics/${validation.data.metricId}`);
-  redirect(`/metrics/${validation.data.metricId}`);
+
+  return {
+    success: true,
+    fieldErrors: {},
+    formError: null,
+    redirectTo: `/metrics/${validation.data.metricId}`,
+  };
 }
 
-export async function deleteMetricAction(formData: FormData) {
+export async function deleteMetricAction(
+  metricId: string,
+): Promise<DeleteMetricActionState> {
   const { userId } = await auth.protect();
-  const validation = validateDeleteMetricFormData(formData);
-
-  if (!validation.success) {
-    return;
-  }
-
-  await deleteMetricForUser(validation.data.metricId, userId);
-
+  await deleteMetricForUser(metricId, userId);
   revalidatePath("/");
-  redirect("/");
+  return { success: true, fieldErrors: {}, formError: null, redirectTo: "/" };
 }
 
 export async function createEntryAction(

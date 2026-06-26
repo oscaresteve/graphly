@@ -17,13 +17,13 @@ export function AppHeader({ metricNavigationItems }: AppHeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="relative flex h-12 items-center border-b p-2">
+    <header className="sticky top-0 bg-background rounded-t-xl flex h-12 items-center border-b p-2">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="cursor-pointer" />
         <Separator orientation="vertical" className="my-auto h-4" />
       </div>
 
-      <h1 className="absolute left-1/2 -translate-x-1/2 text-center text-lg">
+      <h1 className="absolute left-1/2 -translate-x-1/2 text-center text-lg truncate max-w-1/2">
         {getHeaderTitle({
           pathname,
           metricNavigationItems,

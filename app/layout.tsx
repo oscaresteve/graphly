@@ -9,6 +9,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { cookies } from "next/headers";
 import { ColorSchemeProvider } from "@/components/color-scheme-provider";
 import { isValidTheme, type Theme } from "@/lib/themes";
+import { Toaster } from "@/components/ui/sonner"
+
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -47,6 +49,7 @@ export default async function RootLayout({
             </ClerkProvider>
           </ThemeProvider>
         </ColorSchemeProvider>
+        <Toaster closeButton />
       </body>
     </html>
   );

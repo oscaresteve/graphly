@@ -6,19 +6,31 @@ export type NavigationItem = {
   href: string;
 };
 
-export type AppNavigationItem = NavigationItem & { icon: LucideIcon };
+type SidebarNavigationItem = NavigationItem & {
+  visibleInSidebar: true;
+  icon: LucideIcon;
+};
+
+type HiddenNavigationItem = NavigationItem & {
+  visibleInSidebar: false;
+};
+
+type AppNavigationItem = SidebarNavigationItem | HiddenNavigationItem;
 
 export const appNavigationItems: AppNavigationItem[] = [
   {
     title: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
+    visibleInSidebar: true,
   },
   {
     title: "Settings",
     href: "/settings",
     icon: Settings,
+    visibleInSidebar: true,
   },
+  { title: "New metric", href: "/metrics/new", visibleInSidebar: false },
 ];
 
 export function isNavigationItemActive({

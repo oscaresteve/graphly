@@ -12,10 +12,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroupAction,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useClerk, useUser } from "@clerk/nextjs";
-import { LogOut, Plus } from "lucide-react";
+import { LineChart, LogOut, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -25,6 +26,8 @@ import {
   appNavigationItems,
   isNavigationItemActive,
 } from "@/config/app-navigation";
+import { useEffect } from "react";
+import { AppAlertDialog } from "./app-alert-dialog";
 
 type AppSidebarProps = {
   metricNavigationItems: MetricNavigationItem[];
@@ -38,6 +41,12 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
   const email = user?.primaryEmailAddress?.emailAddress;
   const imageUrl = user?.hasImage ? user.imageUrl : undefined;
   const initials = displayName.charAt(0).toUpperCase();
+  const { setOpenMobile } = useSidebar();
+  const hasMetricNavigationItems = metricNavigationItems.length > 0;
+
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
 
   return (
     <Sidebar variant="inset">
@@ -57,27 +66,29 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {appNavigationItems.map((item) => {
-                const Icon = item.icon;
+              {appNavigationItems
+                .filter((item) => item.visibleInSidebar)
+                .map((item) => {
+                  const Icon = item.icon;
 
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isNavigationItemActive({
-                        pathname,
-                        href: item.href,
-                      })}
-                      tooltip={item.title}
-                    >
-                      <Link href={item.href}>
-                        <Icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isNavigationItemActive({
+                          pathname,
+                          href: item.href,
+                        })}
+                        tooltip={item.title}
+                      >
+                        <Link href={item.href}>
+                          <Icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -91,22 +102,33 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {metricNavigationItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isNavigationItemActive({
-                      pathname,
-                      href: item.href,
-                    })}
-                    tooltip={item.title}
-                  >
-                    <Link href={item.href}>
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+              {hasMetricNavigationItems ? (
+                metricNavigationItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isNavigationItemActive({
+                        pathname,
+                        href: item.href,
+                      })}
+                      tooltip={item.title}
+                    >
+                      <Link href={item.href}>
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))
+              ) : (
+                <SidebarMenuItem>
+                  <div className="flex flex-col items-center justify-center gap-1 p-2">
+                    <LineChart className="text-muted-foreground size-4" />
+                    <p className="text-muted-foreground text-xs italic">
+                      No metrics yet.
+                    </p>
+                  </div>
                 </SidebarMenuItem>
-              ))}
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -139,15 +161,25 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                 ) : null}
               </div>
             </SidebarMenuButton>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="cursor-pointer"
-              onClick={() => void signOut({ redirectUrl: "/auth/sign-in" })}
-            >
-              <LogOut />
-            </Button>
+            <AppAlertDialog
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="cursor-pointer"
+                >
+                  <LogOut />
+                </Button>
+              }
+              title={"Log out?"}
+              description={"You will need to sign in again"}
+              handleAction={() =>
+                void signOut({ redirectUrl: "/auth/sign-in" })
+              }
+              actionLabel="Log out"
+              Icon={LogOut}
+            />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

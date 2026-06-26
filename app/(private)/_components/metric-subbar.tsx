@@ -1,9 +1,9 @@
 "use client";
 
 import { AppSubbar } from "@/components/app-subbar";
-import { ArrowLeft, Plus, Pencil, CalendarIcon } from "lucide-react";
+import { Plus, Pencil, ChevronLeft } from "lucide-react";
 
-import { EntryDialogForm } from "./entry-dialog-form";
+import { EntryFormModal } from "./entry-form-modal";
 import { MetricActionsDropdown } from "./metric-actions-dropdown";
 import { Button } from "@/components/ui/button";
 import { CalendarDateString } from "@/lib/date";
@@ -16,21 +16,20 @@ type MetricSubbarProps = {
 };
 
 export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
-  const id = metric.id;
-  const name = metric.name;
-  const unit = metric.unit;
+  const metricId = metric.id;
+  const metricName = metric.name;
+  const metricUnit = metric.unit;
+  const todayEntry = metric.entries.find((entry) => entry.date === today);
   const pastEntries = metric.entries.filter((entry) => entry.date !== today);
-
   const entryDates = metric.entries.map((entry) => entry.date);
   const pastEntryDates = pastEntries.map((entry) => entry.date);
-  const todayEntry = metric.entries.find((entry) => entry.date === today);
 
   return (
     <AppSubbar
       left={
         <Button asChild variant="ghost" size="sm">
           <Link href="/">
-            <ArrowLeft data-icon="inline-start" />
+            <ChevronLeft data-icon="inline-start" />
             Back
           </Link>
         </Button>
@@ -38,65 +37,43 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
       right={
         <>
           {todayEntry ? (
-            <EntryDialogForm
+            <EntryFormModal
               intent={{ type: "edit-today", entry: todayEntry }}
-              metricId={id}
-              metricName={name}
-              unit={unit}
+              metricId={metricId}
+              metricName={metricName}
+              unit={metricUnit}
               today={today}
               trigger={
-                <Button type="button" variant="secondary">
+                <Button type="button" variant="outline" size="sm">
                   <Pencil data-icon="inline-start" />
                   Edit today
                 </Button>
               }
             />
           ) : (
-            <EntryDialogForm
+            <EntryFormModal
               intent={{ type: "create-today" }}
-              metricId={id}
-              metricName={name}
-              unit={unit}
+              metricId={metricId}
+              metricName={metricName}
+              unit={metricUnit}
               today={today}
               trigger={
-                <Button type="button">
+                <Button type="button" size="sm">
                   <Plus data-icon="inline-start" />
                   Log today
                 </Button>
               }
             />
           )}
-          <EntryDialogForm
+          <MetricActionsDropdown
             entryDates={entryDates}
-            intent={{ type: "create-past" }}
-            metricId={id}
-            metricName={name}
-            unit={unit}
+            metricId={metricId}
+            metricName={metricName}
+            metricUnit={metricUnit}
             today={today}
-            trigger={
-              <Button type="button" variant="secondary">
-                <CalendarIcon data-icon="inline-start" />
-                Log past entry
-              </Button>
-            }
+            pastEntries={pastEntries}
+            pastEntryDates={pastEntryDates}
           />
-          {pastEntries.length ? (
-            <EntryDialogForm
-              entryDates={pastEntryDates}
-              intent={{ type: "edit-past", entries: pastEntries }}
-              metricId={id}
-              metricName={name}
-              unit={unit}
-              today={today}
-              trigger={
-                <Button type="button" variant="secondary">
-                  <Pencil data-icon="inline-start" />
-                  Edit past
-                </Button>
-              }
-            />
-          ) : null}
-          <MetricActionsDropdown metricId={metric.id} />
         </>
       }
     />
