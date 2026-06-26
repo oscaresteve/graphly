@@ -119,11 +119,6 @@ export function MetricActionsDropdown({
           destructive
           Icon={Trash}
         />
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Pin />
-          Pin
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
