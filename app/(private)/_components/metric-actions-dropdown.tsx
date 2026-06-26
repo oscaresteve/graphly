@@ -113,8 +113,11 @@ export function MetricActionsDropdown({
           }
           title="Delete metric?"
           description="This will permanently delete this metric."
+          actionLabel="Delete"
           handleAction={deleteMetric}
           isPending={isPending}
+          destructive
+          Icon={Trash}
         />
         <DropdownMenuSeparator />
         <DropdownMenuItem>
