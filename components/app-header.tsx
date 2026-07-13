@@ -47,5 +47,5 @@ function getHeaderTitle({
     items: allNavigationItems,
   });
 
-  return activeItem?.title || "Graphly";
+  return activeItem?.titleKey || "Graphly";
 }
