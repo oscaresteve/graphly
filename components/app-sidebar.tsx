@@ -28,6 +28,7 @@ import {
 } from "@/config/app-navigation";
 import { useEffect } from "react";
 import { AppAlertDialog } from "./app-alert-dialog";
+import { useTranslations } from "next-intl";
 
 type AppSidebarProps = {
   metricNavigationItems: MetricNavigationItem[];
@@ -43,6 +44,7 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
   const initials = displayName.charAt(0).toUpperCase();
   const { setOpenMobile } = useSidebar();
   const hasMetricNavigationItems = metricNavigationItems.length > 0;
+  const t = useTranslations();
 
   useEffect(() => {
     setOpenMobile(false);
@@ -79,11 +81,11 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                           pathname,
                           href: item.href,
                         })}
-                        tooltip={item.title}
+                        tooltip={t(item.titleKey)}
                       >
                         <Link href={item.href}>
                           <Icon />
-                          <span>{item.title}</span>
+                          <span>{t(item.titleKey)}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

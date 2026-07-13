@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { LayoutDashboard, Settings } from "lucide-react";
 
 export type NavigationItem = {
-  title: string;
+  titleKey: string;
   href: string;
 };
 
@@ -19,18 +19,22 @@ type AppNavigationItem = SidebarNavigationItem | HiddenNavigationItem;
 
 export const appNavigationItems: AppNavigationItem[] = [
   {
-    title: "Dashboard",
+    titleKey: "navigation.dashboard",
     href: "/",
     icon: LayoutDashboard,
     visibleInSidebar: true,
   },
   {
-    title: "Settings",
+    titleKey: "navigation.settings",
     href: "/settings",
     icon: Settings,
     visibleInSidebar: true,
   },
-  { title: "New metric", href: "/metrics/new", visibleInSidebar: false },
+  {
+    titleKey: "navigation.newMetric",
+    href: "/metrics/new",
+    visibleInSidebar: false,
+  },
 ];
 
 export function isNavigationItemActive({

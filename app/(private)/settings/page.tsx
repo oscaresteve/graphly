@@ -1,3 +1,4 @@
+import LanguageToggle from "./_components/LanguageToggle";
 import { TimeZoneForm } from "./_components/time-zone-form";
 import { loadSettingsPageData } from "./loader";
 import { ColorSchemeToggle } from "@/components/color-scheme-toggle";
@@ -11,6 +12,7 @@ export default async function SettingsPage() {
       <TimeZoneForm userTimeZone={userTimeZone} timeZones={timeZones} />
       <ColorSchemeToggle />
       <ThemeToggle />
+      <LanguageToggle />
     </div>
   );
 }

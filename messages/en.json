@@ -1,0 +1,7 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "newMetric": "New metric"
+  }
+}

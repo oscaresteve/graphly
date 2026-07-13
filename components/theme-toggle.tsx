@@ -66,7 +66,7 @@ export function ThemeToggle() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-(--radix-dropdown-menu-trigger-width flex flex-col gap-1 p-1.5"
+            className="w-(--radix-dropdown-menu-trigger-width) flex flex-col gap-1 p-1.5"
           >
             {THEMES.map((t) => (
               <DropdownMenuItem
