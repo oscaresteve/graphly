@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 type AppAlertDialogProps = {
   trigger: ReactNode;
@@ -35,6 +36,8 @@ export function AppAlertDialog({
   Icon,
   destructive,
 }: AppAlertDialogProps) {
+  const t = useTranslations("app-alert-dialog");
+
   return (
     <AlertDialog>
       {trigger ? (
@@ -58,7 +61,7 @@ export function AppAlertDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel variant="outline" disabled={isPending}>
-            Cancel
+            {t("cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             variant={destructive ? "destructive" : "default"}

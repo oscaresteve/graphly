@@ -27,7 +27,7 @@ export type MetricView = {
 
 export type MetricNavigationItem = {
   href: string;
-  titleKey: string;
+  title: string;
 };
 
 export type UnitOption = Pick<MetricUnitView, "id" | "name" | "symbol">;

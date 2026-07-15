@@ -19,19 +19,19 @@ type AppNavigationItem = SidebarNavigationItem | HiddenNavigationItem;
 
 export const appNavigationItems: AppNavigationItem[] = [
   {
-    titleKey: "navigation.dashboard",
+    titleKey: "app-navigation.dashboard",
     href: "/",
     icon: LayoutDashboard,
     visibleInSidebar: true,
   },
   {
-    titleKey: "navigation.settings",
+    titleKey: "app-navigation.settings",
     href: "/settings",
     icon: Settings,
     visibleInSidebar: true,
   },
   {
-    titleKey: "navigation.newMetric",
+    titleKey: "app-navigation.newMetric",
     href: "/metrics/new",
     visibleInSidebar: false,
   },

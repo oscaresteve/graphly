@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AppSubbar } from "@/components/app-subbar";
 import { Plus, Pencil, ChevronLeft } from "lucide-react";
 
@@ -16,6 +17,8 @@ type MetricSubbarProps = {
 };
 
 export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
+  const t = useTranslations("metric-subbar");
+
   const metricId = metric.id;
   const metricName = metric.name;
   const metricUnit = metric.unit;
@@ -30,7 +33,7 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
         <Button asChild variant="ghost" size="sm">
           <Link href="/">
             <ChevronLeft data-icon="inline-start" />
-            Back
+            {t("back")}
           </Link>
         </Button>
       }
@@ -46,7 +49,7 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
               trigger={
                 <Button type="button" variant="outline" size="sm">
                   <Pencil data-icon="inline-start" />
-                  Edit today
+                  {t("editToday")}
                 </Button>
               }
             />
@@ -60,7 +63,7 @@ export default function MetricSubbar({ metric, today }: MetricSubbarProps) {
               trigger={
                 <Button type="button" size="sm">
                   <Plus data-icon="inline-start" />
-                  Log today
+                  {t("logToday")}
                 </Button>
               }
             />

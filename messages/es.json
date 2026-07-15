@@ -1,7 +1,150 @@
 {
-  "navigation": {
+  "app-navigation": {
+    "graphly": "Graphly",
     "dashboard": "Dashboard",
     "settings": "Configuración",
     "newMetric": "Nueva métrica"
+  },
+  "app-sidebar": {
+    "metrics": {
+      "title": "Métricas",
+      "empty": "Aún no hay métricas."
+    },
+    "logout-dialog": {
+      "title": "¿Cerrar sesión?",
+      "description": "Necesitarás iniciar sesión de nuevo",
+      "actionLabel": "Cerrar sesión"
+    },
+    "avatar": {
+      "displayNameFallback": "Usuario"
+    }
+  },
+  "dashboard": {
+    "newMetric": "Nueva métrica"
+  },
+  "app-alert-dialog": {
+    "cancel": "Cancelar"
+  },
+  "metrics-empty-state": {
+    "title": "Crea tu primera métrica",
+    "description": "Agrega una métrica para comenzar a construir tu rutina diaria.",
+    "actionLabel": "Nueva métrica"
+  },
+  "metric-card": {
+    "noData": "No hay datos disponibles.",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "logToday": "Registrar hoy",
+    "viewDetails": "Ver detalles",
+    "notEnoughData": "No hay suficientes datos.",
+    "value": "Valor"
+  },
+  "time-zone-form": {
+    "title": "Zona horaria",
+    "description": "Graphly utiliza esto para determinar hoy y prevenir entradas futuras.",
+    "placeholder": "Selecciona una zona horaria",
+    "comboboxEmpty": "No se encontraron zonas horarias.",
+    "helperText": "Busca por ciudad o país para encontrar tu zona horaria.",
+    "savedDescription": "Zona horaria guardada.",
+    "toastSaved": "Zona horaria guardada",
+    "save": "Guardar",
+    "saving": "Guardando..."
+  },
+  "color-scheme-toggle": {
+    "title": "Modo oscuro",
+    "description": "Elige cómo se ve Graphly — claro, oscuro o que coincida con tu sistema.",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "helperText": "Los cambios se aplican inmediatamente."
+  },
+  "theme-toggle": {
+    "title": "Tema",
+    "description": "Elige una paleta de colores para la aplicación, independientemente del modo oscuro.",
+    "helperText": "Los cambios se aplican inmediatamente."
+  },
+  "language-toggle": {
+    "title": "Idioma",
+    "description": "Elige el idioma para la interfaz de usuario.",
+    "helperText": "Algunos cambios tendrán efecto después de aplicar.",
+    "apply": "Aplicar",
+    "applying": "Aplicando...",
+    "english": "Inglés",
+    "spanish": "Español"
+  },
+  "metric-form": {
+    "toastUpdated": "Métrica actualizada",
+    "toastCreated": "Métrica creada",
+    "submitLabelUpdate": "Guardar cambios",
+    "submitLabelCreate": "Crear métrica",
+    "pendingLabelUpdate": "Guardando...",
+    "pendingLabelCreate": "Creando...",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Peso, ingresos, sueño",
+    "nameDescription": "Usa entre 3 y 100 caracteres.",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "Qué te ayuda a entender esta métrica",
+    "descriptionDescription": "Opcional, pero útil cuando la métrica necesita contexto.",
+    "unitLabel": "Unidad",
+    "unitPlaceholder": "Selecciona una unidad",
+    "unitComboboxEmpty": "No se encontraron unidades.",
+    "unitDescription": "Esto define cómo se mostrará cada valor.",
+    "cancel": "Cancelar"
+  },
+  "metric-subbar": {
+    "back": "Atrás",
+    "editToday": "Editar hoy",
+    "logToday": "Registrar hoy"
+  },
+  "entry-form-modal": {
+    "cancel": "Cancelar",
+    "saving": "Guardando...",
+    "saveChanges": "Guardar cambios",
+    "saveEntry": "Guardar entrada",
+    "dateLabel": "Fecha",
+    "dateSelectedAriaLabel": "Fecha seleccionada: {date}. Pulsa para {action} el calendario",
+    "openCalendar": "abrir",
+    "closeCalendar": "cerrar",
+    "noPreviousEntries": "Aún no hay entradas anteriores para editar.",
+    "toastUpdated": "Entrada actualizada",
+    "toastCreated": "Entrada creada",
+    "descriptionCreatePast": "Crea una nueva entrada para una fecha anterior.",
+    "descriptionEditPast": "Actualiza la entrada de una fecha anterior.",
+    "descriptionEditToday": "Actualiza la entrada de hoy.",
+    "descriptionCreateToday": "Crea una nueva entrada para hoy.",
+    "dateFieldTapDifferentDate": "Toca para elegir una fecha diferente.",
+    "dateFieldTapWhichEntry": "Toca para elegir qué entrada editar.",
+    "dateFieldRecordedToday": "Las entradas se registran con la fecha de hoy.",
+    "integerDescription": "Usa un número entero.",
+    "decimalDescription": "Se permiten decimales."
+  },
+  "metric-actions-dropdown": {
+    "toastDeleted": "Métrica eliminada",
+    "toastDeleteFailed": "Error al eliminar la métrica",
+    "logPastEntry": "Registrar anteriores",
+    "editPast": "Editar anteriores",
+    "edit": "Editar",
+    "delete-dialog": {
+      "deleteTitle": "¿Eliminar métrica?",
+      "deleteDescription": "Esto eliminará permanentemente esta métrica.",
+      "delete": "Eliminar"
+    }
+  },
+  "metric-detail-chart": {
+    "allTime": "Todo el tiempo",
+    "lastYear": "Último año",
+    "lastMonth": "Último mes",
+    "lastWeek": "Última semana",
+    "custom": "Personalizado",
+    "auto": "Automático",
+    "focus": "Enfocar",
+    "chartRangeAriaLabel": "Rango del gráfico",
+    "chartScaleAriaLabel": "Escala del gráfico",
+    "yAxisFocusRangeAriaLabel": "Rango de enfoque del eje Y",
+    "customRangeTitle": "Rango personalizado",
+    "customRangeDescription": "Elige las fechas que se mostrarán en el gráfico.",
+    "cancel": "Cancelar",
+    "apply": "Aplicar",
+    "today": "Hoy"
   }
 }

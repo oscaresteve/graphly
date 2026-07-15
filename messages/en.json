@@ -1,7 +1,150 @@
 {
-  "navigation": {
+  "app-navigation": {
+    "graphly": "Graphly",
     "dashboard": "Dashboard",
     "settings": "Settings",
     "newMetric": "New metric"
+  },
+  "app-sidebar": {
+    "metrics": {
+      "title": "Metrics",
+      "empty": "No metrics yet."
+    },
+    "logout-dialog": {
+      "title": "Log out?",
+      "description": "You will need to sign in again",
+      "actionLabel": "Log out"
+    },
+    "avatar": {
+      "displayNameFallback": "User"
+    }
+  },
+  "dashboard": {
+    "newMetric": "New metric"
+  },
+  "app-alert-dialog": {
+    "cancel": "Cancel"
+  },
+  "metrics-empty-state": {
+    "title": "Create your first metric",
+    "description": "Add a metric to start building your daily routine.",
+    "actionLabel": "New metric"
+  },
+  "metric-card": {
+    "noData": "No data available.",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "logToday": "Log today",
+    "viewDetails": "View details",
+    "notEnoughData": "Not enough data.",
+    "value": "Value"
+  },
+  "time-zone-form": {
+    "title": "Time zone",
+    "description": "Graphly uses this to determine today and prevent future entries.",
+    "placeholder": "Select a time zone",
+    "comboboxEmpty": "No time zones found.",
+    "helperText": "Search by city or country to find your time zone.",
+    "savedDescription": "Time zone saved.",
+    "toastSaved": "Time zone saved",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "color-scheme-toggle": {
+    "title": "Dark mode",
+    "description": "Choose how Graphly looks — light, dark, or match your system.",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "helperText": "Changes are applied immediately."
+  },
+  "theme-toggle": {
+    "title": "Theme",
+    "description": "Pick a color palette for the app, independent of dark mode.",
+    "helperText": "Changes are applied immediately."
+  },
+  "language-toggle": {
+    "title": "Language",
+    "description": "Select your preferred language for the application interface.",
+    "helperText": "Some changes will take effect after applying.",
+    "apply": "Apply",
+    "applying": "Applying...",
+    "english": "English",
+    "spanish": "Spanish"
+  },
+  "metric-form": {
+    "toastUpdated": "Metric updated",
+    "toastCreated": "Metric created",
+    "submitLabelUpdate": "Save changes",
+    "submitLabelCreate": "Create Metric",
+    "pendingLabelUpdate": "Saving...",
+    "pendingLabelCreate": "Creating...",
+    "nameLabel": "Name",
+    "namePlaceholder": "Weight, revenue, sleep",
+    "nameDescription": "Use between 3 and 100 characters.",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What this metric helps you understand",
+    "descriptionDescription": "Optional, but useful when the metric needs context.",
+    "unitLabel": "Unit",
+    "unitPlaceholder": "Select a unit",
+    "unitComboboxEmpty": "No units found.",
+    "unitDescription": "This defines how each value will be shown.",
+    "cancel": "Cancel"
+  },
+  "metric-subbar": {
+    "back": "Back",
+    "editToday": "Edit today",
+    "logToday": "Log today"
+  },
+  "entry-form-modal": {
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveChanges": "Save changes",
+    "saveEntry": "Save entry",
+    "dateLabel": "Date",
+    "dateSelectedAriaLabel": "Selected date: {date}. Press to {action} the calendar",
+    "openCalendar": "open",
+    "closeCalendar": "close",
+    "noPreviousEntries": "No previous entries to edit yet.",
+    "toastUpdated": "Entry updated",
+    "toastCreated": "Entry created",
+    "descriptionCreatePast": "Create a new entry for a previous date.",
+    "descriptionEditPast": "Update a previous date's entry.",
+    "descriptionEditToday": "Update today's entry.",
+    "descriptionCreateToday": "Create a new entry for today.",
+    "dateFieldTapDifferentDate": "Tap to choose a different date.",
+    "dateFieldTapWhichEntry": "Tap to choose which entry to edit.",
+    "dateFieldRecordedToday": "Entries are recorded for today's date.",
+    "integerDescription": "Use a whole number.",
+    "decimalDescription": "Decimals are allowed."
+  },
+  "metric-actions-dropdown": {
+    "toastDeleted": "Metric deleted",
+    "toastDeleteFailed": "Failed to delete metric",
+    "logPastEntry": "Log past entry",
+    "editPast": "Edit past",
+    "edit": "Edit",
+    "delete-dialog": {
+      "deleteTitle": "Delete metric?",
+      "deleteDescription": "This will permanently delete this metric.",
+      "delete": "Delete"
+    }
+  },
+  "metric-detail-chart": {
+    "allTime": "All time",
+    "lastYear": "Last year",
+    "lastMonth": "Last month",
+    "lastWeek": "Last week",
+    "custom": "Custom",
+    "auto": "Auto",
+    "focus": "Focus",
+    "chartRangeAriaLabel": "Chart range",
+    "chartScaleAriaLabel": "Chart scale",
+    "yAxisFocusRangeAriaLabel": "Y-axis focus range",
+    "customRangeTitle": "Custom range",
+    "customRangeDescription": "Choose the dates to display in the chart.",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "today": "Today"
   }
 }

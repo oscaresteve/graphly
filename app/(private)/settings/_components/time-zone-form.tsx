@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +9,6 @@ import {
   FieldDescription,
   FieldError,
   FieldGroup,
-  FieldLabel,
 } from "@/components/ui/field";
 
 import {
@@ -47,6 +47,8 @@ type TimeZoneFormProps = {
 };
 
 export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
+  const t = useTranslations("time-zone-form");
+
   const [state, formAction, isPending] = useActionState(
     updateTimeZoneAction,
     initialState,
@@ -60,18 +62,16 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
 
   useEffect(() => {
     if (state.success) {
-      toast.success("Time zone saved");
+      toast.success(t("toastSaved"));
     }
-  }, [state]);
+  }, [state, t]);
 
   return (
     <form action={formAction}>
       <Card>
         <CardHeader>
-          <CardTitle>Time zone</CardTitle>
-          <CardDescription>
-            Graphly uses this to determine today and prevent future entries.
-          </CardDescription>
+          <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <FieldGroup>
@@ -89,7 +89,7 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
               >
                 <ComboboxInput
                   id="timeZone"
-                  placeholder="Select a time zone"
+                  placeholder={t("placeholder")}
                   showClear
                   aria-invalid={!!state.error}
                 >
@@ -98,7 +98,7 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
                   </InputGroupAddon>
                 </ComboboxInput>
                 <ComboboxContent>
-                  <ComboboxEmpty>No time zones found.</ComboboxEmpty>
+                  <ComboboxEmpty>{t("comboboxEmpty")}</ComboboxEmpty>
                   <ComboboxList>
                     {(tz) => (
                       <ComboboxItem key={tz.value} value={tz}>
@@ -115,14 +115,12 @@ export function TimeZoneForm({ userTimeZone, timeZones }: TimeZoneFormProps) {
           {state.error ? (
             <FieldError>{state.error}</FieldError>
           ) : state.success ? (
-            <FieldDescription>Time zone saved.</FieldDescription>
+            <FieldDescription>{t("savedDescription")}</FieldDescription>
           ) : (
-            <FieldDescription>
-              Search by city or country to find your time zone.
-            </FieldDescription>
+            <FieldDescription>{t("helperText")}</FieldDescription>
           )}
           <Button type="submit" disabled={isPending}>
-            {isPending ? "Saving..." : "Save"}
+            {isPending ? t("saving") : t("save")}
           </Button>
         </CardFooter>
       </Card>

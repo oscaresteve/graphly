@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "./ui/card";
 import { FieldDescription } from "./ui/field";
+import { useTranslations } from "next-intl";
 
 const LABEL: Record<Theme, string> = {
   graphite: "Graphite",
@@ -41,14 +42,13 @@ function ThemePreview({ theme }: { theme: Theme }) {
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const t = useTranslations("theme-toggle");
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Theme</CardTitle>
-        <CardDescription>
-          Pick a color palette for the app, independent of light or dark mode.
-        </CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <DropdownMenu>
@@ -66,7 +66,7 @@ export function ThemeToggle() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-(--radix-dropdown-menu-trigger-width) flex flex-col gap-1 p-1.5"
+            className="flex w-(--radix-dropdown-menu-trigger-width) flex-col gap-1 p-1.5"
           >
             {THEMES.map((t) => (
               <DropdownMenuItem
@@ -83,7 +83,7 @@ export function ThemeToggle() {
         </DropdownMenu>
       </CardContent>
       <CardFooter>
-        <FieldDescription>Changes are applied immediately.</FieldDescription>
+        <FieldDescription>{t("helperText")}</FieldDescription>
       </CardFooter>
     </Card>
   );

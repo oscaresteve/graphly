@@ -8,24 +8,25 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import Link from "next/link";
 
 export default function MetricsEmptyState() {
+  const t = useTranslations("metrics-empty-state");
+
   return (
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Plus />
         </EmptyMedia>
-        <EmptyTitle>Create your first metric</EmptyTitle>
-        <EmptyDescription>
-          Add a metric to start building your daily tracking routine.
-        </EmptyDescription>
+        <EmptyTitle>{t("title")}</EmptyTitle>
+        <EmptyDescription>{t("description")}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button asChild>
-          <Link href="/metrics/new">New Metric</Link>
+          <Link href="/metrics/new">{t("actionLabel")}</Link>
         </Button>
       </EmptyContent>
     </Empty>

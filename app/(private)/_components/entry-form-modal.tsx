@@ -17,9 +17,11 @@ import {
   Plus,
   Save,
 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { es } from "react-day-picker/locale";
 import {
   Field,
   FieldDescription,
@@ -75,8 +77,10 @@ type EntryFormModalProps = {
   unit: MetricUnitView;
 };
 
+const EMPTY_ENTRY_DATES: CalendarDateString[] = [];
+
 export function EntryFormModal({
-  entryDates = [],
+  entryDates = EMPTY_ENTRY_DATES,
   intent,
   metricId,
   metricName,
@@ -86,6 +90,9 @@ export function EntryFormModal({
   trigger,
   unit,
 }: EntryFormModalProps) {
+  const t = useTranslations("entry-form-modal");
+  const locale = useLocale();
+
   const formId = useId();
   const calendarButtonId = useId();
   const today = parseCalendarDate(todayDate);
@@ -187,13 +194,13 @@ export function EntryFormModal({
 
   useEffect(() => {
     if (state.success) {
-      toast.success(isEdit ? "Entry updated" : "Entry created");
+      toast.success(isEdit ? t("toastUpdated") : t("toastCreated"));
       formRef.current?.reset();
     }
-  }, [state, isEdit]);
+  }, [state, isEdit, t]);
 
   const displayState = showActionState ? state : initialEntryActionState;
-  const inputConfig = getInputConfig(unit.type);
+  const inputConfig = getInputConfig(unit.type, t);
   const dateErrors = getFieldErrors(displayState, "date");
   const hasDateErrors = hasErrors(dateErrors);
   const valueErrors = getFieldErrors(displayState, "value");
@@ -210,7 +217,7 @@ export function EntryFormModal({
 
   return (
     <ResponsiveDialog
-      description={getDialogDescription(intent.type)}
+      description={getDialogDescription(intent.type, t)}
       footer={
         <>
           <Button
@@ -218,7 +225,7 @@ export function EntryFormModal({
             variant="outline"
             onClick={() => setDialogOpen(false)}
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
@@ -232,7 +239,11 @@ export function EntryFormModal({
             ) : (
               <Plus data-icon="inline-start" />
             )}
-            {isPending ? "Saving..." : isEdit ? "Save changes" : "Save entry"}
+            {isPending
+              ? t("saving")
+              : isEdit
+                ? t("saveChanges")
+                : t("saveEntry")}
           </Button>
         </>
       }
@@ -266,7 +277,7 @@ export function EntryFormModal({
               htmlFor={isTodayMode ? `date-input-${formId}` : calendarButtonId}
               className="text-muted-foreground text-xs font-medium tracking-normal uppercase"
             >
-              Date
+              {t("dateLabel")}
             </FieldLabel>
 
             {isTodayMode ? (
@@ -278,7 +289,7 @@ export function EntryFormModal({
                 <Input
                   id={`date-input-${formId}`}
                   type="text"
-                  value={formatPickerDate(today)}
+                  value={formatPickerDate(today, locale)}
                   disabled
                   readOnly
                   aria-invalid={hasDateErrors}
@@ -298,7 +309,12 @@ export function EntryFormModal({
                   disabled={noEditableEntries}
                   aria-expanded={calendarOpen}
                   aria-haspopup="dialog"
-                  aria-label={`Fecha seleccionada: ${formatPickerDate(selectedDateObj)}. Pulsa para ${calendarOpen ? "cerrar" : "abrir"} el calendario`}
+                  aria-label={t("dateSelectedAriaLabel", {
+                    date: formatPickerDate(selectedDateObj, locale),
+                    action: calendarOpen
+                      ? t("closeCalendar")
+                      : t("openCalendar"),
+                  })}
                   className={cn(
                     "flex h-8 w-full min-w-0 items-center gap-2 rounded-t-lg px-3 text-base transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
                     !calendarOpen && "rounded-b-lg",
@@ -310,7 +326,7 @@ export function EntryFormModal({
                     aria-hidden="true"
                   />
                   <span className="flex-1 text-left">
-                    {formatPickerDate(selectedDateObj)}
+                    {formatPickerDate(selectedDateObj, locale)}
                   </span>
                   <span className="flex items-center gap-2">
                     {isPastMode && editingEntry ? (
@@ -330,7 +346,7 @@ export function EntryFormModal({
 
                 {noEditableEntries ? (
                   <p className="text-muted-foreground rounded-b-lg px-3 py-6 text-center text-sm">
-                    No previous entries to edit yet.
+                    {t("noPreviousEntries")}
                   </p>
                 ) : calendarOpen ? (
                   <div className="rounded-b-lg pb-3">
@@ -347,6 +363,7 @@ export function EntryFormModal({
                         }
                       }}
                       className="w-full bg-transparent"
+                      locale={locale === "es" ? es : undefined}
                     />
                   </div>
                 ) : null}
@@ -357,7 +374,7 @@ export function EntryFormModal({
               <FieldError errors={dateErrors} />
             ) : (
               <FieldDescription>
-                {getDateFieldDescription(intent.type)}
+                {getDateFieldDescription(intent.type, t)}
               </FieldDescription>
             )}
           </Field>
@@ -414,8 +431,8 @@ function hasErrors(errors: ReturnType<typeof getFieldErrors>) {
   return errors.length > 0 ? true : undefined;
 }
 
-function formatPickerDate(value: Date) {
-  return new Intl.DateTimeFormat("en", {
+function formatPickerDate(value: Date, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -438,32 +455,41 @@ function getDefaultPastDate(
   return date;
 }
 
-function getDialogDescription(type: EntryDialogIntent["type"]): string {
+function getDialogDescription(
+  type: EntryDialogIntent["type"],
+  t: ReturnType<typeof useTranslations<"entry-form-modal">>,
+): string {
   switch (type) {
     case "create-past":
-      return "Create a new entry for a previous date.";
+      return t("descriptionCreatePast");
     case "edit-past":
-      return "Update a previous date's entry.";
+      return t("descriptionEditPast");
     case "edit-today":
-      return "Update today's entry.";
+      return t("descriptionEditToday");
     case "create-today":
-      return "Create a new entry for today.";
+      return t("descriptionCreateToday");
   }
 }
 
-function getDateFieldDescription(type: EntryDialogIntent["type"]): string {
+function getDateFieldDescription(
+  type: EntryDialogIntent["type"],
+  t: ReturnType<typeof useTranslations<"entry-form-modal">>,
+): string {
   switch (type) {
     case "create-past":
-      return "Tap to choose a different date.";
+      return t("dateFieldTapDifferentDate");
     case "edit-past":
-      return "Tap to choose which entry to edit.";
+      return t("dateFieldTapWhichEntry");
     case "edit-today":
     case "create-today":
-      return "Entries are recorded for today's date.";
+      return t("dateFieldRecordedToday");
   }
 }
 
-function getInputConfig(type: UnitType): {
+function getInputConfig(
+  type: UnitType,
+  t: ReturnType<typeof useTranslations<"entry-form-modal">>,
+): {
   description: string;
   placeholder: string;
   inputMode: "decimal" | "numeric";
@@ -472,7 +498,7 @@ function getInputConfig(type: UnitType): {
 } {
   if (type === "integer") {
     return {
-      description: "Use a whole number.",
+      description: t("integerDescription"),
       placeholder: "123",
       inputMode: "numeric",
       max: 999999999,
@@ -481,7 +507,7 @@ function getInputConfig(type: UnitType): {
   }
 
   return {
-    description: "Decimals are allowed.",
+    description: t("decimalDescription"),
     placeholder: "123.456",
     inputMode: "decimal",
     max: 999999999.999,

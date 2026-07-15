@@ -1,4 +1,5 @@
 import { format, subMonths, subWeeks, subYears } from "date-fns";
+import { es } from "date-fns/locale";
 
 import {
   formatCalendarDate,
@@ -150,20 +151,23 @@ export function getChartTicks(range: ChartDateRange, chartRange: ChartRange) {
 export function formatCustomRangeLabel(
   range: ChartDateRange,
   todayDate: CalendarDateString,
+  locale: string,
 ) {
   const start = parseCalendarDate(range.startDate);
   const end = parseCalendarDate(range.endDate);
   const today = parseCalendarDate(todayDate);
 
+  const dateLocale = locale === "es" ? es : undefined;
+
   if (start.getFullYear() !== end.getFullYear()) {
-    return `${format(start, "MMM d, yyyy")} – ${format(end, "MMM d, yyyy")}`;
+    return `${format(start, "MMM d, yyyy", { locale: dateLocale })} – ${format(end, "MMM d, yyyy", { locale: dateLocale })}`;
   }
 
   if (start.getFullYear() !== today.getFullYear()) {
-    return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
+    return `${format(start, "MMM d", { locale: dateLocale })} – ${format(end, "MMM d, yyyy", { locale: dateLocale })}`;
   }
 
-  return `${format(start, "MMM d")} – ${format(end, "MMM d")}`;
+  return `${format(start, "MMM d", { locale: dateLocale })} – ${format(end, "MMM d", { locale: dateLocale })}`;
 }
 
 function getPresetRangeStart(date: Date, range: ChartRange) {

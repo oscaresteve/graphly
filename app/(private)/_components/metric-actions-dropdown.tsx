@@ -1,7 +1,8 @@
 "use client";
 
-import { CalendarIcon, Edit, Ellipsis, Pencil, Pin, Trash } from "lucide-react";
+import { CalendarIcon, Edit, Ellipsis, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +41,10 @@ export function MetricActionsDropdown({
   pastEntries,
   pastEntryDates,
 }: MetricActionsDropdownProps) {
+  const t = useTranslations("metric-actions-dropdown");
+  const deleteDialogT = useTranslations(
+    "metric-actions-dropdown.delete-dialog",
+  );
   const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
@@ -48,10 +53,10 @@ export function MetricActionsDropdown({
     startTransition(async () => {
       const state = await deleteMetricAction(metricId);
       if (state.success) {
-        toast.success("Metric deleted");
+        toast.success(t("toastDeleted"));
         router.push("/");
       } else {
-        toast.error(state.formError ?? "Failed to delete metric");
+        toast.error(state.formError ?? t("toastDeleteFailed"));
       }
     });
   }
@@ -74,7 +79,7 @@ export function MetricActionsDropdown({
           trigger={
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
               <CalendarIcon />
-              Log past entry
+              {t("logPastEntry")}
             </DropdownMenuItem>
           }
         />
@@ -89,7 +94,7 @@ export function MetricActionsDropdown({
             trigger={
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Pencil />
-                Edit past
+                {t("editPast")}
               </DropdownMenuItem>
             }
           />
@@ -98,7 +103,7 @@ export function MetricActionsDropdown({
         <DropdownMenuItem asChild>
           <Link href={`/metrics/${metricId}/edit`}>
             <Edit />
-            Edit
+            {t("edit")}
           </Link>
         </DropdownMenuItem>
         <AppAlertDialog
@@ -108,12 +113,12 @@ export function MetricActionsDropdown({
               onSelect={(e) => e.preventDefault()}
             >
               <Trash />
-              Delete
+              {deleteDialogT("delete")}
             </DropdownMenuItem>
           }
-          title="Delete metric?"
-          description="This will permanently delete this metric."
-          actionLabel="Delete"
+          title={deleteDialogT("deleteTitle")}
+          description={deleteDialogT("deleteDescription")}
+          actionLabel={deleteDialogT("delete")}
           handleAction={deleteMetric}
           isPending={isPending}
           destructive

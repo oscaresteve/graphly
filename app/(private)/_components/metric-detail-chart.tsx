@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import { type DateRange } from "react-day-picker";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Focus, Maximize2 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { es } from "react-day-picker/locale";
 import {
   ChartContainer,
   ChartTooltip,
@@ -55,20 +57,20 @@ type MetricDetailChartProps = {
   today: CalendarDateString;
 };
 
-const rangeOptions = [
-  { value: "all-time", label: "All time" },
-  { value: "last-year", label: "Last year" },
-  { value: "last-month", label: "Last month" },
-  { value: "last-week", label: "Last week" },
+const RANGE_VALUES = [
+  "all-time",
+  "last-year",
+  "last-month",
+  "last-week",
 ] as const;
 
-const scaleOptions = [
-  { value: "auto", label: "Auto", icon: Maximize2 },
-  { value: "focus", label: "Focus", icon: Focus },
+const SCALE_VALUES = [
+  { value: "auto", icon: Maximize2 },
+  { value: "focus", icon: Focus },
 ] as const;
 
-type RangeOptionValue = (typeof rangeOptions)[number]["value"];
-type ScaleOptionValue = (typeof scaleOptions)[number]["value"];
+type RangeOptionValue = (typeof RANGE_VALUES)[number];
+type ScaleOptionValue = (typeof SCALE_VALUES)[number]["value"];
 
 export function MetricDetailChart({
   entries,
@@ -76,6 +78,28 @@ export function MetricDetailChart({
   unitName,
   today,
 }: MetricDetailChartProps) {
+  const t = useTranslations("metric-detail-chart");
+  const locale = useLocale();
+
+  const rangeOptions = useMemo(
+    () =>
+      RANGE_VALUES.map((value) => ({
+        value,
+        label: t(rangeLabelKey(value)),
+      })),
+    [t],
+  );
+
+  const scaleOptions = useMemo(
+    () =>
+      SCALE_VALUES.map(({ value, icon }) => ({
+        value,
+        icon,
+        label: t(scaleLabelKey(value)),
+      })),
+    [t],
+  );
+
   const [range, setRange] = useState<ChartRange>("last-month");
   const [customRange, setCustomRange] = useState<ChartDateRange | null>(null);
   const [pickerRange, setPickerRange] = useState<DateRange | undefined>();
@@ -120,7 +144,7 @@ export function MetricDetailChart({
           onOpenChange={handleRangePickerOpenChange}
         >
           <ToggleGroup
-            aria-label="Chart range"
+            aria-label={t("chartRangeAriaLabel")}
             className="ml-auto min-w-max flex-nowrap"
             onValueChange={(value) => {
               if (value && value !== "custom") {
@@ -144,16 +168,16 @@ export function MetricDetailChart({
                 onClick={() => handleRangePickerOpenChange(!isRangePickerOpen)}
               >
                 {range === "custom" && customRange
-                  ? formatCustomRangeLabel(customRange, today)
-                  : "Custom"}
+                  ? formatCustomRangeLabel(customRange, today, locale)
+                  : t("custom")}
               </ToggleGroupItem>
             </PopoverAnchor>
           </ToggleGroup>
           <PopoverContent align="end" className="w-auto">
             <PopoverHeader>
-              <PopoverTitle>Custom range</PopoverTitle>
+              <PopoverTitle>{t("customRangeTitle")}</PopoverTitle>
               <PopoverDescription>
-                Choose the dates to display in the chart.
+                {t("customRangeDescription")}
               </PopoverDescription>
             </PopoverHeader>
             <Calendar
@@ -165,6 +189,7 @@ export function MetricDetailChart({
               onSelect={setPickerRange}
               showOutsideDays={false}
               className="w-full"
+              locale={locale === "es" ? es : undefined}
             />
             <div className="flex justify-end gap-2">
               <Button
@@ -172,14 +197,14 @@ export function MetricDetailChart({
                 variant="ghost"
                 onClick={() => handleRangePickerOpenChange(false)}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="button"
                 disabled={!canApplyCustomRange}
                 onClick={applyCustomRange}
               >
-                Apply
+                {t("apply")}
               </Button>
             </div>
           </PopoverContent>
@@ -190,6 +215,7 @@ export function MetricDetailChart({
         customRange={customRange}
         entries={entries}
         range={range}
+        scaleOptions={scaleOptions}
         unitName={unitName}
         unitSymbol={unitSymbol}
         today={today}
@@ -202,13 +228,22 @@ function MetricChart({
   customRange,
   entries,
   range,
+  scaleOptions,
   unitSymbol,
   unitName,
   today,
 }: MetricDetailChartProps & {
   customRange: ChartDateRange | null;
   range: ChartRange;
+  scaleOptions: {
+    value: ScaleOptionValue;
+    icon: typeof Focus;
+    label: string;
+  }[];
 }) {
+  const t = useTranslations("metric-detail-chart");
+  const locale = useLocale();
+
   const { data, visibleChartData, xDomain, xTicks } = useMemo(
     () => getMetricChartData(entries, unitSymbol, range, customRange, today),
     [entries, unitSymbol, range, customRange, today],
@@ -253,8 +288,11 @@ function MetricChart({
             ticks={xTicks}
             tickFormatter={(value) =>
               value === parseCalendarDate(today).getTime()
-                ? "Today"
-                : formatShortCalendarDate(formatCalendarDate(new Date(value)))
+                ? t("today")
+                : formatShortCalendarDate(
+                    formatCalendarDate(new Date(value)),
+                    locale,
+                  )
             }
             tickLine={true}
             tickMargin={10}
@@ -264,7 +302,7 @@ function MetricChart({
             axisLine={false}
             domain={yDomain}
             allowDataOverflow
-            tickFormatter={formatCompactMetricValue}
+            tickFormatter={(value) => formatCompactMetricValue(value, locale)}
             tickLine={false}
             tickMargin={10}
             width={55}
@@ -278,7 +316,10 @@ function MetricChart({
                   const date = payload[0]?.payload?.date;
 
                   if (typeof date === "string") {
-                    return formatLongCalendarDate(toCalendarDateString(date));
+                    return formatLongCalendarDate(
+                      toCalendarDateString(date),
+                      locale,
+                    );
                   }
 
                   const timestamp = payload[0]?.payload?.timestamp;
@@ -286,6 +327,7 @@ function MetricChart({
                   if (typeof timestamp === "number") {
                     return formatLongCalendarDate(
                       formatCalendarDate(new Date(timestamp)),
+                      locale,
                     );
                   }
 
@@ -328,6 +370,8 @@ function MetricChart({
         onFocusedDomainChange={setFocusYDomain}
         onScaleChange={setScale}
         scale={scale}
+        scaleOptions={scaleOptions}
+        t={t}
       />
     </div>
   );
@@ -339,17 +383,25 @@ function ChartScaleControls({
   onFocusedDomainChange,
   onScaleChange,
   scale,
+  scaleOptions,
+  t,
 }: {
   domain: [number, number] | null;
   focusedDomain: [number, number] | null;
   onFocusedDomainChange: (domain: [number, number]) => void;
   onScaleChange: (scale: ChartScale) => void;
   scale: ChartScale;
+  scaleOptions: {
+    value: ScaleOptionValue;
+    icon: typeof Focus;
+    label: string;
+  }[];
+  t: ReturnType<typeof useTranslations<"metric-detail-chart">>;
 }) {
   return (
     <div className="flex flex-col items-center gap-3 py-2">
       <ToggleGroup
-        aria-label="Chart scale"
+        aria-label={t("chartScaleAriaLabel")}
         onValueChange={(value) => {
           if (value) {
             onScaleChange(value as ScaleOptionValue);
@@ -377,7 +429,7 @@ function ChartScaleControls({
         <CollapsibleContent className="h-full">
           {domain ? (
             <Slider
-              aria-label="Y-axis focus range"
+              aria-label={t("yAxisFocusRangeAriaLabel")}
               max={domain[1]}
               min={domain[0]}
               onValueChange={(value) =>
@@ -392,6 +444,25 @@ function ChartScaleControls({
       </Collapsible>
     </div>
   );
+}
+
+function rangeLabelKey(
+  value: RangeOptionValue,
+): "allTime" | "lastYear" | "lastMonth" | "lastWeek" {
+  switch (value) {
+    case "all-time":
+      return "allTime";
+    case "last-year":
+      return "lastYear";
+    case "last-month":
+      return "lastMonth";
+    case "last-week":
+      return "lastWeek";
+  }
+}
+
+function scaleLabelKey(value: ScaleOptionValue): "auto" | "focus" {
+  return value;
 }
 
 function toChartDateRange(range: DateRange | undefined): ChartDateRange | null {

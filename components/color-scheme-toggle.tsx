@@ -12,18 +12,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FieldDescription } from "./ui/field";
+import { useTranslations } from "next-intl";
 
 export function ColorSchemeToggle() {
   const { colorScheme, setColorScheme } = useColorScheme();
   const mounted = useHasMounted();
+  const t = useTranslations("color-scheme-toggle");
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Color scheme</CardTitle>
-        <CardDescription>
-          Choose how Graphly looks — light, dark, or match your system.
-        </CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {mounted ? (
@@ -33,38 +33,38 @@ export function ColorSchemeToggle() {
             value={colorScheme}
             onValueChange={(value) => value && setColorScheme(value)}
           >
-            <ToggleGroupItem aria-label="Light" value="light">
+            <ToggleGroupItem aria-label={t("light")} value="light">
               <Sun />
-              Light
+              {t("light")}
             </ToggleGroupItem>
-            <ToggleGroupItem aria-label="Dark" value="dark">
+            <ToggleGroupItem aria-label={t("dark")} value="dark">
               <Moon />
-              Dark
+              {t("dark")}
             </ToggleGroupItem>
-            <ToggleGroupItem aria-label="System" value="system">
+            <ToggleGroupItem aria-label={t("system")} value="system">
               <Monitor />
-              System
+              {t("system")}
             </ToggleGroupItem>
           </ToggleGroup>
         ) : (
           <ToggleGroup type="single" variant="outline">
-            <ToggleGroupItem aria-label="Light" value="light">
+            <ToggleGroupItem aria-label={t("light")} value="light">
               <Sun />
-              Light
+              {t("light")}
             </ToggleGroupItem>
-            <ToggleGroupItem aria-label="Dark" value="dark">
+            <ToggleGroupItem aria-label={t("dark")} value="dark">
               <Moon />
-              Dark
+              {t("dark")}
             </ToggleGroupItem>
-            <ToggleGroupItem aria-label="System" value="system">
+            <ToggleGroupItem aria-label={t("system")} value="system">
               <Monitor />
-              System
+              {t("system")}
             </ToggleGroupItem>
           </ToggleGroup>
         )}
       </CardContent>
       <CardFooter>
-        <FieldDescription>Changes are applied immediately.</FieldDescription>
+        <FieldDescription>{t("helperText")}</FieldDescription>
       </CardFooter>
     </Card>
   );

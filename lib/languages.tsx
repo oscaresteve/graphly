@@ -1,10 +1,10 @@
 export type LanguageOption = {
   code: string;
-  label: string;
+  labelKey: string;
   flag: string;
 };
 
 export const LANGUAGES: LanguageOption[] = [
-  { code: "en", label: "English", flag: "🇺🇸" },
-  { code: "es", label: "Spanish", flag: "🇪🇸" },
+  { code: "en", labelKey: "english", flag: "🇺🇸" },
+  { code: "es", labelKey: "spanish", flag: "🇪🇸" },
 ];

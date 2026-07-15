@@ -18,6 +18,7 @@ import {
 import { FieldDescription } from "@/components/ui/field";
 import { LANGUAGES } from "@/lib/languages";
 import { ChevronDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -25,22 +26,19 @@ export default function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const t = useTranslations("language-toggle");
 
   function handleApply() {
     setPending(true);
     router.refresh();
-    // si tu i18n también depende de estado de cliente (contexto),
-    // resetéalo aquí para que no quede desincronizado con el server
     setPending(false);
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Language</CardTitle>
-        <CardDescription>
-          Select your preferred language for the application interface.
-        </CardDescription>
+        <CardTitle>{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <DropdownMenu>
@@ -51,7 +49,12 @@ export default function LanguageToggle() {
             >
               <div className="flex items-center gap-2">
                 <span>{LANGUAGES.find((l) => l.code === language)?.flag}</span>
-                <span>{LANGUAGES.find((l) => l.code === language)?.label}</span>
+                <span>
+                  {t(
+                    LANGUAGES.find((l) => l.code === language)?.labelKey ||
+                      "unknown",
+                  )}
+                </span>
               </div>
 
               <ChevronDown className="h-4 w-4 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180" />
@@ -59,7 +62,7 @@ export default function LanguageToggle() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-(--radix-dropdown-menu-trigger-width) flex flex-col gap-1 p-1.5"
+            className="flex w-(--radix-dropdown-menu-trigger-width) flex-col gap-1 p-1.5"
           >
             {LANGUAGES.map((lang) => (
               <DropdownMenuItem
@@ -69,7 +72,7 @@ export default function LanguageToggle() {
               >
                 <div className="flex items-center gap-2">
                   <span>{lang.flag}</span>
-                  <span>{lang.label}</span>
+                  <span>{t(lang.labelKey)}</span>
                 </div>
               </DropdownMenuItem>
             ))}
@@ -77,9 +80,9 @@ export default function LanguageToggle() {
         </DropdownMenu>
       </CardContent>
       <CardFooter className="justify-between gap-4">
-        <FieldDescription>Some changes will take effect after clicking Apply.</FieldDescription>
+        <FieldDescription>{t("helperText")}</FieldDescription>
         <Button onClick={handleApply} disabled={pending}>
-          {pending ? "Applying..." : "Apply"}
+          {pending ? t("applying") : t("apply")}
         </Button>
       </CardFooter>
     </Card>

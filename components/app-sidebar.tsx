@@ -35,16 +35,19 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
+  const t = useTranslations();
   const pathname = usePathname();
   const { user } = useUser();
   const { openUserProfile, signOut } = useClerk();
-  const displayName = user?.fullName || user?.username || "User";
+  const displayName =
+    user?.fullName ||
+    user?.username ||
+    t("app-sidebar.avatar.displayNameFallback");
   const email = user?.primaryEmailAddress?.emailAddress;
   const imageUrl = user?.hasImage ? user.imageUrl : undefined;
   const initials = displayName.charAt(0).toUpperCase();
   const { setOpenMobile } = useSidebar();
   const hasMetricNavigationItems = metricNavigationItems.length > 0;
-  const t = useTranslations();
 
   useEffect(() => {
     setOpenMobile(false);
@@ -96,7 +99,9 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Metrics</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {t("app-sidebar.metrics.title")}
+          </SidebarGroupLabel>
           <SidebarGroupAction asChild>
             <Link href="/metrics/new">
               <Plus />
@@ -126,7 +131,7 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                   <div className="flex flex-col items-center justify-center gap-1 p-2">
                     <LineChart className="text-muted-foreground size-4" />
                     <p className="text-muted-foreground text-xs italic">
-                      No metrics yet.
+                      {t("app-sidebar.metrics.empty")}
                     </p>
                   </div>
                 </SidebarMenuItem>
@@ -174,12 +179,12 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                   <LogOut />
                 </Button>
               }
-              title={"Log out?"}
-              description={"You will need to sign in again"}
+              title={t("app-sidebar.logout-dialog.title")}
+              description={t("app-sidebar.logout-dialog.description")}
               handleAction={() =>
                 void signOut({ redirectUrl: "/auth/sign-in" })
               }
-              actionLabel="Log out"
+              actionLabel={t("app-sidebar.logout-dialog.actionLabel")}
               Icon={LogOut}
             />
           </SidebarMenuItem>

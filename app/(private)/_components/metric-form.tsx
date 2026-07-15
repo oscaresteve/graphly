@@ -30,6 +30,7 @@ import {
 } from "../_lib/action-state";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type CreateMetricField = "name" | "description" | "unitId";
 type UpdateMetricField = "metricId" | CreateMetricField;
@@ -52,6 +53,7 @@ type MetricFormProps =
     };
 
 export function MetricForm({ units, metric, mode }: MetricFormProps) {
+  const t = useTranslations("metric-form");
   const router = useRouter();
   const isUpdateMode = mode === "update";
   const action = isUpdateMode ? updateMetricAction : createMetricAction;
@@ -70,16 +72,20 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
 
   useEffect(() => {
     if (state.success) {
-      toast.success(isUpdateMode ? "Metric updated" : "Metric created");
+      toast.success(isUpdateMode ? t("toastUpdated") : t("toastCreated"));
       if (state.redirectTo) {
         router.push(state.redirectTo);
       }
     }
-  }, [state, isUpdateMode, router]);
+  }, [state, isUpdateMode, router, t]);
 
   const cancelHref = isUpdateMode && metric ? `/metrics/${metric.id}` : "/";
-  const submitLabel = isUpdateMode ? "Save changes" : "Create Metric";
-  const pendingLabel = isUpdateMode ? "Saving..." : "Creating...";
+  const submitLabel = isUpdateMode
+    ? t("submitLabelUpdate")
+    : t("submitLabelCreate");
+  const pendingLabel = isUpdateMode
+    ? t("pendingLabelUpdate")
+    : t("pendingLabelCreate");
   const nameErrors = getFieldErrors(state, "name");
   const descriptionErrors = getFieldErrors(state, "description");
   const unitErrors = getFieldErrors(state, "unitId");
@@ -97,38 +103,34 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
         )}
 
         <Field data-invalid={hasNameErrors}>
-          <FieldLabel htmlFor="name">Name</FieldLabel>
+          <FieldLabel htmlFor="name">{t("nameLabel")}</FieldLabel>
           <Input
             id="name"
             name="name"
             defaultValue={metric?.name ?? ""}
-            placeholder="Weight, revenue, sleep"
+            placeholder={t("namePlaceholder")}
             aria-invalid={hasNameErrors}
           />
           {hasNameErrors ? (
             <FieldError errors={nameErrors} />
           ) : (
-            <FieldDescription>
-              Use between 3 and 100 characters.
-            </FieldDescription>
+            <FieldDescription>{t("nameDescription")}</FieldDescription>
           )}
         </Field>
 
         <Field data-invalid={hasDescriptionErrors}>
-          <FieldLabel htmlFor="description">Description</FieldLabel>
+          <FieldLabel htmlFor="description">{t("descriptionLabel")}</FieldLabel>
           <Textarea
             id="description"
             name="description"
             defaultValue={metric?.description ?? ""}
-            placeholder="What this metric helps you understand"
+            placeholder={t("descriptionPlaceholder")}
             aria-invalid={hasDescriptionErrors}
           />
           {hasDescriptionErrors ? (
             <FieldError errors={descriptionErrors} />
           ) : (
-            <FieldDescription>
-              Optional, but useful when the metric needs context.
-            </FieldDescription>
+            <FieldDescription>{t("descriptionDescription")}</FieldDescription>
           )}
         </Field>
 
@@ -136,7 +138,7 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
           data-disabled={units.length === 0 ? true : undefined}
           data-invalid={hasUnitErrors}
         >
-          <FieldLabel htmlFor="unit">Unit</FieldLabel>
+          <FieldLabel htmlFor="unit">{t("unitLabel")}</FieldLabel>
 
           <Combobox
             items={units}
@@ -149,13 +151,13 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
           >
             <ComboboxInput
               id="unit"
-              placeholder="Select a unit"
+              placeholder={t("unitPlaceholder")}
               showClear
               aria-invalid={hasUnitErrors}
             />
 
             <ComboboxContent>
-              <ComboboxEmpty>No units found.</ComboboxEmpty>
+              <ComboboxEmpty>{t("unitComboboxEmpty")}</ComboboxEmpty>
               <ComboboxList>
                 {(unit) => (
                   <ComboboxItem key={unit.id} value={unit}>
@@ -169,15 +171,13 @@ export function MetricForm({ units, metric, mode }: MetricFormProps) {
           {hasUnitErrors ? (
             <FieldError errors={unitErrors} />
           ) : (
-            <FieldDescription>
-              This defines how each value will be shown.
-            </FieldDescription>
+            <FieldDescription>{t("unitDescription")}</FieldDescription>
           )}
         </Field>
 
         <Field orientation="horizontal" className="justify-end">
           <Button asChild variant="outline" disabled={isPending}>
-            <Link href={cancelHref}>Cancel</Link>
+            <Link href={cancelHref}>{t("cancel")}</Link>
           </Button>
           <Button type="submit" disabled={units.length === 0 || isPending}>
             {!isUpdateMode ? (

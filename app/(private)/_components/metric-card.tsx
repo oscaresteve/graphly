@@ -17,6 +17,7 @@ import { CalendarDateString, parseCalendarDate } from "@/lib/date";
 import { useMemo } from "react";
 import { EntryFormModal } from "./entry-form-modal";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocale, useTranslations } from "next-intl";
 
 type MetricCardProps = {
   id: string;
@@ -40,6 +41,9 @@ export function MetricCard({
   today,
   unit,
 }: MetricCardProps) {
+  const t = useTranslations("metric-card");
+  const locale = useLocale();
+
   const lastEntry = entries[entries.length - 1];
   const todayEntry = entries.find((entry) => entry.date === today);
   const hasEnoughEntries = entries.length > 2;
@@ -61,10 +65,13 @@ export function MetricCard({
         {lastEntry ? (
           <div className="flex items-end justify-between gap-2">
             <p className="text-muted-foreground truncate text-sm">
-              {formatRelativeCalendarDate(lastEntry.date, today)}
+              {formatRelativeCalendarDate(lastEntry.date, today, locale, {
+                today: t("today"),
+                yesterday: t("yesterday"),
+              })}
             </p>
-            <p className="text-foreground text-xl font-medium min-w-max">
-              {formatMetricValue(lastEntry.value)}{" "}
+            <p className="text-foreground min-w-max text-xl font-medium">
+              {formatMetricValue(lastEntry.value, locale)}{" "}
               <span className="text-muted-foreground text-xs">
                 {unit.symbol}
               </span>
@@ -73,9 +80,9 @@ export function MetricCard({
         ) : (
           <div className="flex items-end justify-between gap-2 italic">
             <p className="text-muted-foreground truncate text-sm">
-              No data available.
+              {t("noData")}
             </p>
-            <p className="text-muted-foreground text-xl font-medium min-w-max">
+            <p className="text-muted-foreground min-w-max text-xl font-medium">
               N/A{" "}
               <span className="text-muted-foreground text-xs">
                 {unit.symbol}
@@ -100,7 +107,7 @@ export function MetricCard({
                 trigger={
                   <Button type="button" size="sm">
                     <Plus data-icon="inline-start" />
-                    Log today
+                    {t("logToday")}
                   </Button>
                 }
                 unit={unit}
@@ -110,7 +117,7 @@ export function MetricCard({
               asChild
               variant="ghost"
               size="icon-sm"
-              aria-label="View details"
+              aria-label={t("viewDetails")}
             >
               <Link href={`/metrics/${id}`}>
                 <ChevronRight />
@@ -125,7 +132,7 @@ export function MetricCard({
             className="pointer-events-none aspect-auto h-full w-full"
             config={{
               value: {
-                label: "Value",
+                label: t("value"),
                 color: "var(--chart-1)",
               },
             }}
@@ -157,7 +164,7 @@ export function MetricCard({
           <div className="flex flex-1 flex-col items-center justify-center gap-1">
             <LineChartIcon className="text-muted-foreground size-4" />
             <p className="text-muted-foreground text-xs italic">
-              Not enough data.
+              {t("notEnoughData")}
             </p>
           </div>
         )}

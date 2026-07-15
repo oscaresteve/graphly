@@ -5,8 +5,10 @@ import Link from "next/link";
 import { loadDashboardPageData } from "./loader";
 import { MetricCard } from "./_components/metric-card";
 import MetricsEmptyState from "./_components/metrics-empty-state";
+import { getTranslations } from "next-intl/server";
 
 export default async function Dashboard() {
+  const t = await getTranslations("dashboard");
   const { metrics, today } = await loadDashboardPageData();
   const hasMetrics = metrics.length > 0;
 
@@ -30,7 +32,7 @@ export default async function Dashboard() {
       </div>
       <AppPrimaryAction>
         <Button asChild size="icon-lg">
-          <Link href="/metrics/new" aria-label="New Metric">
+          <Link href="/metrics/new" aria-label={t("newMetric")}>
             <Plus data-icon="inline-start" />
           </Link>
         </Button>
