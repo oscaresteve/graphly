@@ -20,7 +20,7 @@ export async function loadLayoutData(): Promise<{
   const metricNames = await listMetricNamesForUser(userId);
   const metricNavigationItems = metricNames.map((metric) => ({
     href: "/metrics/" + metric.id,
-    title: metric.name,
+    titleKey: metric.name,
   }));
 
   return {
