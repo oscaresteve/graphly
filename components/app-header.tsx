@@ -19,7 +19,7 @@ export function AppHeader({ metricNavigationItems }: AppHeaderProps) {
   const t = useTranslations();
 
   return (
-    <header className="bg-background sticky top-0 flex h-12 items-center rounded-t-xl border-b p-2">
+    <header className="bg-background sticky z-60 top-0 flex h-12 items-center rounded-t-xl border-b p-2">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="cursor-pointer" />
         <Separator orientation="vertical" className="my-auto h-4" />
