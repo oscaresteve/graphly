@@ -118,10 +118,10 @@ export function AppSidebar({ metricNavigationItems }: AppSidebarProps) {
                         pathname,
                         href: item.href,
                       })}
-                      tooltip={item.titleKey}
+                      tooltip={item.title}
                     >
                       <Link href={item.href}>
-                        <span>{item.titleKey}</span>
+                        <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

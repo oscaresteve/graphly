@@ -27,7 +27,8 @@ export type MetricView = {
 
 export type MetricNavigationItem = {
   href: string;
-  titleKey: string;
+  /** Nombre que escribió el usuario: se muestra literal, nunca se traduce. */
+  title: string;
 };
 
 export type UnitOption = Pick<MetricUnitView, "id" | "name" | "symbol">;

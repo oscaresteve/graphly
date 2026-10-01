@@ -51,13 +51,13 @@ export function isNavigationItemActive({
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function getActiveNavigationItem({
+export function getActiveNavigationItem<Item extends { href: string }>({
   pathname,
   items,
 }: {
   pathname: string;
-  items: NavigationItem[];
-}): NavigationItem | undefined {
+  items: Item[];
+}): Item | undefined {
   return items.find((item) =>
     isNavigationItemActive({ pathname, href: item.href }),
   );
